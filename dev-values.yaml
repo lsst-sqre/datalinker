@@ -1,0 +1,5 @@
+ingress:
+  host: "minikube.lsst.codes"
+
+image:
+  tag: "dev"
