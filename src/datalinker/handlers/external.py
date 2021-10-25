@@ -1,6 +1,7 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import RedirectResponse
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
 from structlog.stdlib import BoundLogger
@@ -48,3 +49,26 @@ async def get_index(
         application_name=config.name,
     )
     return Index(metadata=metadata)
+
+
+@external_router.get("/cone_search", response_class=RedirectResponse)
+async def cone_search(
+    table: str,
+    ra_col: str,
+    dec_col: str,
+    ra_val: str,
+    dec_val: str,
+    radius: str,
+    logger: BoundLogger = Depends(logger_dependency),
+) -> RedirectResponse:
+
+    url = (
+        "/api/tap/sync?LANG=ADQL&REQUEST=doQuery"
+        + f"&QUERY=SELECT+*+FROM+{table}+WHERE+CONTAINS("
+        + f"POINT('ICRS',{ra_col},{dec_col}),"
+        + f"CIRCLE('ICRS',{ra_val},{dec_val},{radius})"
+        + ")=1"
+    )
+
+    logger.info(f"Redirecting to {url}")
+    return url
