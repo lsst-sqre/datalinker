@@ -60,7 +60,7 @@ async def cone_search(
     dec_val: str,
     radius: str,
     logger: BoundLogger = Depends(logger_dependency),
-) -> RedirectResponse:
+) -> str:
 
     url = (
         "/api/tap/sync?LANG=ADQL&REQUEST=doQuery"
