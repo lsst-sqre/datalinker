@@ -34,8 +34,12 @@ app = FastAPI()
 # interface definition and documentation URLs under the external URL.
 _subapp = FastAPI(
     title="datalinker",
-    description=metadata("datalinker").get("Summary", ""),
-    version=metadata("datalinker").get("Version", "0.0.0"),
+    description=metadata("datalinker").get(  # type: ignore[attr-defined]
+        "Summary", ""
+    ),
+    version=metadata("datalinker").get(  # type: ignore[attr-defined]
+        "Version", "0.0.0"
+    ),
 )
 _subapp.include_router(external_router)
 
