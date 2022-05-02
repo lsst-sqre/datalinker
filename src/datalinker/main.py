@@ -7,7 +7,7 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
-from importlib.metadata import metadata
+from importlib.metadata import metadata, version
 
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
@@ -34,12 +34,8 @@ app = FastAPI()
 # interface definition and documentation URLs under the external URL.
 _subapp = FastAPI(
     title="datalinker",
-    description=metadata("datalinker").get(  # type: ignore[attr-defined]
-        "Summary", ""
-    ),
-    version=metadata("datalinker").get(  # type: ignore[attr-defined]
-        "Version", "0.0.0"
-    ),
+    description=metadata("datalinker")["Summary"],
+    version=version("datalinker"),
 )
 _subapp.include_router(external_router)
 
