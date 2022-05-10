@@ -14,3 +14,4 @@ uvicorn[standard]
 # Other dependencies.
 safir
 astropy
+git+https://github.com/lsst/daf_butler.git@main#daf_butler
