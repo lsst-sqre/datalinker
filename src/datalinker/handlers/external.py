@@ -1,7 +1,11 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
+from io import BytesIO
+from typing import Generator
+
+from astropy.io.votable.tree import Field, Resource, Table, VOTableFile
 from fastapi import APIRouter, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
 from structlog.stdlib import BoundLogger
@@ -72,3 +76,83 @@ async def cone_search(
 
     logger.info(f"Redirecting to {url}")
     return url
+
+
+@external_router.get("/links", response_class=StreamingResponse)
+async def links(
+    id: str,
+    logger: BoundLogger = Depends(logger_dependency),
+) -> StreamingResponse:
+    votable = VOTableFile()
+    resource = Resource()
+    table = Table(votable)
+
+    votable.resources.append(resource)
+    resource.tables.append(table)
+
+    table.fields.extend(
+        [
+            Field(
+                votable,
+                ID="ID",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.id;meta.main",
+            ),
+            Field(
+                votable,
+                ID="access_url",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.ref.url",
+            ),
+            Field(
+                votable,
+                ID="description",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.note",
+            ),
+            Field(
+                votable,
+                ID="semantics",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.code",
+            ),
+            Field(
+                votable,
+                ID="content_type",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.code.mime",
+            ),
+            Field(
+                votable,
+                ID="content_length",
+                datatype="double",
+                arraysize="1",
+                ucd="phys.size;meta.file",
+            ),
+        ]
+    )
+
+    table.create_arrays(1)
+    table.array[0] = (
+        id,
+        "signed-url",
+        f"Links for {id}",
+        "semantics",
+        "application/fits",
+        0,
+    )
+
+    def iter_result() -> Generator:
+        with BytesIO() as fd:
+            votable.to_xml(fd)
+            fd.seek(0)
+            yield from fd
+
+    return StreamingResponse(
+        iter_result(), media_type="application/x-votable+xml"
+    )
