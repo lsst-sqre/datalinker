@@ -1,6 +1,7 @@
 ingress:
   enabled: true
   host: "minikube.lsst.codes"
+  className: "nginx"
 
 image:
   pullPolicy: Never
