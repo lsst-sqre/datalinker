@@ -72,4 +72,5 @@ USER appuser
 EXPOSE 8080
 
 # Run the application.
-CMD ["uvicorn", "datalinker.main:app", "--host", "0.0.0.0", "--port", "8080"]
+COPY start.sh /
+CMD ["/start.sh"]
