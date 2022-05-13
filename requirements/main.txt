@@ -18,6 +18,13 @@ astropy==5.0.4
     #   -r requirements/main.in
     #   daf-butler
     #   healpy
+    #   lsst-utils
+boto3==1.22.13
+    # via -r requirements/main.in
+botocore==1.25.13
+    # via
+    #   boto3
+    #   s3transfer
 certifi==2021.10.8
     # via
     #   httpcore
@@ -56,6 +63,10 @@ idna==3.3
     # via
     #   anyio
     #   rfc3986
+jmespath==1.0.0
+    # via
+    #   boto3
+    #   botocore
 kiwisolver==1.4.2
     # via matplotlib
 lsst-resources @ git+https://github.com/lsst/resources@main
@@ -73,6 +84,7 @@ numpy==1.22.3
     #   astropy
     #   healpy
     #   lsst-sphgeom
+    #   lsst-utils
     #   matplotlib
     #   pyerfa
     #   scipy
@@ -82,6 +94,10 @@ packaging==21.3
     #   matplotlib
 pillow==9.1.0
     # via matplotlib
+psutil==5.9.0
+    # via lsst-utils
+psycopg2==2.9.3
+    # via -r requirements/main.in
 pydantic==1.9.0
     # via
     #   daf-butler
@@ -89,21 +105,26 @@ pydantic==1.9.0
     #   safir
 pyerfa==2.0.0.1
     # via astropy
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via
     #   matplotlib
     #   packaging
 python-dateutil==2.8.2
-    # via matplotlib
+    # via
+    #   botocore
+    #   matplotlib
 python-dotenv==0.20.0
     # via uvicorn
 pyyaml==6.0
     # via
     #   astropy
     #   daf-butler
+    #   lsst-utils
     #   uvicorn
 rfc3986[idna2008]==1.5.0
     # via httpx
+s3transfer==0.5.2
+    # via boto3
 safir==3.0.2
     # via -r requirements/main.in
 scipy==1.8.0
@@ -124,8 +145,12 @@ starlette==0.19.1 \
     #   safir
 structlog==21.5.0
     # via safir
+threadpoolctl==3.1.0
+    # via lsst-utils
 typing-extensions==4.2.0
     # via pydantic
+urllib3==1.26.9
+    # via botocore
 uvicorn[standard]==0.17.6
     # via -r requirements/main.in
 uvloop==0.16.0
