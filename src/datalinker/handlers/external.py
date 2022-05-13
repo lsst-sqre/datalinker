@@ -2,10 +2,13 @@
 
 from io import BytesIO
 from typing import Generator
+from urllib.parse import urlparse
+from uuid import UUID
 
 from astropy.io.votable.tree import Field, Resource, Table, VOTableFile
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse, StreamingResponse
+from lsst.daf.butler import Butler
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
 from structlog.stdlib import BoundLogger
@@ -83,6 +86,25 @@ async def links(
     id: str,
     logger: BoundLogger = Depends(logger_dependency),
 ) -> StreamingResponse:
+    # Parse the "butler://label/uuid" ID URI
+    butler_uri = urlparse(id)
+    label = butler_uri.netloc
+    uuid_str = butler_uri.path[1:]
+    logger.info(f"Loading {label} {uuid_str}")
+
+    uuid = UUID(uuid_str)
+    butler = Butler(label)  # Cache this by netloc
+
+    # This returns lsst.resources.ResourcePath
+    ref = butler.registry.getDataset(uuid)
+    if not ref:
+        logger.error("Dataset does not exist")
+        image_uri = None
+    else:
+        image_uri = butler.datastore.getURI(ref)
+
+    logger.info(f"Image_uri is: {image_uri}")
+
     votable = VOTableFile()
     resource = Resource()
     table = Table(votable)
@@ -140,7 +162,7 @@ async def links(
     table.create_arrays(1)
     table.array[0] = (
         id,
-        "signed-url",
+        image_uri,
         f"Links for {id}",
         "semantics",
         "application/fits",
