@@ -162,7 +162,7 @@ async def links(
     table.create_arrays(1)
     table.array[0] = (
         id,
-        image_uri,
+        str(image_uri),
         f"Links for {id}",
         "semantics",
         "application/fits",
