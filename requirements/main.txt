@@ -4,45 +4,70 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements/main.txt requirements/main.in
 #
-anyio==3.6.1 \
-    --hash=sha256:413adf95f93886e442aea925f3ee43baa5a765a64a0f52c6081894f9992fdd0b \
-    --hash=sha256:cb29b9c70620506a9a8f87a309591713446953302d7d995344d0d7c6c0c9a7be
+anyio==3.6.1
     # via
     #   httpcore
     #   starlette
     #   watchgod
-asgiref==3.5.1
+asgiref==3.5.2
     # via uvicorn
 astropy==5.0.4
     # via
     #   -r requirements/main.in
     #   daf-butler
     #   healpy
-    #   lsst-utils
-boto3==1.22.13
+boto3==1.23.1
     # via -r requirements/main.in
-botocore==1.25.13
+botocore==1.26.1
     # via
     #   boto3
     #   s3transfer
+cachetools==5.1.0
+    # via google-auth
 certifi==2021.10.8
     # via
     #   httpcore
     #   httpx
+    #   requests
 charset-normalizer==2.0.12
-    # via httpx
-click==8.1.3 \
-    --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
-    --hash=sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48
-    # via uvicorn
-fastapi==0.78.0 \
-    --hash=sha256:15fcabd5c78c266fa7ae7d8de9b384bfc2375ee0503463a6febbe3bab69d6f65 \
-    --hash=sha256:3233d4a789ba018578658e2af1a4bb5e38bdd122ff722b313666a9b2c6786a83
+    # via
+    #   httpx
+    #   requests
+click==8.1.3
+    # via
+    #   daf-butler
+    #   uvicorn
+cycler==0.11.0
+    # via matplotlib
+daf-butler @ git+https://github.com/lsst/daf_butler.git@main
+    # via -r requirements/main.in
+deprecated==1.2.13
+    # via daf-butler
+fastapi==0.78.0
     # via
     #   -r requirements/main.in
     #   safir
 fonttools==4.33.3
     # via matplotlib
+google-api-core==2.7.3
+    # via
+    #   google-cloud-core
+    #   google-cloud-storage
+google-auth==2.6.6
+    # via
+    #   google-api-core
+    #   google-cloud-core
+    #   google-cloud-storage
+google-cloud-core==2.3.0
+    # via google-cloud-storage
+google-cloud-storage==2.3.0
+    # via -r requirements/main.in
+google-crc32c==1.3.0
+    # via google-resumable-media
+google-resumable-media==2.3.2
+    # via google-cloud-storage
+googleapis-common-protos==1.56.1
+    # via google-api-core
 greenlet==1.1.2
     # via sqlalchemy
 gunicorn==20.1.0
@@ -62,6 +87,7 @@ httpx==0.22.0
 idna==3.3
     # via
     #   anyio
+    #   requests
     #   rfc3986
 jmespath==1.0.0
     # via
@@ -84,7 +110,6 @@ numpy==1.22.3
     #   astropy
     #   healpy
     #   lsst-sphgeom
-    #   lsst-utils
     #   matplotlib
     #   pyerfa
     #   scipy
@@ -94,10 +119,19 @@ packaging==21.3
     #   matplotlib
 pillow==9.1.0
     # via matplotlib
-psutil==5.9.0
-    # via lsst-utils
+protobuf==3.20.1
+    # via
+    #   google-api-core
+    #   google-cloud-storage
+    #   googleapis-common-protos
 psycopg2==2.9.3
     # via -r requirements/main.in
+pyasn1==0.4.8
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.2.8
+    # via google-auth
 pydantic==1.9.0
     # via
     #   daf-butler
@@ -119,38 +153,45 @@ pyyaml==6.0
     # via
     #   astropy
     #   daf-butler
-    #   lsst-utils
     #   uvicorn
+requests==2.27.1
+    # via
+    #   google-api-core
+    #   google-cloud-storage
 rfc3986[idna2008]==1.5.0
     # via httpx
+rsa==4.8
+    # via google-auth
 s3transfer==0.5.2
     # via boto3
-safir==3.0.2
+safir==3.0.3
     # via -r requirements/main.in
 scipy==1.8.0
     # via healpy
 six==1.16.0
-    # via python-dateutil
+    # via
+    #   google-auth
+    #   python-dateutil
 sniffio==1.2.0
     # via
     #   anyio
     #   httpcore
     #   httpx
-starlette==0.19.1 \
-    --hash=sha256:5a60c5c2d051f3a8eb546136aa0c9399773a689595e099e0877704d5888279bf \
-    --hash=sha256:c6d21096774ecb9639acad41b86b7706e52ba3bf1dc13ea4ed9ad593d47e24c7
+sqlalchemy==1.4.36
+    # via daf-butler
+starlette==0.19.1
     # via
     #   -r requirements/main.in
     #   fastapi
     #   safir
 structlog==21.5.0
     # via safir
-threadpoolctl==3.1.0
-    # via lsst-utils
 typing-extensions==4.2.0
     # via pydantic
 urllib3==1.26.9
-    # via botocore
+    # via
+    #   botocore
+    #   requests
 uvicorn[standard]==0.17.6
     # via -r requirements/main.in
 uvloop==0.16.0
@@ -163,5 +204,5 @@ wrapt==1.14.1
     # via deprecated
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.2.0
+setuptools==62.3.0
     # via gunicorn

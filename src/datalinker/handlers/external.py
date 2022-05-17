@@ -1,5 +1,6 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
+from datetime import timedelta
 from io import BytesIO
 from typing import Generator
 from urllib.parse import urlparse
@@ -8,6 +9,7 @@ from uuid import UUID
 from astropy.io.votable.tree import Field, Resource, Table, VOTableFile
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse, StreamingResponse
+from google.cloud import storage
 from lsst.daf.butler import Butler
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
@@ -159,10 +161,24 @@ async def links(
         ]
     )
 
+    # Generate signed URL
+    image_uri_parts = urlparse(str(image_uri))
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(image_uri_parts.netloc)
+    blob = bucket.blob(image_uri_parts.path[1:])
+
+    signed_url = blob.generate_signed_url(
+        version="v4",
+        # This URL is valid for 15 minutes
+        expiration=timedelta(minutes=15),
+        # Allow GET requests using this URL.
+        method="GET",
+    )
+
     table.create_arrays(1)
     table.array[0] = (
         id,
-        str(image_uri),
+        signed_url,
         f"Links for {id}",
         "semantics",
         "application/fits",
