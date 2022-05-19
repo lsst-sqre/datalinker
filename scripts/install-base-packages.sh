@@ -27,7 +27,7 @@ apt-get update
 apt-get -y upgrade
 
 # Example of installing a new package, without unnecessary packages:
-apt-get -y install --no-install-recommends git
+apt-get -y install --no-install-recommends git postgresql libpq-dev
 
 # Delete cached files we don't need anymore:
 apt-get clean

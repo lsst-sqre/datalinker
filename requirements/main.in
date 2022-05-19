@@ -13,3 +13,8 @@ uvicorn[standard]
 
 # Other dependencies.
 safir
+astropy
+boto3
+git+https://github.com/lsst/daf_butler.git@main#daf_butler
+psycopg2
+google-cloud-storage

@@ -1,6 +1,10 @@
+global:
+  vaultSecretsPath: "secret/k8s_operator/minikube.lsst.codes"
+
 ingress:
   enabled: true
   host: "minikube.lsst.codes"
+  className: "nginx"
 
 image:
   pullPolicy: Never
