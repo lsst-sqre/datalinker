@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from io import BytesIO
-from typing import Generator
+from typing import Dict, Generator
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -83,6 +83,22 @@ async def cone_search(
     return url
 
 
+_butler_cache: Dict[str, Butler] = dict()
+
+
+def retrieve_butler(label: str) -> Butler:
+    # Best effort to cache butler objects.
+    # Don't bother adding a lock in, it's fine to make
+    # a couple if there's a race condition, they'll get
+    # cleaned up.
+    if label in _butler_cache:
+        return _butler_cache[label]
+
+    b = Butler(label)
+    _butler_cache[label] = b
+    return b
+
+
 @external_router.get("/links", response_class=StreamingResponse)
 async def links(
     id: str,
@@ -95,7 +111,7 @@ async def links(
     logger.info(f"Loading {label} {uuid_str}")
 
     uuid = UUID(uuid_str)
-    butler = Butler(label)  # Cache this by netloc
+    butler = retrieve_butler(label)
 
     # This returns lsst.resources.ResourcePath
     ref = butler.registry.getDataset(uuid)
