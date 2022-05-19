@@ -17,6 +17,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
+from .middleware import CaseInsensitiveQueryMiddleware
 
 __all__ = ["app", "config"]
 
@@ -47,6 +48,7 @@ app.mount("/api/datalink/", _subapp)
 @app.on_event("startup")
 async def startup_event() -> None:
     app.add_middleware(XForwardedMiddleware)
+    app.add_middleware(CaseInsensitiveQueryMiddleware)
 
 
 @app.on_event("shutdown")
