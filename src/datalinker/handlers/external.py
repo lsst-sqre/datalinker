@@ -169,8 +169,8 @@ async def links(
 
     signed_url = blob.generate_signed_url(
         version="v4",
-        # This URL is valid for 15 minutes
-        expiration=timedelta(minutes=15),
+        # This URL is valid for one hour.
+        expiration=timedelta(hours=1),
         # Allow GET requests using this URL.
         method="GET",
     )
