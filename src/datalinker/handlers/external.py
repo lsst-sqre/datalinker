@@ -238,7 +238,7 @@ async def links(
         "SODA image cutout service",
         "#cutout",
         "application/fits",
-        None,
+        0,
     )
 
     # Add resource containing SODA descriptor for cutout service
