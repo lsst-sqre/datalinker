@@ -1,21 +1,14 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
 from datetime import timedelta
-from io import BytesIO
-from typing import Dict, Generator
+from pathlib import Path
+from typing import Dict
 from urllib.parse import urlparse
 from uuid import UUID
 
-from astropy.io.votable.tree import (
-    Field,
-    Group,
-    Param,
-    Resource,
-    Table,
-    VOTableFile,
-)
-from fastapi import APIRouter, Depends
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi import APIRouter, Depends, Request, Response
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
 from google.cloud import storage
 from lsst.daf.butler import Butler
 from safir.dependencies.logger import logger_dependency
@@ -25,10 +18,14 @@ from structlog.stdlib import BoundLogger
 from ..config import config
 from ..models import Index
 
-__all__ = ["get_index", "external_router"]
-
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
+
+_templates = Jinja2Templates(
+    directory=str(Path(__file__).parent.parent / "templates")
+)
+
+__all__ = ["get_index", "external_router"]
 
 
 @external_router.get(
@@ -106,11 +103,12 @@ def retrieve_butler(label: str) -> Butler:
     return b
 
 
-@external_router.get("/links", response_class=StreamingResponse)
-async def links(
+@external_router.get("/links")
+def links(
     id: str,
+    request: Request,
     logger: BoundLogger = Depends(logger_dependency),
-) -> StreamingResponse:
+) -> Response:
     # Parse the "butler://label/uuid" ID URI
     butler_uri = urlparse(id)
     label = butler_uri.netloc
@@ -130,77 +128,6 @@ async def links(
 
     logger.info(f"Image_uri is: {image_uri}")
 
-    votable = VOTableFile()
-    resource = Resource()
-    table = Table(
-        votable, descriptions=f"Links table for observation dataset {id}"
-    )
-
-    votable.resources.append(resource)
-    resource.tables.append(table)
-
-    table.fields.extend(
-        [
-            Field(
-                votable,
-                ID="ID",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.id;meta.main",
-            ),
-            Field(
-                votable,
-                ID="access_url",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.ref.url",
-            ),
-            Field(
-                votable,
-                ID="service_def",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.ref",
-            ),
-            Field(
-                votable,
-                ID="error_message",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.code.error",
-            ),
-            Field(
-                votable,
-                ID="description",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.note",
-            ),
-            Field(
-                votable,
-                ID="semantics",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.code",
-            ),
-            Field(
-                votable,
-                ID="content_type",
-                datatype="char",
-                arraysize="*",
-                ucd="meta.code.mime",
-            ),
-            Field(
-                votable,
-                ID="content_length",
-                datatype="long",
-                arraysize="1",
-                ucd="phys.size;meta.file",
-                unit="byte",
-            ),
-        ]
-    )
-
     # Generate signed URL
     image_uri_parts = urlparse(str(image_uri))
     storage_client = storage.Client()
@@ -219,91 +146,14 @@ async def links(
     if image_uri:
         image_size = image_uri.size()
 
-    table.create_arrays(2)
-    table.array[0] = (
-        id,
-        signed_url,
-        "",
-        "",
-        "Primary image or observation data file",
-        "#this",
-        "application/fits",
-        image_size,
-    )
-    table.array[1] = (
-        id,
-        "",
-        "cutout-sync",
-        "",
-        "SODA image cutout service",
-        "#cutout",
-        "application/fits",
-        0,
-    )
-
-    # Add resource containing SODA descriptor for cutout service
-    soda_resource = Resource(
-        id="cutout-sync",
-        utype="adhoc:service",
-        type="meta",
-        groups=[
-            Group(
-                votable,
-                name="inputParams",
-                entries=[
-                    Param(
-                        votable,
-                        arraysize="*",
-                        datatype="char",
-                        name="ID",
-                        ucd="meta.id;meta.main",
-                        value=id,
-                    ),
-                    Param(
-                        votable,
-                        arraysize="*",
-                        datatype="double",
-                        name="POLYGON",
-                        ucd="pos.outline;obs",
-                        unit="deg",
-                        value="",
-                    ),
-                    Param(
-                        votable,
-                        arraysize="3",
-                        datatype="double",
-                        name="CIRCLE",
-                        ucd="pos.outline;obs",
-                        unit="deg",
-                        value="",
-                    ),
-                    Param(
-                        votable,
-                        arraysize="*",
-                        datatype="char",
-                        name="accessURL",
-                        ucd="meta.ref.url",
-                        value=config.cutout_url,
-                    ),
-                    Param(
-                        votable,
-                        arraysize="*",
-                        datatype="char",
-                        name="standardID",
-                        value="ivo://ivoa.net/std/SODA#sync-1.0",
-                    ),
-                ],
-            )
-        ],
-    )
-    votable.resources.append(soda_resource)
-
-    def iter_result() -> Generator:
-        with BytesIO() as fd:
-            votable.to_xml(fd)
-            fd.seek(0)
-            yield from fd
-
-    return StreamingResponse(
-        iter_result(), media_type="application/x-votable+xml"
+    return _templates.TemplateResponse(
+        "links.xml",
+        {
+            "id": id,
+            "image_url": signed_url,
+            "image_size": image_size,
+            "cutout_url": config.cutout_url,
+            "request": request,
+        },
+        media_type="application/x-votable+xml",
     )
