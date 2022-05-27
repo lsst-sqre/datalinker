@@ -18,7 +18,7 @@
           name="semantics" ucd="meta.code"/>
    <FIELD ID="content_type" arraysize="*" datatype="char"
           name="content_type" ucd="meta.code.mime"/>
-   <FIELD ID="content_length" arraysize="1" datatype="long"
+   <FIELD ID="content_length" datatype="long"
           name="content_length" ucd="phys.size;meta.file" unit="byte"/>
    <DATA>
     <TABLEDATA>
