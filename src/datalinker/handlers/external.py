@@ -148,6 +148,20 @@ async def links(
             ),
             Field(
                 votable,
+                ID="service_def",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.ref",
+            ),
+            Field(
+                votable,
+                ID="error_message",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.code.error",
+            ),
+            Field(
+                votable,
                 ID="description",
                 datatype="char",
                 arraysize="*",
@@ -195,6 +209,8 @@ async def links(
     table.array[0] = (
         id,
         signed_url,
+        "",
+        "",
         f"Links for {id}",
         "semantics",
         "application/fits",
