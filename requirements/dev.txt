@@ -8,13 +8,8 @@ anyio==3.6.1
     # via
     #   -c requirements/main.txt
     #   httpcore
-    #   watchgod
 asgi-lifespan==1.0.1
     # via -r requirements/dev.in
-asgiref==3.5.2
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
 attrs==21.4.0
     # via pytest
 certifi==2022.5.18.1
@@ -24,10 +19,6 @@ certifi==2022.5.18.1
     #   httpx
 cfgv==3.3.1
     # via pre-commit
-click==8.1.3
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
 coverage[toml]==6.4
     # via
     #   -r requirements/dev.in
@@ -40,15 +31,10 @@ h11==0.12.0
     # via
     #   -c requirements/main.txt
     #   httpcore
-    #   uvicorn
 httpcore==0.15.0
     # via
     #   -c requirements/main.txt
     #   httpx
-httptools==0.4.0
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
 httpx==0.23.0
     # via
     #   -c requirements/main.txt
@@ -93,15 +79,10 @@ pytest-asyncio==0.18.3
     # via -r requirements/dev.in
 pytest-cov==3.0.0
     # via -r requirements/dev.in
-python-dotenv==0.20.0
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
 pyyaml==6.0
     # via
     #   -c requirements/main.txt
     #   pre-commit
-    #   uvicorn
 rfc3986[idna2008]==1.5.0
     # via
     #   -c requirements/main.txt
@@ -128,21 +109,5 @@ typing-extensions==4.2.0
     # via
     #   -c requirements/main.txt
     #   mypy
-uvicorn[standard]==0.17.6
-    # via
-    #   -c requirements/main.txt
-    #   -r requirements/dev.in
-uvloop==0.16.0
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
 virtualenv==20.14.1
     # via pre-commit
-watchgod==0.8.2
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
-websockets==10.3
-    # via
-    #   -c requirements/main.txt
-    #   uvicorn
