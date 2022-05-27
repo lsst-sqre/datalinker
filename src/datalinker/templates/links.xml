@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <TABLE>
+   <FIELD ID="ID" arraysize="*" datatype="char"
+          name="ID" ucd="meta.id;meta.main"/>
+   <FIELD ID="access_url" arraysize="*" datatype="char"
+          name="access_url" ucd="meta.ref.url"/>
+   <FIELD ID="service_def" arraysize="*" datatype="char"
+          name="service_def" ucd="meta.ref"/>
+   <FIELD ID="error_message" arraysize="*" datatype="char"
+          name="error_message" ucd="meta.code.error"/>
+   <FIELD ID="description" arraysize="*" datatype="char"
+          name="description" ucd="meta.note"/>
+   <FIELD ID="semantics" arraysize="*" datatype="char"
+          name="semantics" ucd="meta.code"/>
+   <FIELD ID="content_type" arraysize="*" datatype="char"
+          name="content_type" ucd="meta.code.mime"/>
+   <FIELD ID="content_length" datatype="long"
+          name="content_length" ucd="phys.size;meta.file" unit="byte"/>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>{{ id }}</TD>
+      <TD><![CDATA[{{ image_url | safe }}]]></TD>
+      <TD/>
+      <TD/>
+      <TD>Primary image or observation data file</TD>
+      <TD>#this</TD>
+      <TD>application/fits</TD>
+      <TD>{{ image_size }}</TD>
+     </TR>
+     <TR>
+      <TD>{{ id }}</TD>
+      <TD/>
+      <TD>cutout-sync</TD>
+      <TD/>
+      <TD>SODA image cutout service</TD>
+      <TD>#cutout</TD>
+      <TD>application/fits</TD>
+      <TD/>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+ <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
+   <GROUP name="inputParams">
+     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.main" 
+            value="{{ id }}">
+       <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="*" datatype="double" name="POLYGON" 
+            ucd="pos.outline;obs" unit="deg" value="">
+       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that 
+         should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="3" datatype="double" name="CIRCLE" 
+            ucd="pos.outline;obs" unit="deg" value="">
+       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius) 
+         that should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+   </GROUP>
+   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url" 
+          value="{{ cutout_url }}"/>
+   <PARAM arraysize="*" datatype="char" name="standardID" 
+          value="ivo://ivoa.net/std/SODA#sync-1.0"/>
+ </RESOURCE>
+</VOTABLE>

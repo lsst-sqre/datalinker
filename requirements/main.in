@@ -7,14 +7,15 @@
 
 # These dependencies are for fastapi including some optional features.
 fastapi
-gunicorn
 starlette
 uvicorn[standard]
 
 # Other dependencies.
-safir
-astropy
-boto3
-git+https://github.com/lsst/daf_butler.git@main#daf_butler
-psycopg2
 google-cloud-storage
+jinja2
+safir
+
+# lsst.daf.butler is not yet on PyPI
+git+https://github.com/lsst/daf_butler.git@main#daf_butler
+boto3
+psycopg2
