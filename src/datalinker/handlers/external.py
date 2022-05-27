@@ -184,9 +184,10 @@ async def links(
             Field(
                 votable,
                 ID="content_length",
-                datatype="double",
+                datatype="long",
                 arraysize="1",
                 ucd="phys.size;meta.file",
+                unit="byte",
             ),
         ]
     )
@@ -205,6 +206,10 @@ async def links(
         method="GET",
     )
 
+    image_size = 0
+    if image_uri:
+        image_size = image_uri.size()
+
     table.create_arrays(1)
     table.array[0] = (
         id,
@@ -214,7 +219,7 @@ async def links(
         f"Links for {id}",
         "semantics",
         "application/fits",
-        0,
+        image_size,
     )
 
     def iter_result() -> Generator:
