@@ -125,7 +125,9 @@ async def links(
 
     votable = VOTableFile()
     resource = Resource()
-    table = Table(votable)
+    table = Table(
+        votable, descriptions=f"Links table for observation dataset {id}"
+    )
 
     votable.resources.append(resource)
     resource.tables.append(table)
@@ -216,8 +218,8 @@ async def links(
         signed_url,
         "",
         "",
-        f"Links for {id}",
-        "semantics",
+        "Primary image or observation data file",
+        "#this",
         "application/fits",
         image_size,
     )
