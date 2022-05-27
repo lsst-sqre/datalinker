@@ -6,7 +6,14 @@ from typing import Dict, Generator
 from urllib.parse import urlparse
 from uuid import UUID
 
-from astropy.io.votable.tree import Field, Resource, Table, VOTableFile
+from astropy.io.votable.tree import (
+    Field,
+    Group,
+    Param,
+    Resource,
+    Table,
+    VOTableFile,
+)
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse, StreamingResponse
 from google.cloud import storage
@@ -212,7 +219,7 @@ async def links(
     if image_uri:
         image_size = image_uri.size()
 
-    table.create_arrays(1)
+    table.create_arrays(2)
     table.array[0] = (
         id,
         signed_url,
@@ -223,6 +230,73 @@ async def links(
         "application/fits",
         image_size,
     )
+    table.array[1] = (
+        id,
+        "",
+        "cutout-sync",
+        "",
+        "SODA image cutout service",
+        "#cutout",
+        "application/fits",
+        None,
+    )
+
+    # Add resource containing SODA descriptor for cutout service
+    soda_resource = Resource(
+        id="cutout-sync",
+        utype="adhoc:service",
+        type="meta",
+        groups=[
+            Group(
+                votable,
+                name="inputParams",
+                entries=[
+                    Param(
+                        votable,
+                        arraysize="*",
+                        datatype="char",
+                        name="ID",
+                        ucd="meta.id;meta.main",
+                        value=id,
+                    ),
+                    Param(
+                        votable,
+                        arraysize="*",
+                        datatype="double",
+                        name="POLYGON",
+                        ucd="pos.outline;obs",
+                        unit="deg",
+                        value="",
+                    ),
+                    Param(
+                        votable,
+                        arraysize="3",
+                        datatype="double",
+                        name="CIRCLE",
+                        ucd="pos.outline;obs",
+                        unit="deg",
+                        value="",
+                    ),
+                    Param(
+                        votable,
+                        arraysize="*",
+                        datatype="char",
+                        name="accessURL",
+                        ucd="meta.ref.url",
+                        value=config.cutout_url,
+                    ),
+                    Param(
+                        votable,
+                        arraysize="*",
+                        datatype="char",
+                        name="standardID",
+                        value="ivo://ivoa.net/std/SODA#sync-1.0",
+                    ),
+                ],
+            )
+        ],
+    )
+    votable.resources.append(soda_resource)
 
     def iter_result() -> Generator:
         with BytesIO() as fd:

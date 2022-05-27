@@ -12,6 +12,12 @@ __all__ = ["Configuration", "config"]
 class Configuration:
     """Configuration for datalinker."""
 
+    cutout_url: str = os.getenv("DATALINKER_CUTOUT_SYNC_URL", "")
+    """The URL to the sync API for the SODA service that does cutouts.
+
+    Set with the ``DATALINKER_CUTOUT_SYNC_URL`` environment variable.
+    """
+
     name: str = os.getenv("SAFIR_NAME", "datalinker")
     """The application's name, which doubles as the root HTTP endpoint path.
 
