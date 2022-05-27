@@ -125,7 +125,9 @@ async def links(
 
     votable = VOTableFile()
     resource = Resource()
-    table = Table(votable)
+    table = Table(
+        votable, descriptions=f"Links table for observation dataset {id}"
+    )
 
     votable.resources.append(resource)
     resource.tables.append(table)
@@ -145,6 +147,20 @@ async def links(
                 datatype="char",
                 arraysize="*",
                 ucd="meta.ref.url",
+            ),
+            Field(
+                votable,
+                ID="service_def",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.ref",
+            ),
+            Field(
+                votable,
+                ID="error_message",
+                datatype="char",
+                arraysize="*",
+                ucd="meta.code.error",
             ),
             Field(
                 votable,
@@ -170,9 +186,10 @@ async def links(
             Field(
                 votable,
                 ID="content_length",
-                datatype="double",
+                datatype="long",
                 arraysize="1",
                 ucd="phys.size;meta.file",
+                unit="byte",
             ),
         ]
     )
@@ -191,14 +208,20 @@ async def links(
         method="GET",
     )
 
+    image_size = 0
+    if image_uri:
+        image_size = image_uri.size()
+
     table.create_arrays(1)
     table.array[0] = (
         id,
         signed_url,
-        f"Links for {id}",
-        "semantics",
+        "",
+        "",
+        "Primary image or observation data file",
+        "#this",
         "application/fits",
-        0,
+        image_size,
     )
 
     def iter_result() -> Generator:
