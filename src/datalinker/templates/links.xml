@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
  <RESOURCE type="results">
   <TABLE>
+   <DESCRIPTION>Links table for observation dataset {{ id }}</DESCRIPTION>
    <FIELD ID="ID" arraysize="*" datatype="char"
           name="ID" ucd="meta.id;meta.main"/>
    <FIELD ID="access_url" arraysize="*" datatype="char"
