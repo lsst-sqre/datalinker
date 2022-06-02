@@ -12,12 +12,12 @@ from importlib.metadata import metadata, version
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging
+from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
-from .middleware import CaseInsensitiveQueryMiddleware
 
 __all__ = ["app", "config"]
 
@@ -44,11 +44,9 @@ _subapp.include_router(external_router)
 app.include_router(internal_router)
 app.mount("/api/datalink/", _subapp)
 
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    app.add_middleware(XForwardedMiddleware)
-    app.add_middleware(CaseInsensitiveQueryMiddleware)
+# Add the middleware.
+app.add_middleware(CaseInsensitiveQueryMiddleware)
+app.add_middleware(XForwardedMiddleware)
 
 
 @app.on_event("shutdown")
