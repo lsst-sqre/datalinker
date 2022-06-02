@@ -19,13 +19,13 @@ certifi==2022.5.18.1
     #   httpx
 cfgv==3.3.1
     # via pre-commit
-coverage[toml]==6.4
+coverage[toml]==6.4.1
     # via
     #   -r requirements/dev.in
     #   pytest-cov
 distlib==0.3.4
     # via virtualenv
-filelock==3.7.0
+filelock==3.7.1
     # via virtualenv
 h11==0.12.0
     # via

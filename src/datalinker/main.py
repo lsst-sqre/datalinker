@@ -12,12 +12,12 @@ from importlib.metadata import metadata, version
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging
+from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
-from .middleware import CaseInsensitiveQueryMiddleware
 
 __all__ = ["app", "config"]
 
@@ -28,27 +28,23 @@ configure_logging(
     name=config.logger_name,
 )
 
-app = FastAPI()
-"""The main FastAPI application for datalinker."""
-
-# Define the external routes in a subapp so that it will serve its own OpenAPI
-# interface definition and documentation URLs under the external URL.
-_subapp = FastAPI(
+app = FastAPI(
     title="datalinker",
     description=metadata("datalinker")["Summary"],
     version=version("datalinker"),
+    openapi_url="/api/datalink/openapi.json",
+    docs_url="/api/datalink/docs",
+    redoc_url="/api/datalink/redoc",
 )
-_subapp.include_router(external_router)
+"""The main FastAPI application for datalinker."""
 
-# Attach the internal routes and subapp to the main application.
+# Attach the routers.
 app.include_router(internal_router)
-app.mount("/api/datalink/", _subapp)
+app.include_router(external_router, prefix="/api/datalink")
 
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    app.add_middleware(XForwardedMiddleware)
-    app.add_middleware(CaseInsensitiveQueryMiddleware)
+# Add the middleware.
+app.add_middleware(CaseInsensitiveQueryMiddleware)
+app.add_middleware(XForwardedMiddleware)
 
 
 @app.on_event("shutdown")
