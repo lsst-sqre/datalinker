@@ -16,6 +16,6 @@ jinja2
 safir
 
 # lsst.daf.butler is not yet on PyPI
-git+https://github.com/lsst/daf_butler.git@main#daf_butler
+git+https://github.com/lsst/daf_butler.git@main#lsst-daf-butler
 boto3
 psycopg2
