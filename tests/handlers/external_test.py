@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
+from httpx import AsyncClient
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 from datalinker.config import config
 
-if TYPE_CHECKING:
-    from httpx import AsyncClient
+from ..support.butler import MockButler
 
 
 @pytest.mark.asyncio
@@ -24,3 +25,54 @@ async def test_get_index(client: AsyncClient) -> None:
     assert isinstance(metadata["description"], str)
     assert isinstance(metadata["repository_url"], str)
     assert isinstance(metadata["documentation_url"], str)
+
+
+@pytest.mark.asyncio
+async def test_cone_search(client: AsyncClient) -> None:
+    r = await client.get(
+        "/api/datalink/cone_search",
+        params={
+            "table": "table",
+            "ra_col": "ra",
+            "dec_col": "dec",
+            "ra_val": 57.65657741054437,
+            "dec_val": -35.999025781137966,
+            "radius": 0.1,
+        },
+    )
+    assert r.status_code == 307
+    assert r.headers["Location"] == (
+        "/api/tap/sync?LANG=ADQL&REQUEST=doQuery&QUERY=SELECT+*+FROM+table"
+        "+WHERE+CONTAINS(POINT('ICRS',ra,dec),"
+        "CIRCLE('ICRS',57.65657741054437,-35.999025781137966,0.1))=1"
+    )
+
+
+@pytest.mark.asyncio
+async def test_links(
+    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
+) -> None:
+    r = await client.get(
+        "/api/datalink/links",
+        params={"iD": f"butler://label/{str(mock_butler.uuid)}"},
+    )
+    assert r.status_code == 200
+
+    env = Environment(
+        loader=PackageLoader("datalinker"), autoescape=select_autoescape()
+    )
+    template = env.get_template("links.xml")
+    expected = template.render(
+        id=f"butler://label/{str(mock_butler.uuid)}",
+        image_url=f"https://example.com/{str(mock_butler.uuid)}",
+        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        cutout_url=config.cutout_url,
+    )
+    assert r.text == expected
+
+    # A request for some random object will return 404.
+    uuid = uuid4()
+    r = await client.get(
+        "/api/datalink/links", params={"id": f"butler://label/{str(uuid)}"}
+    )
+    assert r.status_code == 404
