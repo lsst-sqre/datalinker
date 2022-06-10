@@ -54,12 +54,12 @@
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="double" name="POLYGON" 
-            ucd="pos.outline;obs" unit="deg" value="">
+            ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
        <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that 
          should be covered by the cutout.</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="3" datatype="double" name="CIRCLE" 
-            ucd="pos.outline;obs" unit="deg" value="">
+            ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
        <DESCRIPTION>A circle (as a flattened array of ra, dec, radius) 
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
