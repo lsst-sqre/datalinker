@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
+from lsst.daf import butler
 
 from datalinker.config import config
 
@@ -70,9 +72,37 @@ async def test_links(
     )
     assert r.text == expected
 
-    # A request for some random object will return 404.
+
+@pytest.mark.asyncio
+async def test_links_errors(
+    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
+) -> None:
     uuid = uuid4()
+
+    # Test an invalid IDs and ensure it returns 404.
     r = await client.get(
-        "/api/datalink/links", params={"id": f"butler://label/{str(uuid)}"}
+        "/api/datalink/links",
+        params={"id": f"butler://test-butler/{str(uuid)}"},
     )
     assert r.status_code == 404
+
+    # Test malformed IDs and ensure they return 422.
+    for test_id in ("butler://", "butler://test-butler", "blah-blah"):
+        r = await client.get("/api/datalink/links", params={"id": test_id})
+        assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_links_bad_repo(client: AsyncClient) -> None:
+    uuid = uuid4()
+
+    # Rather than using the regular mock Butler, mock it out to raise
+    # FileNotFoundError from the constructor.  This simulates an invalid
+    # label.
+    with patch.object(butler, "Butler") as mock_butler:
+        mock_butler.side_effect = FileNotFoundError
+        r = await client.get(
+            "/api/datalink/links",
+            params={"id": f"butler://invalid-repo/{str(uuid)}"},
+        )
+        assert r.status_code == 404

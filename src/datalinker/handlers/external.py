@@ -6,7 +6,7 @@ from typing import Dict
 from urllib.parse import urlparse
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import storage
@@ -106,21 +106,42 @@ async def cone_search(
     summary="DataLink links for object",
 )
 def links(
-    id: str,
     request: Request,
+    id: str = Query(
+        ...,
+        title="Object ID",
+        example="butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+        regex="^butler://[^/]+/[a-f0-9-]+$",
+    ),
     logger: BoundLogger = Depends(logger_dependency),
 ) -> Response:
-    # Parse the "butler://label/uuid" ID URI
     butler_uri = urlparse(id)
     label = butler_uri.netloc
     uuid = butler_uri.path[1:]
-    logger.debug(f"Loading {label} {uuid}")
+    logger.debug("Retrieving object from Butler", label=label, uuid=uuid)
 
-    # This returns lsst.resources.ResourcePath
-    butler = _get_butler(label)
+    # Invalid Butler labels will cause the Butler constructor to raise a
+    # FileNotFoundError.  Hopefully this will stay consistent, since we want
+    # other errors (like problems reaching PostgreSQL) to return 500.
+    try:
+        butler = _get_butler(label)
+    except FileNotFoundError:
+        logger.warning("Butler repository does not exist", label=label)
+        raise HTTPException(
+            status_code=404,
+            detail=[
+                {
+                    "loc": ["query", "id"],
+                    "msg": f"Repository for {id} does not exist",
+                    "type": "not_found",
+                }
+            ],
+        )
+
+    # This returns lsst.resources.ResourcePath.
     ref = butler.registry.getDataset(UUID(uuid))
     if not ref:
-        logger.warning("Dataset does not exist", id=id)
+        logger.warning("Dataset does not exist", label=label, id=id)
         raise HTTPException(
             status_code=404,
             detail=[
@@ -132,7 +153,7 @@ def links(
             ],
         )
     image_uri = butler.datastore.getURI(ref)
-    logger.debug(f"Image URI is: {image_uri}")
+    logger.debug("Got image URI from Butler", image_uri=image_uri)
 
     # Generate signed URL.
     image_uri_parts = urlparse(str(image_uri))
