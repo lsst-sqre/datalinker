@@ -3,7 +3,7 @@
 from datetime import timedelta
 from pathlib import Path
 from typing import Dict
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
@@ -79,23 +79,22 @@ async def get_index(
 
 @external_router.get("/cone_search", response_class=RedirectResponse)
 async def cone_search(
-    table: str,
-    ra_col: str,
-    dec_col: str,
-    ra_val: str,
-    dec_val: str,
-    radius: str,
+    table: str = Query(..., title="Table name", regex="^[a-zA-Z0-9_]+$"),
+    ra_col: str = Query(..., title="Column for ra", regex="^[a-zA-Z0-9_]+$"),
+    dec_col: str = Query(..., title="Column for dec", regex="^[a-zA-Z0-9_]+$"),
+    ra_val: float = Query(..., title="ra value"),
+    dec_val: float = Query(..., title="dec value"),
+    radius: float = Query(..., title="Radius of cone"),
     logger: BoundLogger = Depends(logger_dependency),
 ) -> str:
-
-    url = (
-        "/api/tap/sync?LANG=ADQL&REQUEST=doQuery"
-        + f"&QUERY=SELECT+*+FROM+{table}+WHERE+CONTAINS("
-        + f"POINT('ICRS',{ra_col},{dec_col}),"
-        + f"CIRCLE('ICRS',{ra_val},{dec_val},{radius})"
-        + ")=1"
+    sql = (
+        f"SELECT * FROM {table} WHERE"
+        f" CONTAINS(POINT('ICRS',{ra_col},{dec_col}),"
+        f"CIRCLE('ICRS',{ra_val},{dec_val},{radius})"
+        ")=1"
     )
-
+    params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
+    url = "/api/tap/sync?" + urlencode(params)
     logger.info(f"Redirecting to {url}")
     return url
 

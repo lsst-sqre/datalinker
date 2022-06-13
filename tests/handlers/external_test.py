@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
 import pytest
@@ -43,11 +44,33 @@ async def test_cone_search(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    assert r.headers["Location"] == (
-        "/api/tap/sync?LANG=ADQL&REQUEST=doQuery&QUERY=SELECT+*+FROM+table"
-        "+WHERE+CONTAINS(POINT('ICRS',ra,dec),"
-        "CIRCLE('ICRS',57.65657741054437,-35.999025781137966,0.1))=1"
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT * FROM table WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                "CIRCLE('ICRS',57.65657741054437,-35.999025781137966,0.1))=1"
+            )
+        ],
+    }
+
+    # Check that some SQL injection is rejected.
+    r = await client.get(
+        "/api/datalink/cone_search",
+        params={
+            "table": ";drop table foo;-- ",
+            "ra_col": "ra",
+            "dec_col": "dec",
+            "ra_val": 57.65657741054437,
+            "dec_val": -35.999025781137966,
+            "radius": 0.1,
+        },
     )
+    assert r.status_code == 422
 
 
 @pytest.mark.asyncio
