@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Literal
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
@@ -111,6 +111,9 @@ def links(
         title="Object ID",
         example="butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
         regex="^butler://[^/]+/[a-f0-9-]+$",
+    ),
+    responseformat: Literal["votable", "application/x-votable+xml"] = Query(
+        "application/x-votable+xml", title="Response format"
     ),
     logger: BoundLogger = Depends(logger_dependency),
 ) -> Response:

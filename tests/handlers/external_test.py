@@ -95,6 +95,18 @@ async def test_links(
     )
     assert r.text == expected
 
+    # Check the same with explicit RESPONSEFORMAT.
+    for response_format in ("votable", "application/x-votable+xml"):
+        r = await client.get(
+            "/api/datalink/links",
+            params={
+                "iD": f"butler://label/{str(mock_butler.uuid)}",
+                "responseformat": response_format,
+            },
+        )
+        assert r.status_code == 200
+        assert r.text == expected
+
 
 @pytest.mark.asyncio
 async def test_links_errors(
@@ -113,6 +125,16 @@ async def test_links_errors(
     for test_id in ("butler://", "butler://test-butler", "blah-blah"):
         r = await client.get("/api/datalink/links", params={"id": test_id})
         assert r.status_code == 422
+
+    # Test invalid RESPONSEFORMAT.
+    r = await client.get(
+        "/api/datalink/links",
+        params={
+            "id": f"butler://test-butler/{str(uuid)}",
+            "responseformat": "text/plain",
+        },
+    )
+    assert r.status_code == 422
 
 
 @pytest.mark.asyncio
