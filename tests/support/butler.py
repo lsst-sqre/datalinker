@@ -25,20 +25,34 @@ class MockResourcePath:
         return len(self.url) * 10
 
 
+class MockDatasetRef:
+    """Mock of a Butler DatasetRef."""
+
+    def __init__(self, uuid: UUID, dataset_type: str) -> None:
+        self.uuid = uuid
+        self.datasetType = self
+        self.name = dataset_type
+
+
 class MockButler(Mock):
     """Mock of Butler for testing."""
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(spec=butler.Butler, **kwargs)
         self.uuid = uuid4()
+        self.is_raw = False
         self.registry = self
         self.datastore = self
 
-    def getDataset(self, uuid: UUID) -> Optional[UUID]:
-        return uuid if uuid == self.uuid else None
+    def getDataset(self, uuid: UUID) -> Optional[MockDatasetRef]:
+        dataset_type = "raw" if self.is_raw else "calexp"
+        if uuid == self.uuid:
+            return MockDatasetRef(uuid, dataset_type)
+        else:
+            return None
 
-    def getURI(self, ref: UUID) -> MockResourcePath:
-        return MockResourcePath(f"s3://some-bucket/{str(ref)}")
+    def getURI(self, ref: MockDatasetRef) -> MockResourcePath:
+        return MockResourcePath(f"s3://some-bucket/{str(ref.uuid)}")
 
 
 def patch_butler() -> Iterator[MockButler]:
