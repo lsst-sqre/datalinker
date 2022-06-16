@@ -49,24 +49,32 @@
  </RESOURCE>
  <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
-     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.main" 
+     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.main"
             value="{{ id }}">
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
-     <PARAM arraysize="*" datatype="double" name="POLYGON" 
+     <PARAM arraysize="*" datatype="double" name="POLYGON"
             ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
-       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that 
-         should be covered by the cutout.</DESCRIPTION>
+       <DESCRIPTION>
+         A polygon (as a flattened array of ra, dec pairs) that should be
+         covered by the cutout.
+       </DESCRIPTION>
      </PARAM>
-     <PARAM arraysize="3" datatype="double" name="CIRCLE" 
+     <PARAM arraysize="3" datatype="double" name="CIRCLE"
             ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
-       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius) 
-         that should be covered by the cutout.</DESCRIPTION>
+       <DESCRIPTION>
+         A circle (as a flattened array of ra, dec, radius) that should be
+         covered by the cutout.
+       </DESCRIPTION>
+       <VALUES>
+         <MIN value="-180 -90 0"/>
+         <MAX value="180 90 0.25"/>
+       </VALUES>
      </PARAM>
    </GROUP>
-   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url" 
+   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
           value="{{ cutout_url }}"/>
-   <PARAM arraysize="*" datatype="char" name="standardID" 
+   <PARAM arraysize="*" datatype="char" name="standardID"
           value="ivo://ivoa.net/std/SODA#sync-1.0"/>
  </RESOURCE>
 </VOTABLE>
