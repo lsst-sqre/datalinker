@@ -33,6 +33,7 @@
       <TD>application/fits</TD>
       <TD>{{ image_size }}</TD>
      </TR>
+     {%- if cutout %}
      <TR>
       <TD>{{ id }}</TD>
       <TD/>
@@ -43,10 +44,12 @@
       <TD>application/fits</TD>
       <TD/>
      </TR>
+     {%- endif %}
     </TABLEDATA>
    </DATA>
   </TABLE>
  </RESOURCE>
+ {%- if cutout %}
  <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.main" 
@@ -69,4 +72,5 @@
    <PARAM arraysize="*" datatype="char" name="standardID" 
           value="ivo://ivoa.net/std/SODA#sync-1.0"/>
  </RESOURCE>
+ {%- endif %}
 </VOTABLE>

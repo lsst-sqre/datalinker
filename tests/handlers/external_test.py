@@ -88,6 +88,7 @@ async def test_links(
     )
     template = env.get_template("links.xml")
     expected = template.render(
+        cutout=True,
         id=f"butler://label/{str(mock_butler.uuid)}",
         image_url=f"https://example.com/{str(mock_butler.uuid)}",
         image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
@@ -106,6 +107,32 @@ async def test_links(
         )
         assert r.status_code == 200
         assert r.text == expected
+
+
+@pytest.mark.asyncio
+async def test_links_raw(
+    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
+) -> None:
+    mock_butler.is_raw = True
+    r = await client.get(
+        "/api/datalink/links",
+        params={"id": f"butler://label-raw/{str(mock_butler.uuid)}"},
+    )
+    assert r.status_code == 200
+
+    env = Environment(
+        loader=PackageLoader("datalinker"), autoescape=select_autoescape()
+    )
+    template = env.get_template("links.xml")
+    expected = template.render(
+        cutout=False,
+        id=f"butler://label-raw/{str(mock_butler.uuid)}",
+        image_url=f"https://example.com/{str(mock_butler.uuid)}",
+        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        cutout_url=config.cutout_url,
+    )
+    assert r.text == expected
+    assert "cutout-sync" not in r.text
 
 
 @pytest.mark.asyncio

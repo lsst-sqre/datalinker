@@ -162,7 +162,6 @@ def links(
     storage_client = storage.Client()
     bucket = storage_client.bucket(image_uri_parts.netloc)
     blob = bucket.blob(image_uri_parts.path[1:])
-
     signed_url = blob.generate_signed_url(
         version="v4",
         # This URL is valid for one hour.
@@ -174,6 +173,7 @@ def links(
     return _TEMPLATES.TemplateResponse(
         "links.xml",
         {
+            "cutout": ref.datasetType.name != "raw",
             "id": id,
             "image_url": signed_url,
             "image_size": image_uri.size(),
