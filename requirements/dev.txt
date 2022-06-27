@@ -52,7 +52,7 @@ mypy==0.961
     # via -r requirements/dev.in
 mypy-extensions==0.4.3
     # via mypy
-nodeenv==1.6.0
+nodeenv==1.7.0
     # via pre-commit
 packaging==21.3
     # via
@@ -109,5 +109,9 @@ typing-extensions==4.2.0
     # via
     #   -c requirements/main.txt
     #   mypy
-virtualenv==20.14.1
+virtualenv==20.15.0
     # via pre-commit
+
+# The following packages are considered to be unsafe in a requirements file:
+setuptools==62.6.0
+    # via nodeenv
