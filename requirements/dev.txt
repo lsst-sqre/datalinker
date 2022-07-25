@@ -39,7 +39,7 @@ httpx==0.23.0
     # via
     #   -c requirements/main.txt
     #   -r requirements/dev.in
-identify==2.5.1
+identify==2.5.2
     # via pre-commit
 idna==3.3
     # via
@@ -48,7 +48,7 @@ idna==3.3
     #   rfc3986
 iniconfig==1.1.1
     # via pytest
-mypy==0.961
+mypy==0.971
     # via -r requirements/dev.in
 mypy-extensions==0.4.3
     # via mypy
