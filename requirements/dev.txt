@@ -10,7 +10,7 @@ anyio==3.6.1
     #   httpcore
 asgi-lifespan==1.0.1
     # via -r requirements/dev.in
-attrs==21.4.0
+attrs==22.1.0
     # via pytest
 certifi==2022.6.15
     # via
@@ -87,10 +87,6 @@ rfc3986[idna2008]==1.5.0
     # via
     #   -c requirements/main.txt
     #   httpx
-six==1.16.0
-    # via
-    #   -c requirements/main.txt
-    #   virtualenv
 sniffio==1.2.0
     # via
     #   -c requirements/main.txt
@@ -109,9 +105,9 @@ typing-extensions==4.3.0
     # via
     #   -c requirements/main.txt
     #   mypy
-virtualenv==20.15.1
+virtualenv==20.16.2
     # via pre-commit
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==63.2.0
+setuptools==63.3.0
     # via nodeenv
