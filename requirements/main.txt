@@ -13,9 +13,9 @@ astropy==5.1
     # via
     #   lsst-daf-butler
     #   lsst-utils
-boto3==1.24.36
+boto3==1.24.42
     # via -r requirements/main.in
-botocore==1.27.36
+botocore==1.27.42
     # via
     #   boto3
     #   s3transfer
@@ -86,11 +86,11 @@ jmespath==1.0.1
     #   botocore
 lsst-daf-butler @ git+https://github.com/lsst/daf_butler.git@main
     # via -r requirements/main.in
-lsst-resources==24.0.0a20223000
+lsst-resources==24.0.0a20223100
     # via lsst-daf-butler
-lsst-sphgeom==24.0.0a20223000
+lsst-sphgeom==24.0.0a20223100
     # via lsst-daf-butler
-lsst-utils==24.0.0a20223000
+lsst-utils==24.0.0a20223100
     # via
     #   lsst-daf-butler
     #   lsst-resources
@@ -105,7 +105,7 @@ numpy==1.23.1
     #   pyerfa
 packaging==21.3
     # via astropy
-protobuf==4.21.3
+protobuf==4.21.4
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -172,7 +172,7 @@ threadpoolctl==3.1.0
     # via lsst-utils
 typing-extensions==4.3.0
     # via pydantic
-urllib3==1.26.10
+urllib3==1.26.11
     # via
     #   botocore
     #   requests
@@ -180,7 +180,7 @@ uvicorn[standard]==0.18.2
     # via -r requirements/main.in
 uvloop==0.16.0
     # via uvicorn
-watchfiles==0.16.0
+watchfiles==0.16.1
     # via uvicorn
 websockets==10.3
     # via uvicorn
