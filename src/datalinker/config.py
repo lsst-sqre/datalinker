@@ -18,6 +18,18 @@ class Configuration:
     Set with the ``DATALINKER_CUTOUT_SYNC_URL`` environment variable.
     """
 
+    hips_base_url: str = os.getenv("DATALINKER_HIPS_BASE_URL", "")
+    """The base URL for HiPS lists.
+
+    Set with the ``DATALINKER_HIPS_BASE_URL`` environment variable.
+    """
+
+    token: str = os.getenv("DATALINKER_TOKEN", "")
+    """Token to use to authenticate to the HiPS service.
+
+    Set with the ``DATALINKER_TOKEN`` environment variable.
+    """
+
     name: str = os.getenv("SAFIR_NAME", "datalinker")
     """The application's name, which doubles as the root HTTP endpoint path.
 

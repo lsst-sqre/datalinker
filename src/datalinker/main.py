@@ -17,6 +17,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from .config import config
 from .handlers.external import external_router
+from .handlers.hips import hips_router
 from .handlers.internal import internal_router
 
 __all__ = ["app", "config"]
@@ -41,6 +42,7 @@ app = FastAPI(
 # Attach the routers.
 app.include_router(internal_router)
 app.include_router(external_router, prefix="/api/datalink")
+app.include_router(hips_router, prefix="/api/hips")
 
 # Add the middleware.
 app.add_middleware(CaseInsensitiveQueryMiddleware)

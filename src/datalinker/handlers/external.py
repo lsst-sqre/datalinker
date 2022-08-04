@@ -29,7 +29,7 @@ _TEMPLATES = Jinja2Templates(
 )
 """FastAPI renderer for templated responses."""
 
-__all__ = ["get_index", "external_router"]
+__all__ = ["external_router"]
 
 
 def _get_butler(label: str) -> butler.Butler:

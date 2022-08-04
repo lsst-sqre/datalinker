@@ -39,7 +39,8 @@ httpx==0.23.0
     # via
     #   -c requirements/main.txt
     #   -r requirements/dev.in
-identify==2.5.2
+    #   respx
+identify==2.5.3
     # via pre-commit
 idna==3.3
     # via
@@ -58,6 +59,7 @@ packaging==21.3
     # via
     #   -c requirements/main.txt
     #   pytest
+    #   pytest-sugar
 platformdirs==2.5.2
     # via virtualenv
 pluggy==1.0.0
@@ -75,14 +77,19 @@ pytest==7.1.2
     #   -r requirements/dev.in
     #   pytest-asyncio
     #   pytest-cov
+    #   pytest-sugar
 pytest-asyncio==0.19.0
     # via -r requirements/dev.in
 pytest-cov==3.0.0
+    # via -r requirements/dev.in
+pytest-sugar==0.9.5
     # via -r requirements/dev.in
 pyyaml==6.0
     # via
     #   -c requirements/main.txt
     #   pre-commit
+respx==0.19.2
+    # via -r requirements/dev.in
 rfc3986[idna2008]==1.5.0
     # via
     #   -c requirements/main.txt
@@ -94,6 +101,8 @@ sniffio==1.2.0
     #   asgi-lifespan
     #   httpcore
     #   httpx
+termcolor==1.1.0
+    # via pytest-sugar
 toml==0.10.2
     # via pre-commit
 tomli==2.0.1
@@ -109,5 +118,5 @@ virtualenv==20.16.2
     # via pre-commit
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==63.3.0
+setuptools==63.4.1
     # via nodeenv
