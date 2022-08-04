@@ -87,7 +87,7 @@ class HiPSListDependency:
 
         # The HiPS list is the concatenation of all the properties files
         # separated by blank lines.
-        return "\n\n".join(lists)
+        return "\n".join(lists)
 
 
 hips_list_dependency = HiPSListDependency()

@@ -39,6 +39,6 @@ async def test_hips_list(
         r = await client.get("/api/hips/list")
         assert r.status_code == 200
         assert r.headers["Content-Type"].startswith("text/plain")
-        assert r.text == "\n\n".join(hips_lists)
+        assert r.text == "\n".join(hips_lists)
     finally:
         config.hips_base_url = ""
