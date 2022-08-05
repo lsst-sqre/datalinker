@@ -1,8 +1,10 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
 from datetime import timedelta
+from email.message import Message
+from importlib.metadata import metadata
 from pathlib import Path
-from typing import Dict, Literal
+from typing import Dict, Literal, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
@@ -12,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from google.cloud import storage
 from lsst.daf import butler
 from safir.dependencies.logger import logger_dependency
-from safir.metadata import get_metadata
+from safir.metadata import Metadata, get_project_url
 from structlog.stdlib import BoundLogger
 
 from ..config import config
@@ -70,11 +72,16 @@ async def get_index(
     ``metadata`` that provides the same Safir-generated metadata as the
     internal root endpoint.
     """
-    metadata = get_metadata(
-        package_name="datalinker",
-        application_name=config.name,
+    pkg_metadata = cast(Message, metadata("datalinker"))
+    return Index(
+        metadata=Metadata(
+            name="datalinker",
+            version=pkg_metadata["Version"],
+            description=pkg_metadata["Summary"],
+            repository_url=get_project_url(pkg_metadata, "Source"),
+            documentation_url=get_project_url(pkg_metadata, "Homepage"),
+        )
     )
-    return Index(metadata=metadata)
 
 
 @external_router.get("/cone_search", response_class=RedirectResponse)

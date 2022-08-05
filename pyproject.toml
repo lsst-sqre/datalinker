@@ -1,12 +1,46 @@
+[project]
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+name = "datalinker"
+description = "Service and data discovery for Rubin Science Platform"
+license = {file = "LICENSE"}
+readme = "README.rst"
+keywords = [
+    "rubin",
+    "lsst",
+]
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = []
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/lsst-sqre/datalinker"
+Source = "https://github.com/lsst-sqre/datalinker"
+
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=61",
     "wheel",
-    "setuptools_scm[toml]>=3.4"
+    "setuptools_scm[toml]>=6.2"
 ]
 build-backend = 'setuptools.build_meta'
 
 [tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+where = ["src"]
+include = ["datalinker*"]
 
 [tool.coverage.run]
 parallel = true
@@ -32,7 +66,7 @@ exclude_lines = [
 
 [tool.black]
 line-length = 79
-target-version = ['py38']
+target-version = ["py39"]
 exclude = '''
 /(
     \.eggs
@@ -49,8 +83,8 @@ exclude = '''
 # Multi-line strings are implicitly treated by black as regular expressions
 
 [tool.isort]
-include_trailing_comma = true
-multi_line_output = 3
+profile = "black"
+line_length = 79
 known_first_party = ["datalinker", "tests"]
 skip = ["docs/conf.py"]
 
@@ -60,3 +94,12 @@ python_files = [
     "tests/*.py",
     "tests/*/*.py"
 ]
+
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
+strict_equality = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
