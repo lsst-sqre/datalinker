@@ -12,10 +12,8 @@ uvicorn[standard]
 
 # Other dependencies.
 google-cloud-storage
+httpx
 jinja2
+lsst-daf-butler
 safir
-
-# lsst.daf.butler is not yet on PyPI
-git+https://github.com/lsst/daf_butler.git@main#lsst-daf-butler
-boto3
-psycopg2
+structlog
