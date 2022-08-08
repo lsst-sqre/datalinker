@@ -72,9 +72,9 @@ google-api-core==2.8.2 \
     # via
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.9.1 \
-    --hash=sha256:14292fa3429f2bb1e99862554cde1ee730d6840ebae067814d3d15d8549c0888 \
-    --hash=sha256:5a7eed0cb0e3a83989fad0b59fe1329dfc8c479543039cd6fd1e01e9adf39475
+google-auth==2.10.0 \
+    --hash=sha256:1deba4a54f95ef67b4139eaf5c20eaa7047215eec9f6a2344599b8596db8863b \
+    --hash=sha256:7904dbd44b745c7323fef29565adee2fe7ff48473e2d94443aced40b0404a395
     # via
     #   google-api-core
     #   google-cloud-core
@@ -278,9 +278,9 @@ jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
     --hash=sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61
     # via -r requirements/main.in
-lsst-daf-butler==24.0.0a20223100 \
-    --hash=sha256:775bfc527a53cf3bc9bfdb0bb761a8e496a5063130c74d345410f55374931097 \
-    --hash=sha256:e6b829d0c503fad4b307feb539990fa8de975672e255c9d12c9e33ab80d227a6
+lsst-daf-butler==24.0.0a20223200 \
+    --hash=sha256:16a1e1ee59ad49d95eadd6d9ea49c88be04f9cf63b3e69ceae07c3ab41db2986 \
+    --hash=sha256:c06814393a8e4a760add09a5f55569746937370207210c4cd6b39fd971433808
     # via -r requirements/main.in
 lsst-resources==24.0.0a20223100 \
     --hash=sha256:7c8de1411597f8660539aa05d41d43b02ee9685963f33e9124d508b6863fb7c0 \
