@@ -2,6 +2,7 @@
 
 HIPS_DATASETS = (
     "images/color_gri",
+    "images/color_riz",
     "images/band_u",
     "images/band_g",
     "images/band_r",
