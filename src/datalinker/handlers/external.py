@@ -4,7 +4,7 @@ from datetime import timedelta
 from email.message import Message
 from importlib.metadata import metadata
 from pathlib import Path
-from typing import Dict, Literal, cast
+from typing import Dict, Literal, Optional, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
@@ -18,7 +18,12 @@ from safir.metadata import Metadata, get_project_url
 from structlog.stdlib import BoundLogger
 
 from ..config import config
-from ..models import Index
+from ..constants import (
+    ADQL_COMPOUND_TABLE_REGEX,
+    ADQL_FOREIGN_COLUMN_REGEX,
+    ADQL_IDENTIFIER_REGEX,
+)
+from ..models import Band, Detail, Index
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
@@ -57,6 +62,27 @@ def _get_butler(label: str) -> butler.Butler:
     return _BUTLER_CACHE[label]
 
 
+def _create_tap_redirect(sql: str, logger: BoundLogger) -> str:
+    """Construct the URL for a redirect to TAP to run the provided SQL.
+
+    Parameters
+    ----------
+    sql : `str`
+        SQL to run, with all parameters already filled in.
+    logger : `structlog.stdlib.BoundLogger`
+        Logger to log the redirect action.
+
+    Returns
+    -------
+    url : `str`
+        URL to execute a synchronous TAP query.
+    """
+    params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
+    url = "/api/tap/sync?" + urlencode(params)
+    logger.info(f"Redirecting to {url}")
+    return url
+
+
 @external_router.get(
     "/",
     response_model=Index,
@@ -86,9 +112,15 @@ async def get_index(
 
 @external_router.get("/cone_search", response_class=RedirectResponse)
 async def cone_search(
-    table: str = Query(..., title="Table name", regex="^[a-zA-Z0-9_]+$"),
-    ra_col: str = Query(..., title="Column for ra", regex="^[a-zA-Z0-9_]+$"),
-    dec_col: str = Query(..., title="Column for dec", regex="^[a-zA-Z0-9_]+$"),
+    table: str = Query(
+        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+    ),
+    ra_col: str = Query(
+        ..., title="Column for ra", regex=ADQL_IDENTIFIER_REGEX
+    ),
+    dec_col: str = Query(
+        ..., title="Column for dec", regex=ADQL_IDENTIFIER_REGEX
+    ),
     ra_val: float = Query(..., title="ra value"),
     dec_val: float = Query(..., title="dec value"),
     radius: float = Query(..., title="Radius of cone"),
@@ -100,10 +132,55 @@ async def cone_search(
         f"CIRCLE('ICRS',{ra_val},{dec_val},{radius})"
         ")=1"
     )
-    params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
-    url = "/api/tap/sync?" + urlencode(params)
-    logger.info(f"Redirecting to {url}")
-    return url
+    return _create_tap_redirect(sql, logger)
+
+
+@external_router.get("/timeseries", response_class=RedirectResponse)
+async def timeseries(
+    id: int = Query(..., title="Object identifier"),
+    table: str = Query(
+        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+    ),
+    id_column: str = Query(
+        ..., title="Object ID column", regex=ADQL_IDENTIFIER_REGEX
+    ),
+    band_column: str = Query(
+        "band", title="Band column", regex=ADQL_IDENTIFIER_REGEX
+    ),
+    band: Band = Query(Band.all, title="Abstract filter band"),
+    detail: Detail = Query(Detail.full, title="Column detail"),
+    join_time_column: Optional[str] = Query(
+        None,
+        title="Foreign column for time variable",
+        regex=ADQL_FOREIGN_COLUMN_REGEX,
+    ),
+    logger: BoundLogger = Depends(logger_dependency),
+) -> str:
+    if detail == Detail.minimal:
+        # TODO: get from sdm-schemas
+        columns = "s.*"
+    elif detail == Detail.principal:
+        # TODO: get from sdm-schemas
+        columns = "s.*"
+    elif detail == Detail.full:
+        columns = "s.*"
+
+    # Some time series tables are normalized and don't have a time in them.
+    # In those cases we have to join with another table on ccdVisitId.
+    if join_time_column:
+        join_table, time_column = join_time_column.rsplit(".", 1)
+        sql = (
+            f"SELECT t.{time_column},{columns} FROM {table} AS s"
+            f" JOIN {join_table} AS t ON s.ccdVisitId = t.ccdVisitId"
+        )
+    else:
+        sql = f"SELECT {columns} FROM {table} AS s"
+
+    sql += f" WHERE s.{id_column} = {id}"
+    if band != Band.all:
+        sql += f" AND s.{band_column} = '{band}'"
+
+    return _create_tap_redirect(sql, logger)
 
 
 @external_router.get(
