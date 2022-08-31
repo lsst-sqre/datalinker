@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import AsyncIterator, Iterator
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 
 from datalinker import main
+from datalinker.config import config
 
 from .support.butler import MockButler, patch_butler
 from .support.gcs import MockStorageClient
@@ -24,8 +26,10 @@ async def app() -> AsyncIterator[FastAPI]:
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
+    config.tap_metadata_dir = str(Path(__file__).parent / "data")
     async with LifespanManager(main.app):
         yield main.app
+    config.tap_metadata_dir = ""
 
 
 @pytest_asyncio.fixture

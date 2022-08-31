@@ -23,6 +23,7 @@ from ..constants import (
     ADQL_FOREIGN_COLUMN_REGEX,
     ADQL_IDENTIFIER_REGEX,
 )
+from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..models import Band, Detail, Index
 
 external_router = APIRouter()
@@ -37,6 +38,27 @@ _TEMPLATES = Jinja2Templates(
 """FastAPI renderer for templated responses."""
 
 __all__ = ["external_router"]
+
+
+def _create_tap_redirect(sql: str, logger: BoundLogger) -> str:
+    """Construct the URL for a redirect to TAP to run the provided SQL.
+
+    Parameters
+    ----------
+    sql : `str`
+        SQL to run, with all parameters already filled in.
+    logger : `structlog.stdlib.BoundLogger`
+        Logger to log the redirect action.
+
+    Returns
+    -------
+    url : `str`
+        URL to execute a synchronous TAP query.
+    """
+    params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
+    url = "/api/tap/sync?" + urlencode(params)
+    logger.info(f"Redirecting to {url}")
+    return url
 
 
 def _get_butler(label: str) -> butler.Butler:
@@ -62,25 +84,33 @@ def _get_butler(label: str) -> butler.Butler:
     return _BUTLER_CACHE[label]
 
 
-def _create_tap_redirect(sql: str, logger: BoundLogger) -> str:
-    """Construct the URL for a redirect to TAP to run the provided SQL.
+def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
+    """Get the list of columns for a TAP query.
 
     Parameters
     ----------
-    sql : `str`
-        SQL to run, with all parameters already filled in.
-    logger : `structlog.stdlib.BoundLogger`
-        Logger to log the redirect action.
+    table : `str`
+        Fully-qualified name of the table.
+    detail : `datalinker.models.Detail`
+        Level of detail desired.
+    metadata : `datalinker.dependencies.tap.TAPMetadata`
+        Cached TAP table metadata.
 
     Returns
     -------
-    url : `str`
-        URL to execute a synchronous TAP query.
+    columns : `str`
+        The SQL expresion for columns to retrieve.
     """
-    params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
-    url = "/api/tap/sync?" + urlencode(params)
-    logger.info(f"Redirecting to {url}")
-    return url
+    columns_str = "s.*"
+    if detail == Detail.minimal:
+        columns = metadata.get(table, {}).get("lsst:minimal", [])
+        if columns:
+            columns_str = ",".join([f"s.{c}" for c in columns])
+    elif detail == Detail.principal:
+        columns = metadata.get(table, {}).get("tap:principal", [])
+        if columns:
+            columns_str = ",".join([f"s.{c}" for c in columns])
+    return columns_str
 
 
 @external_router.get(
@@ -154,16 +184,10 @@ async def timeseries(
         title="Foreign column for time variable",
         regex=ADQL_FOREIGN_COLUMN_REGEX,
     ),
+    tap_metadata: TAPMetadata = Depends(tap_metadata_dependency),
     logger: BoundLogger = Depends(logger_dependency),
 ) -> str:
-    if detail == Detail.minimal:
-        # TODO: get from sdm-schemas
-        columns = "s.*"
-    elif detail == Detail.principal:
-        # TODO: get from sdm-schemas
-        columns = "s.*"
-    elif detail == Detail.full:
-        columns = "s.*"
+    columns = _get_tap_columns(table, detail, tap_metadata)
 
     # Some time series tables are normalized and don't have a time in them.
     # In those cases we have to join with another table on ccdVisitId.

@@ -1,0 +1,378 @@
+tables:
+  ApdbSchema.DiaForcedSource:
+    tap:principal: []
+  ApdbSchema.DiaObject:
+    tap:principal: []
+  ApdbSchema.DiaObjectLast:
+    tap:principal: []
+  ApdbSchema.DiaObject_To_Object_Match:
+    tap:principal: []
+  ApdbSchema.DiaSource:
+    tap:principal: []
+  ApdbSchema.MPCORB:
+    tap:principal: []
+  ApdbSchema.MPCORBDESIGMAP:
+    tap:principal: []
+  ApdbSchema.SSObject:
+    tap:principal: []
+  ApdbSchema.SSSource:
+    tap:principal: []
+  BaselineSchema.ApertureBins:
+    tap:principal: []
+  BaselineSchema.CcdVisit:
+    tap:principal: []
+  BaselineSchema.CcdVisitMetadata:
+    tap:principal: []
+  BaselineSchema.DiaForcedSource:
+    tap:principal: []
+  BaselineSchema.DiaObject:
+    tap:principal: []
+  BaselineSchema.DiaObject_To_Object_Match:
+    tap:principal: []
+  BaselineSchema.DiaSource:
+    tap:principal: []
+  BaselineSchema.ForcedSource:
+    tap:principal: []
+  BaselineSchema.LeapSeconds:
+    tap:principal: []
+  BaselineSchema.MPCORB:
+    tap:principal: []
+  BaselineSchema.MPCORBDESIGMAP:
+    tap:principal: []
+  BaselineSchema.Object:
+    tap:principal: []
+  BaselineSchema.Object_APMean:
+    tap:principal: []
+  BaselineSchema.Object_Extra:
+    tap:principal: []
+  BaselineSchema.Object_NonPeriodic:
+    tap:principal: []
+  BaselineSchema.Object_Periodic:
+    tap:principal: []
+  BaselineSchema.RawAmpExposure:
+    tap:principal: []
+  BaselineSchema.RawAmpExposureMetadata:
+    tap:principal: []
+  BaselineSchema.RawCcdExposure:
+    tap:principal: []
+  BaselineSchema.RawCcdExposureMetadata:
+    tap:principal: []
+  BaselineSchema.RawExposure:
+    tap:principal: []
+  BaselineSchema.SSObject:
+    tap:principal: []
+  BaselineSchema.SSSource:
+    tap:principal: []
+  BaselineSchema.Source:
+    tap:principal: []
+  BaselineSchema.Source_APMean:
+    tap:principal: []
+  BaselineSchema.Visit:
+    tap:principal: []
+  BaselineSchema.VisitMetadata:
+    tap:principal: []
+  BaselineSchema.Visit_To_RawExposure:
+    tap:principal: []
+  BaselineSchema.ZZZ_Schema_Description:
+    tap:principal: []
+  BaselineSchema.prv_DataBlock:
+    tap:principal: []
+  BaselineSchema.prv_Node:
+    tap:principal: []
+  BaselineSchema.prv_Pipeline:
+    tap:principal: []
+  BaselineSchema.prv_ProcHistory:
+    tap:principal: []
+  BaselineSchema.prv_RowIdToDataBlock:
+    tap:principal: []
+  BaselineSchema.prv_Task:
+    tap:principal: []
+  BaselineSchema.prv_TaskExecution:
+    tap:principal: []
+  BaselineSchema.prv_TaskExecutionToInputDataBlock:
+    tap:principal: []
+  BaselineSchema.prv_TaskExecutionToOutputDataBlock:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Node:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Pipeline:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Pipeline_Tasks:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Task:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Task_Columns:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Task_Files:
+    tap:principal: []
+  BaselineSchema.prv_cnf_Task_KVParams:
+    tap:principal: []
+  BaselineSchema.sdqa_ImageStatus:
+    tap:principal: []
+  BaselineSchema.sdqa_Metric:
+    tap:principal: []
+  BaselineSchema.sdqa_Rating_CcdVisit:
+    tap:principal: []
+  BaselineSchema.sdqa_Rating_ForAmpVisit:
+    tap:principal: []
+  BaselineSchema.sdqa_Threshold:
+    tap:principal: []
+  HscSchema.CcdVisit:
+    tap:principal: []
+  HscSchema.Object:
+    tap:principal: []
+  HscSchema.Source:
+    tap:principal: []
+  HscSchema.Visit:
+    tap:principal: []
+  ImsimSchema.CcdVisit:
+    tap:principal: []
+  ImsimSchema.DiaObject:
+    tap:principal: []
+  ImsimSchema.DiaSource:
+    tap:principal: []
+  ImsimSchema.ForcedSource:
+    tap:principal: []
+  ImsimSchema.ForcedSourceOnDiaObject:
+    tap:principal: []
+  ImsimSchema.MatchesObject:
+    tap:principal: []
+  ImsimSchema.MatchesTruth:
+    tap:principal: []
+  ImsimSchema.Object:
+    tap:principal: []
+  ImsimSchema.Source:
+    tap:principal: []
+  ImsimSchema.Visit:
+    tap:principal: []
+  dp01_dc2_catalogs.forced_photometry:
+    tap:principal:
+    - objectId
+    - coord_ra
+    - coord_dec
+    - g_good
+    - g_base_ClassificationExtendedness_value
+    - g_base_ClassificationExtendedness_flag
+    - g_modelfit_CModel_instFlux
+    - g_modelfit_CModel_instFluxErr
+    - i_good
+    - i_base_ClassificationExtendedness_value
+    - i_base_ClassificationExtendedness_flag
+    - i_modelfit_CModel_instFlux
+    - i_modelfit_CModel_instFluxErr
+    - r_good
+    - r_base_ClassificationExtendedness_value
+    - r_base_ClassificationExtendedness_flag
+    - r_modelfit_CModel_instFlux
+    - r_modelfit_CModel_instFluxErr
+    - u_good
+    - u_base_ClassificationExtendedness_value
+    - u_base_ClassificationExtendedness_flag
+    - u_modelfit_CModel_instFlux
+    - u_modelfit_CModel_instFluxErr
+    - y_good
+    - y_base_ClassificationExtendedness_value
+    - y_base_ClassificationExtendedness_flag
+    - y_modelfit_CModel_instFlux
+    - y_modelfit_CModel_instFluxErr
+    - z_good
+    - z_base_ClassificationExtendedness_value
+    - z_base_ClassificationExtendedness_flag
+    - z_modelfit_CModel_instFlux
+    - z_modelfit_CModel_instFluxErr
+  dp01_dc2_catalogs.object:
+    tap:principal:
+    - objectId
+    - parentObjectId
+    - ra
+    - dec
+    - tract
+    - patch
+    - extendedness
+    - blendedness
+    - mag_g_cModel
+    - mag_i_cModel
+    - mag_r_cModel
+    - mag_u_cModel
+    - mag_y_cModel
+    - mag_z_cModel
+    - magerr_g_cModel
+    - magerr_i_cModel
+    - magerr_r_cModel
+    - magerr_u_cModel
+    - magerr_y_cModel
+    - magerr_z_cModel
+    - snr_g_cModel
+    - snr_i_cModel
+    - snr_r_cModel
+    - snr_u_cModel
+    - snr_y_cModel
+    - snr_z_cModel
+    - good
+    - clean
+    - cModelFlux_flag_g
+    - cModelFlux_flag_i
+    - cModelFlux_flag_r
+    - cModelFlux_flag_u
+    - cModelFlux_flag_y
+    - cModelFlux_flag_z
+  dp01_dc2_catalogs.position:
+    tap:principal:
+    - objectId
+    - coord_ra
+    - coord_dec
+    - parent
+    - deblend_nChild
+    - detect_isPrimary
+    - extinction_bv
+  dp01_dc2_catalogs.reference:
+    tap:principal:
+    - objectId
+    - coord_ra
+    - coord_dec
+    - base_ClassificationExtendedness_value
+    - good
+    - deblend_deblendedAsPsf
+    - deblend_skipped
+    - modelfit_CModel_flag
+  dp01_dc2_catalogs.truth_match:
+    tap:principal:
+    - id
+    - ra
+    - dec
+    - host_galaxy
+    - redshift
+    - is_variable
+    - is_pointsource
+    - flux_u
+    - flux_g
+    - flux_r
+    - flux_i
+    - flux_z
+    - flux_y
+    - mag_r
+    - tract
+    - patch
+    - truth_type
+    - match_objectId
+    - match_sep
+    - is_good_match
+    - is_nearest_neighbor
+    - is_unique_truth_entry
+  dp02_dc2_catalogs.CcdVisit:
+    tap:principal: []
+  dp02_dc2_catalogs.CoaddPatches:
+    tap:principal:
+    - lsst_tract
+    - lsst_patch
+    - s_ra
+    - s_dec
+    - s_region
+  dp02_dc2_catalogs.DiaObject:
+    tap:principal: []
+  dp02_dc2_catalogs.DiaSource:
+    tap:principal: []
+  dp02_dc2_catalogs.ForcedSource:
+    tap:principal: []
+  dp02_dc2_catalogs.ForcedSourceOnDiaObject:
+    tap:principal:
+    - diaObjectId
+    - band
+    - psfFlux
+    - psfFluxErr
+    - psfDiffFlux
+    - psfDiffFluxErr
+    - ccdVisitId
+    - forcedSourceOnDiaObjectId
+  dp02_dc2_catalogs.Object:
+    tap:principal: []
+  dp02_dc2_catalogs.Source:
+    tap:principal: []
+  dp02_dc2_catalogs.Visit:
+    tap:principal: []
+  dp02_test_PREOPS863_00.CcdVisit:
+    tap:principal: []
+  dp02_test_PREOPS863_00.DiaObject:
+    tap:principal: []
+  dp02_test_PREOPS863_00.DiaSource:
+    tap:principal: []
+  dp02_test_PREOPS863_00.ForcedSource:
+    tap:principal: []
+  dp02_test_PREOPS863_00.ForcedSourceOnDiaObject:
+    tap:principal: []
+  dp02_test_PREOPS863_00.Object:
+    tap:principal: []
+  dp02_test_PREOPS863_00.Source:
+    tap:principal: []
+  dp02_test_PREOPS863_00.Visit:
+    tap:principal: []
+  ivoa.ObsCore:
+    tap:principal:
+    - dataproduct_type
+    - dataproduct_subtype
+    - calib_level
+    - lsst_band
+    - em_min
+    - em_max
+    - lsst_tract
+    - lsst_patch
+    - lsst_visit
+    - lsst_filter
+    - lsst_detector
+    - t_exptime
+    - t_min
+    - t_max
+    - s_ra
+    - s_dec
+    - s_fov
+    - obs_id
+    - obs_collection
+    - o_ucd
+    - facility_name
+    - instrument_name
+    - s_region
+    - access_url
+    - access_format
+  sdss_stripe82_01.DeepCoadd:
+    tap:principal: []
+  sdss_stripe82_01.DeepCoadd_Metadata:
+    tap:principal: []
+  sdss_stripe82_01.DeepCoadd_To_Htm10:
+    tap:principal: []
+  sdss_stripe82_01.Filter:
+    tap:principal: []
+  sdss_stripe82_01.LeapSeconds:
+    tap:principal: []
+  sdss_stripe82_01.RunDeepForcedSource:
+    tap:principal: []
+  sdss_stripe82_01.RunDeepSource:
+    tap:principal: []
+  sdss_stripe82_01.Science_Ccd_Exposure:
+    tap:principal: []
+  sdss_stripe82_01.Science_Ccd_Exposure_Metadata:
+    tap:principal: []
+  sdss_stripe82_01.Science_Ccd_Exposure_NoFile:
+    tap:principal: []
+  sdss_stripe82_01.Science_Ccd_Exposure_To_Htm10:
+    tap:principal: []
+  sdss_stripe82_01.ZZZ_Db_Description:
+    tap:principal: []
+  wise_00.allsky_2band_p1bm_frm:
+    tap:principal: []
+  wise_00.allsky_3band_p1bm_frm:
+    tap:principal: []
+  wise_00.allsky_4band_p1bm_frm:
+    tap:principal: []
+  wise_00.allwise_p3am_cdd:
+    tap:principal: []
+  wise_00.allwise_p3as_cdd:
+    tap:principal: []
+  wise_00.allwise_p3as_mep:
+    tap:principal: []
+  wise_00.allwise_p3as_psd:
+    tap:principal: []
+  wise_01.allwise_p3as_mep:
+    tap:principal: []
+  wise_01.allwise_p3as_psd:
+    tap:principal: []
+
