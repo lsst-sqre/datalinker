@@ -26,8 +26,9 @@ apt-get update
 # Install security updates:
 apt-get -y upgrade
 
-# Example of installing a new package, without unnecessary packages:
-apt-get -y install --no-install-recommends git postgresql libpq-dev
+# setuptools_scm requires Git.  Butler requires libpq-dev, and postgresql is
+# useful for debugging.  TAP schema metadata requires curl and unzip.
+apt-get -y install --no-install-recommends curl git postgresql libpq-dev unzip
 
 # Delete cached files we don't need anymore:
 apt-get clean
