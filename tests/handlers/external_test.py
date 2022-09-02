@@ -74,6 +74,121 @@ async def test_cone_search(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_timeseries(client: AsyncClient) -> None:
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp02_dc2_catalogs.ForcedSource",
+            "id_column": "objectId",
+            "detail": "full",
+            "join_time_column": "dp02_dc2_catalogs.CcdVisit.expMidptMJD",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT t.expMidptMJD,s.* FROM dp02_dc2_catalogs.ForcedSource"
+                " AS s JOIN dp02_dc2_catalogs.CcdVisit AS t"
+                " ON s.ccdVisitId = t.ccdVisitId"
+                " WHERE s.objectId = 18446744073709551617"
+            )
+        ],
+    }
+
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp02_dc2_catalogs.DiaSource",
+            "id_column": "diaObjectId",
+            "band_column": "filterName",
+            "detail": "full",
+            "band": "u",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT s.* FROM dp02_dc2_catalogs.DiaSource AS s"
+                " WHERE s.diaObjectId = 18446744073709551617"
+                " AND s.filterName = 'u'"
+            )
+        ],
+    }
+
+
+@pytest.mark.asyncio
+async def test_timeseries_detail(client: AsyncClient) -> None:
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp02_dc2_catalogs.ForcedSourceOnDiaObject",
+            "id_column": "diaObjectId",
+            "detail": "principal",
+            "join_time_column": "dp02_dc2_catalogs.CcdVisit.expMidptMJD",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT t.expMidptMJD,s.diaObjectId,s.band,s.psfFlux"
+                ",s.psfFluxErr,s.psfDiffFlux,s.psfDiffFluxErr,s.ccdVisitId"
+                ",s.forcedSourceOnDiaObjectId"
+                " FROM dp02_dc2_catalogs.ForcedSourceOnDiaObject"
+                " AS s JOIN dp02_dc2_catalogs.CcdVisit AS t"
+                " ON s.ccdVisitId = t.ccdVisitId"
+                " WHERE s.diaObjectId = 18446744073709551617"
+            )
+        ],
+    }
+
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp02_dc2_catalogs.ForcedSourceOnDiaObject",
+            "id_column": "diaObjectId",
+            "detail": "minimal",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT s.diaObjectId,s.band,s.psfFlux"
+                " FROM dp02_dc2_catalogs.ForcedSourceOnDiaObject AS s"
+                " WHERE s.diaObjectId = 18446744073709551617"
+            )
+        ],
+    }
+
+
+@pytest.mark.asyncio
 async def test_links(
     client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
 ) -> None:

@@ -24,6 +24,12 @@ class Configuration:
     Set with the ``DATALINKER_HIPS_BASE_URL`` environment variable.
     """
 
+    tap_metadata_dir: str = os.getenv("DATALINKER_TAP_METADATA_DIR", "")
+    """Directory containing YAML metadata files about TAP schema.
+
+    Set with the ``DATALINKER_TAP_METADATA_DIR`` environment variable.
+    """
+
     token: str = os.getenv("DATALINKER_TOKEN", "")
     """Token to use to authenticate to the HiPS service.
 
