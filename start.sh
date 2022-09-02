@@ -2,7 +2,7 @@
 
 if [ -n "$DATALINKER_TAP_METADATA_URL" ]; then
     if [ -z "$DATALINKER_TAP_METADATA_DIR" ]; then
-        echo 'DATAlINKER_TAP_METADATA_DIR must be specified' >&2
+        echo 'DATALINKER_TAP_METADATA_DIR must be specified' >&2
         exit 1
     fi
     curl -L "$DATALINKER_TAP_METADATA_URL" -o /tmp/datalink-columns.zip
