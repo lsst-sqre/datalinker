@@ -37,15 +37,15 @@ backoff==2.1.2 \
     --hash=sha256:407f1bc0f22723648a8880821b935ce5df8475cf04f7b6b5017ae264d30f6069 \
     --hash=sha256:b135e6d7c7513ba2bfd6895bc32bc8c66c6f3b0279b4c6cd866053cfd7d3126b
     # via lsst-resources
-boto3==1.24.75 \
-    --hash=sha256:7bfa2242df9b1fa73e17f4d7f79f6b22560f55d5da2e27e578e585ef6e4b14a7 \
-    --hash=sha256:e0757717091f7014683e69a31d88d41f960f24eddaf338c1949e63fd67ee2b5c
+boto3==1.24.80 \
+    --hash=sha256:0c5732a78f75ff3e2692e6ed1765c5c9d4960ba0e8b0694066864b86f9537350 \
+    --hash=sha256:c686295e7829cf54127f7ab9c20088cc7b2a7d24768fcf355aebffa65879e2c9
     # via
     #   lsst-resources
     #   moto
-botocore==1.27.75 \
-    --hash=sha256:a6229f9b31f7fe372475c0ee60483b3ec827e4b76275d5239fbfd590cd0b217f \
-    --hash=sha256:f8b1da2b41e88c58db51db0c6eff6ca564258948ce4a5ac7e96ac35a469b0d4f
+botocore==1.27.80 \
+    --hash=sha256:0f8b937c41e7ea92c5374e83d54c006d99d9f9fa203175fbfb1ded74c28e9759 \
+    --hash=sha256:412145ab8b9ec2ee3c9ecf43e06f9fe0fc03cc645add8314327e69e58be78cab
     # via
     #   boto3
     #   moto
@@ -54,9 +54,9 @@ cachetools==5.2.0 \
     --hash=sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757 \
     --hash=sha256:f9f17d2aec496a9aa6b76f53e3b614c965223c061982d434d160f930c698a9db
     # via google-auth
-certifi==2022.9.14 \
-    --hash=sha256:36973885b9542e6bd01dea287b2b4b3b21236307c56324fcc3f1160f2d655ed5 \
-    --hash=sha256:e232343de1ab72c2aa521b625c80f699e356830fd0e2c620b465b304b17b0516
+certifi==2022.9.24 \
+    --hash=sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14 \
+    --hash=sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382
     # via
     #   httpcore
     #   httpx
@@ -135,6 +135,7 @@ click==8.1.3 \
     --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
     --hash=sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48
     # via
+    #   flask
     #   lsst-daf-butler
     #   uvicorn
 cryptography==38.0.1 \
@@ -177,15 +178,25 @@ fastapi==0.85.0 \
     # via
     #   -r requirements/main.in
     #   safir
+flask==2.1.3 \
+    --hash=sha256:15972e5017df0575c3d6c090ba168b6db90259e620ac8d7ea813a396bad5b6cb \
+    --hash=sha256:9013281a7402ad527f8fd56375164f3aa021ecfaff89bfe3825346c24f87e04c
+    # via
+    #   flask-cors
+    #   moto
+flask-cors==3.0.10 \
+    --hash=sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438 \
+    --hash=sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de
+    # via moto
 google-api-core==2.10.1 \
     --hash=sha256:92d17123cfe399b5ef7e026c63babf978d8475e1ac877919eb7933e25dea2273 \
     --hash=sha256:e16c15a11789bc5a3457afb2818a3540a03f341e6e710d7f9bbf6cde2ef4a7c8
     # via
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.11.0 \
-    --hash=sha256:be62acaae38d0049c21ca90f27a23847245c9f161ff54ede13af2cb6afecbac9 \
-    --hash=sha256:ed65ecf9f681832298e29328e1ef0a3676e3732b2e56f41532d45f70a22de0fb
+google-auth==2.11.1 \
+    --hash=sha256:516e6623038b81430dd062a1a25ecd24f173d7c15cdf4e48a9e78bc87e97aeec \
+    --hash=sha256:53bdc0c2b4e25895575779caef4cfb3a6bdff1b7b32dc38a654d71aba35bb5f8
     # via
     #   google-api-core
     #   google-cloud-core
@@ -418,11 +429,16 @@ idna==3.4 \
     #   anyio
     #   requests
     #   rfc3986
+itsdangerous==2.1.2 \
+    --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
+    --hash=sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a
+    # via flask
 jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
     --hash=sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61
     # via
     #   -r requirements/main.in
+    #   flask
     #   moto
 jmespath==1.0.1 \
     --hash=sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980 \
@@ -430,31 +446,31 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-lsst-daf-butler[postgres]==25.0.0a20223800 \
-    --hash=sha256:11c31a18ee9670ca0cc9239a66aee0701f0faf56272f8235acc20215a8d2c4f4 \
-    --hash=sha256:723c2e8a656653090f347c6cf8679794258e6c8da41379b0484789be7d105d2a
+lsst-daf-butler[postgres]==25.0.0a20223900 \
+    --hash=sha256:5498dc9ad257b47a451198f7fa3fe76c80ca2643070d9e345a32484425c7b9d3 \
+    --hash=sha256:83976cc07cb1899fe4835c7c526a6e514017272b79d4d742c1c28de673e49c9d
     # via -r requirements/main.in
-lsst-resources[gs,s3]==25.0.0a20223800 \
-    --hash=sha256:afcce378b6b77c05ad777f827a30837a94b50bc0a6ef28784ab0d31c8e41fcea \
-    --hash=sha256:f811eafca1cff50d5bfcbe25a5702e819636738e375aa33879ab2feaae3d6677
+lsst-resources[gs,s3]==25.0.0a20223900 \
+    --hash=sha256:8c70003f20f2ff2eab1ba41e6ad285053c412171d7034c27c6754be921f1cda4 \
+    --hash=sha256:f187dbe20ea903f2bf48eb6364e5b9343ba49f591bb27817147bddf2e2c770aa
     # via
     #   -r requirements/main.in
     #   lsst-daf-butler
-lsst-sphgeom==25.0.0a20223800 \
-    --hash=sha256:098fb37770ca15a895c1e44e1fd41ca634ee6b9edf2f4ca95239222b5e75edc4 \
-    --hash=sha256:2a83d1877806d0250bfd8850671996a082b04347b3e6a5378befcdc6bd9f850d \
-    --hash=sha256:419d6773c71c34752fe7eea488f94d418cafce8d595860d7023f3c88388f58d2 \
-    --hash=sha256:725ce498e6da68fba8430f2b1cd80dfc451e7ed69d701cba414ff221f4e8d1c9 \
-    --hash=sha256:986692100b106db34e9e033b967e9c22f2041bd1d5f7cfbcfce773ad89d04a2e \
-    --hash=sha256:b1f76ec92fa6327410f273c98962f738f72934c1552542650f2ed4cd97d3145b \
-    --hash=sha256:c850f3fd6c9cadb2728540e0e12a037d49bee16249209bc19a960f9a04727971 \
-    --hash=sha256:c9f9d7c0d99cb809339744009e92169152d0e49fe3291927f8480f79cacd52fa \
-    --hash=sha256:cf24cb339ed0d4acab89bcb6917b6edc7e8f811f0a04b91dc5dd43388a81ef3a \
-    --hash=sha256:ee77d9f8c9e8f3446874b20b6e1084e4d6b35216340a090c54c5815ff333fef1
+lsst-sphgeom==25.0.0a20223900 \
+    --hash=sha256:0c6033a5d14182779891bb78801893adf26e4e5742f38f08dadfbe9feb587792 \
+    --hash=sha256:2b5017b1801fbee706a8e17efec53c85c2e60bd9c41b6ad300c5fc1a2bd76ad1 \
+    --hash=sha256:3e10f6d03c928adb51ab25cf69449c6546aab172a5d6df73d993c87ffb951cbb \
+    --hash=sha256:403d514034431cf6c2538ca0f0c7dc26239ce2ed40c6a53b363ebef5f7980b50 \
+    --hash=sha256:4dc67061db4a2a51703a6d1fb4b60369e1ac0d8b2637810e2f03a04896594668 \
+    --hash=sha256:6ed5f620a4a9a9b0ced6d1e64a2fd1db6d8957fe82674d317f9d5ac5c1305716 \
+    --hash=sha256:82d641fd4cdc8f7a7e69266a4ae173fb82a35e00b0a69dca882f8aa8a2173999 \
+    --hash=sha256:b2b39d4685f5b2a2bf5e79e14cd4379c53265f6d1a411320fe188ffb11fddd47 \
+    --hash=sha256:e116379812fc458199dd03ebc20624879b8d0831507b6303ee36e55845837da6 \
+    --hash=sha256:ec9a0ce0300c4806f6e673b59db99c7478fd4a1837520442a4f01ec336254a3c
     # via lsst-daf-butler
-lsst-utils==25.0.0a20223800 \
-    --hash=sha256:5a1c97d3567ae63e1d31f467bf08c0a07544ace14fd8344935bc13c1c6011b23 \
-    --hash=sha256:99481cb839ad79016861971faeb7ed92b0d2a0db51ece2ac4ad989aaba91b53e
+lsst-utils==25.0.0a20223900 \
+    --hash=sha256:92f1273e9e382f6794b7d46016c8f306e16328be86617bc4c8350817a5b9cbde \
+    --hash=sha256:eb08bb9353b03db150d2deae48b68f7d57aa54af8a08bf4d4e3adf38e4b270ce
     # via
     #   lsst-daf-butler
     #   lsst-resources
@@ -502,9 +518,9 @@ markupsafe==2.1.1 \
     # via
     #   jinja2
     #   moto
-moto==4.0.3 \
-    --hash=sha256:749f98f52110faa124258113c7b1980edc1551d073c0a425fe46d2480f088bf6 \
-    --hash=sha256:8aeb56757e686af3e4a63f90afbc973cb231adaad87c5ce89e68936c109b0be9
+moto==4.0.5 \
+    --hash=sha256:1a8640fc53516a2dea5831be8c35b6017d315acb1f395a94b53ef43cd150d2bd \
+    --hash=sha256:81312005827902ef88003aec0f92c79761e94e1e478994d18b56100ff020a511
     # via lsst-resources
 numpy==1.23.3 \
     --hash=sha256:004f0efcb2fe1c0bd6ae1fcfc69cc8b6bf2407e0f18be308612007a0762b4089 \
@@ -793,6 +809,7 @@ six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via
+    #   flask-cors
     #   google-auth
     #   python-dateutil
 sniffio==1.3.0 \
@@ -982,7 +999,9 @@ websockets==10.3 \
 werkzeug==2.1.2 \
     --hash=sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6 \
     --hash=sha256:72a4b735692dd3135217911cbeaa1be5fa3f62bffb8745c5215420a03dc55255
-    # via moto
+    # via
+    #   flask
+    #   moto
 wrapt==1.14.1 \
     --hash=sha256:00b6d4ea20a906c0ca56d84f93065b398ab74b927a7a3dbd470f6fc503f95dc3 \
     --hash=sha256:01c205616a89d09827986bc4e859bcabd64f5a0662a7fe95e0d359424e0e071b \
