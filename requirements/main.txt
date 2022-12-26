@@ -50,15 +50,15 @@ backoff==2.2.1 \
     --hash=sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba \
     --hash=sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8
     # via lsst-resources
-boto3==1.26.32 \
-    --hash=sha256:672b97a634f3408d455bf94a6dfd59ef0c6150019885bc7107e465f062d58c26 \
-    --hash=sha256:e0d6215313b03f09a9a38eccc88c1d3ba9868bcaaeb8b20eeb6d88fc3018b94d
+boto3==1.26.37 \
+    --hash=sha256:7a6766c7177a9c6f85365e02aabd96ca4d72e08bc5cb127cb51b0a97ac9b9d1b \
+    --hash=sha256:82b790b1dabd0746b028d2013b5d4d636a41f3aaf25520081f4c173cb6eb395d
     # via
     #   lsst-resources
     #   moto
-botocore==1.29.32 \
-    --hash=sha256:27bc3903f7f8c813efd1605ff13ffdfca2c37dc78cadfa488cfda78fca323deb \
-    --hash=sha256:b1a65edca151665a6844bf9f317440e31d8d5e4cbce3477f2661462e20c213b1
+botocore==1.29.37 \
+    --hash=sha256:18ab8e95345a6d0d2653ce65d261a0aef6fef8a57a35a89e3cea6ffe315e92fc \
+    --hash=sha256:3afa4fec9f7713caa05116563b38f81bec7bd20585d517155484d3f25efab5aa
     # via
     #   boto3
     #   moto
@@ -377,9 +377,9 @@ hpgeom==0.8.2 \
     --hash=sha256:da7589875cd66646aec9f3ebc8ad82717a20afddeb033623e6230ff71ab7e991 \
     --hash=sha256:fa76482dfddacd1aab69aee97328ffad30224a82a19b33cb5a28ef1577af170b
     # via lsst-sphgeom
-httpcore==0.16.2 \
-    --hash=sha256:52c79095197178856724541e845f2db86d5f1527640d9254b5b8f6f6cebfdee6 \
-    --hash=sha256:c35c5176dc82db732acfd90b581a3062c999a72305df30c0fc8fafd8e4aca068
+httpcore==0.16.3 \
+    --hash=sha256:c5d6f04e2fc530f39e0c077e6a30caa53f1451096120f1f38b954afd0b17c0cb \
+    --hash=sha256:da1fb708784a938aa084bde4feb8317056c55037247c787bd7e19eb2c2949dc0
     # via httpx
 httptools==0.5.0 \
     --hash=sha256:0297822cea9f90a38df29f48e40b42ac3d48a28637368f3ec6d15eebefd182f9 \
