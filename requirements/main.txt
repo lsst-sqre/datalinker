@@ -181,9 +181,9 @@ deprecated==1.2.13 \
     # via
     #   lsst-daf-butler
     #   lsst-utils
-fastapi==0.89.0 \
-    --hash=sha256:34990132751324c988db7bd15bf43a86f5c8580e58a4438e14b12d72fb0ae1d1 \
-    --hash=sha256:d8cafbd223b5a3c010119ba61fb246d5fd3b8f4766cfa93f922a416650797976
+fastapi==0.88.0 \
+    --hash=sha256:263b718bb384422fe3d042ffc9a0c8dece5e034ab6586ff034f6b4b1667c3eee \
+    --hash=sha256:915bf304180a0e7c5605ec81097b7d4cd8826ff87a02bb198e336fb9f3b5ff02
     # via
     #   -r requirements/main.in
     #   safir
@@ -284,9 +284,9 @@ google-resumable-media==2.4.0 \
     --hash=sha256:2aa004c16d295c8f6c33b2b4788ba59d366677c0a25ae7382436cb30f776deaa \
     --hash=sha256:8d5518502f92b9ecc84ac46779bd4f09694ecb3ba38a3e7ca737a86d15cbca1f
     # via google-cloud-storage
-googleapis-common-protos==1.57.1 \
-    --hash=sha256:2672d6b3a7b6188b70a5a4c70def7ddbb9000852dfbf49daf52fc7306c09db0c \
-    --hash=sha256:e877f2f041b640b4888b6917dde4f44515ab938bf744c4dbc06f11f0e8ed56b5
+googleapis-common-protos==1.58.0 \
+    --hash=sha256:c727251ec025947d545184ba17e3578840fc3a24a0516a020479edab660457df \
+    --hash=sha256:ca3befcd4580dab6ad49356b46bf165bb68ff4b32389f028f1abd7c10ab9519a
     # via google-api-core
 greenlet==2.0.1 \
     --hash=sha256:0109af1138afbfb8ae647e31a2b1ab030f58b21dd8528c27beaeb0093b7938a9 \
