@@ -48,8 +48,8 @@ def mock_butler() -> Iterator[MockButler]:
 @pytest.fixture
 def mock_google_storage() -> Iterator[None]:
     """Mock out the Google Cloud Storage API."""
-    mock_gcs = MockStorageClient
+    mock_gcs = MockStorageClient()
     with patch("google.auth.impersonated_credentials.Credentials"):
         with patch("google.auth.default", return_value=(None, None)):
-            with patch("google.cloud.storage.Client", side_effect=mock_gcs):
+            with patch("google.cloud.storage.Client", return_value=mock_gcs):
                 yield
