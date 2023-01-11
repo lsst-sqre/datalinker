@@ -3,7 +3,7 @@
 name = "datalinker"
 description = "Service and data discovery for Rubin Science Platform"
 license = {file = "LICENSE"}
-readme = "README.rst"
+readme = "README.md"
 keywords = [
     "rubin",
     "lsst",
