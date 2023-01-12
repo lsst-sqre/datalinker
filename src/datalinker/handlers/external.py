@@ -202,7 +202,7 @@ async def timeseries(
 
     sql += f" WHERE s.{id_column} = {id}"
     if band != Band.all:
-        sql += f" AND s.{band_column} = '{band}'"
+        sql += f" AND s.{band_column} = '{band.value}'"
 
     return _create_tap_redirect(sql, logger)
 
