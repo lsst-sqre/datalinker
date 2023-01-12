@@ -3,7 +3,7 @@
 name = "datalinker"
 description = "Service and data discovery for Rubin Science Platform"
 license = {file = "LICENSE"}
-readme = "README.rst"
+readme = "README.md"
 keywords = [
     "rubin",
     "lsst",
@@ -14,12 +14,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Natural Language :: English",
     "Operating System :: POSIX",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = []
 dynamic = ["version"]
 
@@ -99,6 +99,9 @@ python_files = [
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 ignore_missing_imports = true
+local_partial_types = true
+no_implicit_reexport = true
+show_error_codes = true
 strict_equality = true
 warn_redundant_casts = true
 warn_unreachable = true
