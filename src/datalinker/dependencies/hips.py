@@ -51,9 +51,9 @@ class HiPSListDependency:
 
         Parameters
         ----------
-        client : `httpx.AsyncClient`
+        client
             Client to use to retrieve the HiPS lists.
-        logger : `structlog.stdlib.BoundLogger`
+        logger
             Logger for any error messages.
         """
         lists = []

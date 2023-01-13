@@ -8,12 +8,10 @@ These handlers should be used for monitoring, health checks, internal status,
 or other information that should not be visible outside the Kubernetes cluster.
 """
 
-from email.message import Message
-from importlib.metadata import metadata
-from typing import cast
-
 from fastapi import APIRouter
-from safir.metadata import Metadata, get_project_url
+from safir.metadata import Metadata, get_metadata
+
+from ..config import config
 
 __all__ = ["get_index", "internal_router"]
 
@@ -28,6 +26,7 @@ internal_router = APIRouter()
         " a health check. This route is not exposed outside the cluster and"
         " therefore cannot be used by external clients."
     ),
+    include_in_schema=False,
     response_model=Metadata,
     response_model_exclude_none=True,
     summary="Application metadata",
@@ -37,11 +36,6 @@ async def get_index() -> Metadata:
 
     By convention, this endpoint returns only the application's metadata.
     """
-    pkg_metadata = cast(Message, metadata("datalinker"))
-    return Metadata(
-        name="datalinker",
-        version=pkg_metadata["Version"],
-        description=pkg_metadata["Summary"],
-        repository_url=get_project_url(pkg_metadata, "Source"),
-        documentation_url=get_project_url(pkg_metadata, "Homepage"),
+    return get_metadata(
+        package_name="datalinker", application_name=config.name
     )
