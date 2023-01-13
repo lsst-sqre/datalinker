@@ -1,13 +1,13 @@
 """Dependency that caches information about the TAP schema."""
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 import yaml
 
 from ..config import config
 
-TAPMetadata = Dict[str, Dict[str, List[str]]]
+TAPMetadata = dict[str, dict[str, list[str]]]
 
 __all__ = [
     "TAPMetadata",
@@ -36,7 +36,7 @@ class TAPMetadataDependency:
 
         Returns
         -------
-        columns : Dict[`str`, Dict[`str`, List[`str`]]]
+        dict of str to dict of str to list of str
             Mapping from table names (qualified with the schema name) to a
             mapping from column types (``tap:principal`` or ``lsst:minimal``)
             to a list of columns.

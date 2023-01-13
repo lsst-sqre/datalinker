@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Optional
+from collections.abc import Iterator
+from typing import Any
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
@@ -37,14 +38,17 @@ class MockDatasetRef:
 class MockButler(Mock):
     """Mock of Butler for testing."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(spec=butler.Butler, **kwargs)
+    def __init__(self) -> None:
+        super().__init__(spec=butler.Butler)
         self.uuid = uuid4()
         self.is_raw = False
         self.registry = self
         self.datastore = self
 
-    def getDataset(self, uuid: UUID) -> Optional[MockDatasetRef]:
+    def _get_child_mock(self, /, **kwargs: Any) -> Mock:
+        return Mock(**kwargs)
+
+    def getDataset(self, uuid: UUID) -> MockDatasetRef | None:
         dataset_type = "raw" if self.is_raw else "calexp"
         if uuid == self.uuid:
             return MockDatasetRef(uuid, dataset_type)

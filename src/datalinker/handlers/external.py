@@ -4,7 +4,7 @@ from datetime import timedelta
 from email.message import Message
 from importlib.metadata import metadata
 from pathlib import Path
-from typing import Dict, Literal, Optional, cast
+from typing import Literal, Optional, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
@@ -29,7 +29,7 @@ from ..models import Band, Detail, Index
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
-_BUTLER_CACHE: Dict[str, butler.Butler] = {}
+_BUTLER_CACHE: dict[str, butler.Butler] = {}
 """Cache of Butlers by label."""
 
 _TEMPLATES = Jinja2Templates(
@@ -45,14 +45,14 @@ def _create_tap_redirect(sql: str, logger: BoundLogger) -> str:
 
     Parameters
     ----------
-    sql : `str`
+    sql
         SQL to run, with all parameters already filled in.
-    logger : `structlog.stdlib.BoundLogger`
+    logger
         Logger to log the redirect action.
 
     Returns
     -------
-    url : `str`
+    str
         URL to execute a synchronous TAP query.
     """
     params = {"LANG": "ADQL", "REQUEST": "doQuery", "QUERY": sql}
@@ -69,12 +69,12 @@ def _get_butler(label: str) -> butler.Butler:
 
     Parameters
     ----------
-    label : `str`
+    label
         Label identifying the Butler repository.
 
     Returns
     -------
-    butler : `lsst.daf.butler.Butler`
+    lsst.daf.butler.Butler
         Corresponding Butler.
     """
     global _BUTLER_CACHE
@@ -89,16 +89,16 @@ def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
 
     Parameters
     ----------
-    table : `str`
+    table
         Fully-qualified name of the table.
-    detail : `datalinker.models.Detail`
+    detail
         Level of detail desired.
-    metadata : `datalinker.dependencies.tap.TAPMetadata`
+    metadata
         Cached TAP table metadata.
 
     Returns
     -------
-    columns : `str`
+    str
         The SQL expresion for columns to retrieve.
     """
     columns_str = "s.*"

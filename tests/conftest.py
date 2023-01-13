@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator, Iterator
 from datetime import timedelta
 from pathlib import Path
-from typing import AsyncIterator, Iterator
 
 import pytest
 import pytest_asyncio
