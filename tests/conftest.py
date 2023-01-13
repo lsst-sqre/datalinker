@@ -2,21 +2,21 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from pathlib import Path
 from typing import AsyncIterator, Iterator
-from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
+from safir.testing.gcs import MockStorageClient, patch_google_storage
 
 from datalinker import main
 from datalinker.config import config
 
 from .support.butler import MockButler, patch_butler
-from .support.gcs import MockStorageClient
 
 
 @pytest_asyncio.fixture
@@ -46,10 +46,9 @@ def mock_butler() -> Iterator[MockButler]:
 
 
 @pytest.fixture
-def mock_google_storage() -> Iterator[None]:
+def mock_google_storage() -> Iterator[MockStorageClient]:
     """Mock out the Google Cloud Storage API."""
-    mock_gcs = MockStorageClient()
-    with patch("google.auth.impersonated_credentials.Credentials"):
-        with patch("google.auth.default", return_value=(None, None)):
-            with patch("google.cloud.storage.Client", return_value=mock_gcs):
-                yield
+    yield from patch_google_storage(
+        expected_expiration=timedelta(hours=1),
+        bucket_name="some-bucket",
+    )
