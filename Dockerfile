@@ -36,16 +36,9 @@ RUN pip install --upgrade --no-cache-dir pip setuptools wheel
 
 # Install the app's Python runtime dependencies
 COPY requirements/main.txt ./requirements.txt
-RUN pip install --quiet --no-cache-dir -r requirements.txt
+RUN pip install --quiet --no-cache-dir --pre -r requirements.txt
 
 FROM dependencies-image AS install-image
-
-# Use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
-
-COPY . /workdir
-WORKDIR /workdir
-RUN pip install --no-cache-dir .
 
 # Use the virtualenv
 ENV PATH="/opt/venv/bin:$PATH"

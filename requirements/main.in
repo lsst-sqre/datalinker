@@ -1,3 +1,5 @@
+# -*- conf -*-
+#
 # Editable runtime dependencies (equivalent to install_requires)
 # Add direct runtime dependencies here, as well as implicit dependencies
 # with constrained versions.
@@ -14,11 +16,21 @@ uvicorn[standard]
 google-cloud-storage
 httpx
 jinja2
-lsst-daf-butler[postgres]
-lsst-resources[s3,gs]
 pyyaml
 safir[gcs]
 structlog
+
+# The non-alpha tagged releases of lsst-daf-butler and lsst-resources are
+# ancient since the project almost never makes releases, so we have to pin
+# them to alpha versions.  This means the pip install command used by tox
+# and the Makefile needs to include --pre.
+lsst-daf-butler[postgres]==26.0.0a20230300
+lsst-resources[s3,gs]==26.0.0a20230300
+
+# Recursive dependency of lsst-daf-butler, which also needs to be pinned
+# to an alpha release or lsst-daf-butler will try to use the latest tagged
+# release and fail due to missing modules.
+lsst-utils==26.0.0a20230300
 
 # Uncomment this, change the branch, comment out safir above, and run make
 # update-deps-no-hashes to test against an unreleased version of Safir.
