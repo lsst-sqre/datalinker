@@ -24,13 +24,20 @@ structlog
 # ancient since the project almost never makes releases, so we have to pin
 # them to alpha versions.  This means the pip install command used by tox
 # and the Makefile needs to include --pre.
-lsst-daf-butler[postgres]==26.0.0a20230300
-lsst-resources[s3,gs]==26.0.0a20230300
+#
+# Unfortunately, currently these pins appear to have to be moved to the latest
+# alpha release as soon as it comes out or the package becomes uninstallable,
+# since installing with --pre appears to try to use the latest alpha release
+# even if the version for that package is already pinned to something else.
+lsst-daf-butler[postgres]==26.0.0a20230400
+lsst-resources[s3,gs]==26.0.0a20230400
 
 # Recursive dependency of lsst-daf-butler, which also needs to be pinned
 # to an alpha release or lsst-daf-butler will try to use the latest tagged
 # release and fail due to missing modules.
-lsst-utils==26.0.0a20230300
+lsst-daf-relation==1.0.0a20230400
+lsst-sphgeom==26.0.0a20230400
+lsst-utils==26.0.0a20230400
 
 # Uncomment this, change the branch, comment out safir above, and run make
 # update-deps-no-hashes to test against an unreleased version of Safir.
