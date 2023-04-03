@@ -10,9 +10,9 @@ anyio==3.6.2 \
     # via
     #   -c requirements/main.txt
     #   httpcore
-asgi-lifespan==2.0.0 \
-    --hash=sha256:420582b1786b238d035244415dc11536acdbcb24762cba1c5e9bddc565960277 \
-    --hash=sha256:d46a31ff681e9edf1f776c9f61cf8fa6274cc66fca8cb4f11e940b1183e18842
+asgi-lifespan==2.1.0 \
+    --hash=sha256:5e2effaf0bfe39829cf2d64e7ecc47c7d86d676a6599f7afba378c31f5e3a308 \
+    --hash=sha256:ed840706680e28428c01e14afb3875d7d76d3206f3d5b2f2294e059b5c23804f
     # via -r requirements/dev.in
 attrs==22.2.0 \
     --hash=sha256:29e95c7f6778868dbd49170f98f8818f78f3dc5e0e37c0b1f474e3561b240836 \
@@ -92,9 +92,9 @@ exceptiongroup==1.1.1 \
     --hash=sha256:232c37c63e4f682982c8b6459f33a8981039e5fb8756b2074364e5055c498c9e \
     --hash=sha256:d484c3090ba2889ae2928419117447a14daf3c1231d5e30d0aae34f354f01785
     # via pytest
-filelock==3.10.6 \
-    --hash=sha256:409105becd604d6b176a483f855e7e8903c5cb2873e47f2c64f66a370c046aaf \
-    --hash=sha256:52f119747b2b9c4730dac715a7b1ab34b8ee70fd9259cba158ee53da566387ff
+filelock==3.10.7 \
+    --hash=sha256:892be14aa8efc01673b5ed6589dbccb95f9a8596f0507e232626155495c18105 \
+    --hash=sha256:bde48477b15fde2c7e5a0713cbe72721cb5a5ad32ee0b8f419907960b9d75536
     # via virtualenv
 h11==0.14.0 \
     --hash=sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d \
@@ -279,9 +279,9 @@ tomli==2.0.1 \
     #   coverage
     #   mypy
     #   pytest
-types-pyyaml==6.0.12.8 \
-    --hash=sha256:19304869a89d49af00be681e7b267414df213f4eb89634c4495fa62e8f942b9f \
-    --hash=sha256:5314a4b2580999b2ea06b2e5f9a7763d860d6e09cdf21c0e9561daa9cbd60178
+types-pyyaml==6.0.12.9 \
+    --hash=sha256:5aed5aa66bd2d2e158f75dda22b059570ede988559f030cf294871d3b647e3e8 \
+    --hash=sha256:c51b1bd6d99ddf0aa2884a7a328810ebf70a4262c292195d3f4f9a0005f9eeb6
     # via
     #   -c requirements/main.txt
     #   -r requirements/dev.in
