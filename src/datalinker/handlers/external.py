@@ -143,13 +143,13 @@ async def get_index(
 @external_router.get("/cone_search", response_class=RedirectResponse)
 async def cone_search(
     table: str = Query(
-        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
     ),
     ra_col: str = Query(
-        ..., title="Column for ra", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Column for ra", pattern=ADQL_IDENTIFIER_REGEX
     ),
     dec_col: str = Query(
-        ..., title="Column for dec", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Column for dec", pattern=ADQL_IDENTIFIER_REGEX
     ),
     ra_val: float = Query(..., title="ra value"),
     dec_val: float = Query(..., title="dec value"),
@@ -169,20 +169,20 @@ async def cone_search(
 async def timeseries(
     id: int = Query(..., title="Object identifier"),
     table: str = Query(
-        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
     ),
     id_column: str = Query(
-        ..., title="Object ID column", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Object ID column", pattern=ADQL_IDENTIFIER_REGEX
     ),
     band_column: str = Query(
-        "band", title="Band column", regex=ADQL_IDENTIFIER_REGEX
+        "band", title="Band column", pattern=ADQL_IDENTIFIER_REGEX
     ),
     band: Band = Query(Band.all, title="Abstract filter band"),
     detail: Detail = Query(Detail.full, title="Column detail"),
     join_time_column: Optional[str] = Query(
         None,
         title="Foreign column for time variable",
-        regex=ADQL_FOREIGN_COLUMN_REGEX,
+        pattern=ADQL_FOREIGN_COLUMN_REGEX,
     ),
     tap_metadata: TAPMetadata = Depends(tap_metadata_dependency),
     logger: BoundLogger = Depends(logger_dependency),
@@ -217,8 +217,8 @@ def links(
     id: str = Query(
         ...,
         title="Object ID",
-        example="butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-        regex="^butler://[^/]+/[a-f0-9-]+$",
+        examples=["butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127"],
+        pattern="^butler://[^/]+/[a-f0-9-]+$",
     ),
     responseformat: Literal["votable", "application/x-votable+xml"] = Query(
         "application/x-votable+xml", title="Response format"
