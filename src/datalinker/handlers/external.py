@@ -265,6 +265,25 @@ def links(
     image_uri = butler.datastore.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
 
+    image_url = _upload_to_gcs(str(image_uri))
+
+    return _TEMPLATES.TemplateResponse(
+        "links.xml",
+        {
+            "cutout": ref.datasetType.name != "raw",
+            "id": id,
+            "image_url": image_url,
+            "image_size": image_uri.size(),
+            "cutout_url": config.cutout_url,
+            "request": request,
+        },
+        media_type="application/x-votable+xml",
+    )
+
+
+def _upload_to_gcs(image_uri: str) -> str:
+    # Use GCS to upload a file and get a signed URL
+
     # Generate signed URL.
     image_uri_parts = urlparse(str(image_uri))
     storage_client = storage.Client()
@@ -278,15 +297,4 @@ def links(
         method="GET",
     )
 
-    return _TEMPLATES.TemplateResponse(
-        "links.xml",
-        {
-            "cutout": ref.datasetType.name != "raw",
-            "id": id,
-            "image_url": signed_url,
-            "image_size": image_uri.size(),
-            "cutout_url": config.cutout_url,
-            "request": request,
-        },
-        media_type="application/x-votable+xml",
-    )
+    return signed_url
