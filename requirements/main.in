@@ -13,6 +13,7 @@ starlette
 uvicorn[standard]
 
 # Other dependencies.
+boto3
 google-cloud-storage
 httpx
 jinja2
