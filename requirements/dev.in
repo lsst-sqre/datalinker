@@ -12,6 +12,7 @@
 asgi-lifespan
 coverage[toml]
 httpx
+moto[s3]
 mypy
 pre-commit
 pytest
