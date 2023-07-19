@@ -36,6 +36,15 @@ class Configuration:
     Set with the ``DATALINKER_TOKEN`` environment variable.
     """
 
+    google_credentials: str = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+    """File to use for credentials when interacting with GCS.
+
+    Set by a kubernetes secret setting this environment variable.
+    The app doesn't use this directly but the GCS library will use it.
+    If this environment variable isn't set, datalinker assumes to use
+    S3 (which has multiple environment variables).
+    """
+
     name: str = os.getenv("SAFIR_NAME", "datalinker")
     """The application's name, which doubles as the root HTTP endpoint path.
 

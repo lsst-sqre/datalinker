@@ -8,6 +8,7 @@ from typing import Literal, Optional, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
+from boto3 import client
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -265,7 +266,12 @@ def links(
     image_uri = butler.datastore.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
 
-    image_url = _upload_to_gcs(str(image_uri))
+    expires_in = timedelta(hours=1)
+
+    if config.google_credentials:
+        image_url = _upload_to_gcs(str(image_uri), expires_in)
+    else:
+        image_url = _upload_to_S3(str(image_uri), expires_in)
 
     return _TEMPLATES.TemplateResponse(
         "links.xml",
@@ -281,20 +287,60 @@ def links(
     )
 
 
-def _upload_to_gcs(image_uri: str) -> str:
-    # Use GCS to upload a file and get a signed URL
+def _upload_to_gcs(image_uri: str, expiry: timedelta) -> str:
+    """Use GCS to upload a file and get a signed URL.
 
-    # Generate signed URL.
-    image_uri_parts = urlparse(str(image_uri))
+    Parameters
+    ----------
+    image_uri
+        The URI of the file
+    expiry
+        Time that the URL will be valid
+
+    Returns
+    -------
+    str
+        The signed URL
+    """
+    image_uri_parts = urlparse(image_uri)
     storage_client = storage.Client()
     bucket = storage_client.bucket(image_uri_parts.netloc)
     blob = bucket.blob(image_uri_parts.path[1:])
     signed_url = blob.generate_signed_url(
         version="v4",
         # This URL is valid for one hour.
-        expiration=timedelta(hours=1),
+        expiration=expiry,
         # Allow only GET requests using this URL.
         method="GET",
+    )
+
+    return signed_url
+
+
+def _upload_to_S3(image_uri: str, expiry: timedelta) -> str:
+    """Use S3 to upload a file and get a signed URL.
+
+    Parameters
+    ----------
+    image_uri
+        The URI of the file
+    expiry
+        Time that the URL will be valid
+
+    Returns
+    -------
+    str
+        The signed URL
+    """
+    image_uri_parts = urlparse(image_uri)
+    bucket = image_uri_parts.netloc
+    key = image_uri_parts.path[1:]
+
+    s3_client = client("s3", region_name="us-east-1")
+    signed_url = s3_client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": bucket, "Key": key},
+        ExpiresIn=expiry.total_seconds(),
     )
 
     return signed_url
