@@ -14,15 +14,15 @@ asgi-lifespan==2.1.0 \
     --hash=sha256:5e2effaf0bfe39829cf2d64e7ecc47c7d86d676a6599f7afba378c31f5e3a308 \
     --hash=sha256:ed840706680e28428c01e14afb3875d7d76d3206f3d5b2f2294e059b5c23804f
     # via -r requirements/dev.in
-boto3==1.28.5 \
-    --hash=sha256:2c76db4a1208b8d09814261fc5e530fc36b3b952ef807312495e6869fa6eaad5 \
-    --hash=sha256:a5c815ab81219a606f20362c9d9c190f5c224bf33c5dc4c20501036cc4a9034f
+boto3==1.28.8 \
+    --hash=sha256:7132ac3f3a9c28b84dcc344cfb439d37d2c5ab45f6b577358fc9aeba5d5aab63 \
+    --hash=sha256:cf88309d9b8cd9a2fb0c8049cb4b217b4e9dcb55bf670d6054b0bbe2eef25e57
     # via
     #   -c requirements/main.txt
     #   moto
-botocore==1.31.5 \
-    --hash=sha256:8aec97512587a5475036a982785e406c52efd260457b809846985f849c3d7cf3 \
-    --hash=sha256:b35114dae9c451895a11fef13d76881e2bb5428e5de8a702cc8589a28fb34c7a
+botocore==1.31.8 \
+    --hash=sha256:092baa2168ae78080b0c28011527bfc11d8debd3767aa1e9a4ce8a91fd9943a2 \
+    --hash=sha256:61ba7efaa6305c1928b9b3fbb6f780cbfbd762e19008d20c11ba52b47f20e1b0
     # via
     #   -c requirements/main.txt
     #   boto3
@@ -305,9 +305,9 @@ httpx==0.24.1 \
     #   -c requirements/main.txt
     #   -r requirements/dev.in
     #   respx
-identify==2.5.24 \
-    --hash=sha256:0aac67d5b4812498056d28a9a512a483f5085cc28640b02b258a59dac34301d4 \
-    --hash=sha256:986dbfb38b1140e763e413e6feb44cd731faf72d1909543178aa79b0e258265d
+identify==2.5.25 \
+    --hash=sha256:9df2489842707d431b38ce3410ef8df40da5b10a3e28a3fcac1a42523e956409 \
+    --hash=sha256:db4de0e758c0db8f81996816cd2f3f2f8c5c8d49a7fd02f3b4109aac6fd80e29
     # via pre-commit
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
@@ -546,9 +546,9 @@ responses==0.23.1 \
     # via
     #   -c requirements/main.txt
     #   moto
-respx==0.20.1 \
-    --hash=sha256:372f06991c03d1f7f480a420a2199d01f1815b6ed5a802f4e4628043a93bd03e \
-    --hash=sha256:cc47a86d7010806ab65abdcf3b634c56337a737bb5c4d74c19a0dfca83b3bc73
+respx==0.20.2 \
+    --hash=sha256:07cf4108b1c88b82010f67d3c831dae33a375c7b436e54d87737c7f9f99be643 \
+    --hash=sha256:ab8e1cf6da28a5b2dd883ea617f8130f77f676736e6e9e4a25817ad116a172c9
     # via -r requirements/dev.in
 s3transfer==0.6.1 \
     --hash=sha256:3c0da2d074bf35d6870ef157158641178a4204a6e689e82546083e31e0311346 \
@@ -575,9 +575,9 @@ termcolor==2.3.0 \
     --hash=sha256:3afb05607b89aed0ffe25202399ee0867ad4d3cb4180d98aaf8eefa6a5f7d475 \
     --hash=sha256:b5b08f68937f138fe92f6c089b99f1e2da0ae56c52b78bf7075fd95420fd9a5a
     # via pytest-sugar
-types-pyyaml==6.0.12.10 \
-    --hash=sha256:662fa444963eff9b68120d70cda1af5a5f2aa57900003c2006d7626450eaae5f \
-    --hash=sha256:ebab3d0700b946553724ae6ca636ea932c1b0868701d4af121630e78d695fc97
+types-pyyaml==6.0.12.11 \
+    --hash=sha256:7d340b19ca28cddfdba438ee638cd4084bde213e501a3978738543e27094775b \
+    --hash=sha256:a461508f3096d1d5810ec5ab95d7eeecb651f3a15b71959999988942063bf01d
     # via
     #   -c requirements/main.txt
     #   -r requirements/dev.in
@@ -596,9 +596,9 @@ urllib3==1.26.16 \
     #   botocore
     #   requests
     #   responses
-virtualenv==20.24.0 \
-    --hash=sha256:18d1b37fc75cc2670625702d76849a91ebd383768b4e91382a8d51be3246049e \
-    --hash=sha256:e2a7cef9da880d693b933db7654367754f14e20650dc60e8ee7385571f8593a3
+virtualenv==20.24.1 \
+    --hash=sha256:01aacf8decd346cf9a865ae85c0cdc7f64c8caa07ff0d8b1dfc1733d10677442 \
+    --hash=sha256:2ef6a237c31629da6442b0bcaa3999748108c7166318d1f55cc9f8d7294e97bd
     # via pre-commit
 werkzeug==2.3.6 \
     --hash=sha256:935539fa1413afbb9195b24880778422ed620c0fc09670945185cce4d91a8890 \
