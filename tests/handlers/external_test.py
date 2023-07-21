@@ -219,9 +219,11 @@ async def test_links_s3(
 async def _test_links(
     client: AsyncClient, mock_butler: MockButler, label: str, url: str
 ) -> None:
+    # Note: use iD to test the IVOA requirement of
+    # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://{label}/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
     )
     assert r.status_code == 200
 
@@ -283,9 +285,11 @@ async def _test_links_raw(
     client: AsyncClient, mock_butler: MockButler, label: str, url: str
 ) -> None:
     mock_butler.is_raw = True
+    # Note: use iD to test the IVOA requirement of
+    # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://{label}/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
     )
     assert r.status_code == 200
 
