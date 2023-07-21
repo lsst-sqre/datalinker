@@ -268,10 +268,14 @@ def links(
 
     expires_in = timedelta(hours=1)
 
-    if config.google_credentials:
+    if config.storage_backend == "GCS":
         image_url = _upload_to_gcs(str(image_uri), expires_in)
-    else:
+    elif config.storage_backend == "S3":
         image_url = _upload_to_S3(str(image_uri), expires_in)
+    else:
+        raise Exception(
+            f"Config error: {config.storage_backend} is not a valid backend."
+        )
 
     return _TEMPLATES.TemplateResponse(
         "links.xml",

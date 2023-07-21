@@ -48,7 +48,7 @@ def mock_butler() -> Iterator[MockButler]:
     yield from patch_butler()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def aws_credentials() -> None:
     """Mocked AWS Credentials for moto."""
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
@@ -58,18 +58,20 @@ def aws_credentials() -> None:
     os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def s3(aws_credentials: None) -> boto3.client:
     with mock_s3():
+        config.storage_backend = "S3"
         yield boto3.client("s3", region_name="us-east-1")
+        config.storage_backend = ""
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def mock_google_storage() -> Iterator[MockStorageClient]:
     """Mock out the Google Cloud Storage API."""
-    config.google_credentials = "creds.ini"
+    config.storage_backend = "GCS"
     yield from patch_google_storage(
         expected_expiration=timedelta(hours=1),
         bucket_name="some-bucket",
     )
-    config.google_credentials = ""
+    config.storage_backend = ""
