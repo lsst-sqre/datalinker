@@ -263,7 +263,7 @@ def links(
                 }
             ],
         )
-    image_uri = butler.datastore.getURI(ref)
+    image_uri = butler.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
 
     expires_in = timedelta(hours=1)
