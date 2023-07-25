@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
+import boto3
 import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -189,12 +191,39 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links(
+async def test_links_gcs(
     client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
 ) -> None:
+    label = "label-gcs"
+    url = f"https://example.com/{str(mock_butler.uuid)}"
+
+    await _test_links(client, mock_butler, label, url)
+
+
+@pytest.mark.asyncio
+async def test_links_s3(
+    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+) -> None:
+    label = "label-s3"
+
+    expires = timedelta(hours=1)
+    url = s3.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": "some-bucket", "Key": str(mock_butler.uuid)},
+        ExpiresIn=expires.total_seconds(),
+    )
+
+    await _test_links(client, mock_butler, label, url)
+
+
+async def _test_links(
+    client: AsyncClient, mock_butler: MockButler, label: str, url: str
+) -> None:
+    # Note: use iD to test the IVOA requirement of
+    # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://label/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
     )
     assert r.status_code == 200
 
@@ -204,8 +233,8 @@ async def test_links(
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=True,
-        id=f"butler://label/{str(mock_butler.uuid)}",
-        image_url=f"https://example.com/{str(mock_butler.uuid)}",
+        id=f"butler://{label}/{str(mock_butler.uuid)}",
+        image_url=url,
         image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
         cutout_url=config.cutout_url,
     )
@@ -216,7 +245,7 @@ async def test_links(
         r = await client.get(
             "/api/datalink/links",
             params={
-                "iD": f"butler://label/{str(mock_butler.uuid)}",
+                "id": f"butler://{label}/{str(mock_butler.uuid)}",
                 "responseformat": response_format,
             },
         )
@@ -225,13 +254,42 @@ async def test_links(
 
 
 @pytest.mark.asyncio
-async def test_links_raw(
+async def test_links_raw_gcs(
     client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
 ) -> None:
+    await _test_links_raw(
+        client,
+        mock_butler,
+        "label-gcs-raw",
+        f"https://example.com/{str(mock_butler.uuid)}",
+    )
+
+
+@pytest.mark.asyncio
+async def test_links_raw_s3(
+    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+) -> None:
+    label = "label-s3-raw"
+
+    expires = timedelta(hours=1)
+    url = s3.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": "some-bucket", "Key": str(mock_butler.uuid)},
+        ExpiresIn=expires.total_seconds(),
+    )
+
+    await _test_links_raw(client, mock_butler, label, url)
+
+
+async def _test_links_raw(
+    client: AsyncClient, mock_butler: MockButler, label: str, url: str
+) -> None:
     mock_butler.is_raw = True
+    # Note: use iD to test the IVOA requirement of
+    # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://label-raw/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
     )
     assert r.status_code == 200
 
@@ -241,8 +299,8 @@ async def test_links_raw(
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=False,
-        id=f"butler://label-raw/{str(mock_butler.uuid)}",
-        image_url=f"https://example.com/{str(mock_butler.uuid)}",
+        id=f"butler://{label}/{str(mock_butler.uuid)}",
+        image_url=url,
         image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
         cutout_url=config.cutout_url,
     )
@@ -251,8 +309,21 @@ async def test_links_raw(
 
 
 @pytest.mark.asyncio
-async def test_links_errors(
+async def test_links_errors_gcs(
     client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
+) -> None:
+    await _test_links_errors(client, mock_butler)
+
+
+@pytest.mark.asyncio
+async def test_links_errors_s3(
+    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+) -> None:
+    await _test_links_errors(client, mock_butler)
+
+
+async def _test_links_errors(
+    client: AsyncClient, mock_butler: MockButler
 ) -> None:
     uuid = uuid4()
 

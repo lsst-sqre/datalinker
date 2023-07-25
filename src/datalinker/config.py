@@ -36,6 +36,14 @@ class Configuration:
     Set with the ``DATALINKER_TOKEN`` environment variable.
     """
 
+    storage_backend: str = os.getenv("STORAGE_BACKEND", "GCS")
+    """Which backend to use for storage buckets to upload
+    files into.
+
+    Set with the ``STORAGE_BACKEND`` environment variable to
+    either ```GCS``` or ```S3```.
+    """
+
     name: str = os.getenv("SAFIR_NAME", "datalinker")
     """The application's name, which doubles as the root HTTP endpoint path.
 

@@ -8,6 +8,7 @@ from typing import Literal, Optional, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
+from boto3 import client
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -143,13 +144,13 @@ async def get_index(
 @external_router.get("/cone_search", response_class=RedirectResponse)
 async def cone_search(
     table: str = Query(
-        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
     ),
     ra_col: str = Query(
-        ..., title="Column for ra", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Column for ra", pattern=ADQL_IDENTIFIER_REGEX
     ),
     dec_col: str = Query(
-        ..., title="Column for dec", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Column for dec", pattern=ADQL_IDENTIFIER_REGEX
     ),
     ra_val: float = Query(..., title="ra value"),
     dec_val: float = Query(..., title="dec value"),
@@ -169,20 +170,20 @@ async def cone_search(
 async def timeseries(
     id: int = Query(..., title="Object identifier"),
     table: str = Query(
-        ..., title="Table name", regex=ADQL_COMPOUND_TABLE_REGEX
+        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
     ),
     id_column: str = Query(
-        ..., title="Object ID column", regex=ADQL_IDENTIFIER_REGEX
+        ..., title="Object ID column", pattern=ADQL_IDENTIFIER_REGEX
     ),
     band_column: str = Query(
-        "band", title="Band column", regex=ADQL_IDENTIFIER_REGEX
+        "band", title="Band column", pattern=ADQL_IDENTIFIER_REGEX
     ),
     band: Band = Query(Band.all, title="Abstract filter band"),
     detail: Detail = Query(Detail.full, title="Column detail"),
     join_time_column: Optional[str] = Query(
         None,
         title="Foreign column for time variable",
-        regex=ADQL_FOREIGN_COLUMN_REGEX,
+        pattern=ADQL_FOREIGN_COLUMN_REGEX,
     ),
     tap_metadata: TAPMetadata = Depends(tap_metadata_dependency),
     logger: BoundLogger = Depends(logger_dependency),
@@ -217,8 +218,8 @@ def links(
     id: str = Query(
         ...,
         title="Object ID",
-        example="butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-        regex="^butler://[^/]+/[a-f0-9-]+$",
+        examples=["butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127"],
+        pattern="^butler://[^/]+/[a-f0-9-]+$",
     ),
     responseformat: Literal["votable", "application/x-votable+xml"] = Query(
         "application/x-votable+xml", title="Response format"
@@ -262,31 +263,88 @@ def links(
                 }
             ],
         )
-    image_uri = butler.datastore.getURI(ref)
+    image_uri = butler.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
 
-    # Generate signed URL.
-    image_uri_parts = urlparse(str(image_uri))
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(image_uri_parts.netloc)
-    blob = bucket.blob(image_uri_parts.path[1:])
-    signed_url = blob.generate_signed_url(
-        version="v4",
-        # This URL is valid for one hour.
-        expiration=timedelta(hours=1),
-        # Allow only GET requests using this URL.
-        method="GET",
-    )
+    expires_in = timedelta(hours=1)
+
+    if config.storage_backend == "GCS":
+        image_url = _upload_to_gcs(str(image_uri), expires_in)
+    elif config.storage_backend == "S3":
+        image_url = _upload_to_S3(str(image_uri), expires_in)
+    else:
+        raise Exception(
+            f"Config error: {config.storage_backend} is not a valid backend."
+        )
 
     return _TEMPLATES.TemplateResponse(
         "links.xml",
         {
             "cutout": ref.datasetType.name != "raw",
             "id": id,
-            "image_url": signed_url,
+            "image_url": image_url,
             "image_size": image_uri.size(),
             "cutout_url": config.cutout_url,
             "request": request,
         },
         media_type="application/x-votable+xml",
     )
+
+
+def _upload_to_gcs(image_uri: str, expiry: timedelta) -> str:
+    """Use GCS to upload a file and get a signed URL.
+
+    Parameters
+    ----------
+    image_uri
+        The URI of the file
+    expiry
+        Time that the URL will be valid
+
+    Returns
+    -------
+    str
+        The signed URL
+    """
+    image_uri_parts = urlparse(image_uri)
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(image_uri_parts.netloc)
+    blob = bucket.blob(image_uri_parts.path[1:])
+    signed_url = blob.generate_signed_url(
+        version="v4",
+        # This URL is valid for one hour.
+        expiration=expiry,
+        # Allow only GET requests using this URL.
+        method="GET",
+    )
+
+    return signed_url
+
+
+def _upload_to_S3(image_uri: str, expiry: timedelta) -> str:
+    """Use S3 to upload a file and get a signed URL.
+
+    Parameters
+    ----------
+    image_uri
+        The URI of the file
+    expiry
+        Time that the URL will be valid
+
+    Returns
+    -------
+    str
+        The signed URL
+    """
+    image_uri_parts = urlparse(image_uri)
+    bucket = image_uri_parts.netloc
+    key = image_uri_parts.path[1:]
+
+    s3_client = client("s3", region_name="us-east-1")
+    signed_url = s3_client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": bucket, "Key": key},
+        ExpiresIn=expiry.total_seconds(),
+    )
+
+    return signed_url
