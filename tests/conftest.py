@@ -69,16 +69,23 @@ def aws_credentials() -> Iterator[None]:
 def s3(aws_credentials: None) -> boto3.client:
     with mock_s3():
         config.storage_backend = "S3"
-        yield boto3.client("s3", region_name="us-east-1")
+        config.s3_endpoint_url = "https://s3.amazonaws.com/bucket"
+        yield boto3.client(
+            "s3", endpoint_url=config.s3_endpoint_url, region_name="us-east-1"
+        )
         config.storage_backend = ""
+        config.s3_endpoint_url = ""
 
 
 @pytest.fixture
 def mock_google_storage() -> Iterator[MockStorageClient]:
     """Mock out the Google Cloud Storage API."""
     config.storage_backend = "GCS"
+    config.s3_endpoint_url = "https://storage.googleapis.com"
+
     yield from patch_google_storage(
         expected_expiration=timedelta(hours=1),
         bucket_name="some-bucket",
     )
     config.storage_backend = ""
+    config.s3_endpoint_url = ""
