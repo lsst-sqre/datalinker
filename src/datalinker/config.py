@@ -68,6 +68,14 @@ class Configuration:
     Set with the ``SAFIR_LOG_LEVEL`` environment variable.
     """
 
+    s3_endpoint_url: str = os.getenv(
+        "S3_ENDPOINT_URL", "https://storage.googleapis.com"
+    )
+    """The S3 endpoint URL to use.
+
+    Set with the ``S3_ENDPOINT_URL`` environment variable.
+    """
+
 
 config = Configuration()
 """Configuration for datalinker."""

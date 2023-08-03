@@ -340,7 +340,10 @@ def _upload_to_S3(image_uri: str, expiry: timedelta) -> str:
     bucket = image_uri_parts.netloc
     key = image_uri_parts.path[1:]
 
-    s3_client = client("s3", region_name="us-east-1")
+    s3_client = client(
+        "s3", endpoint_url=config.s3_endpoint_url, region_name="us-east-1"
+    )
+
     signed_url = s3_client.generate_presigned_url(
         "get_object",
         Params={"Bucket": bucket, "Key": key},

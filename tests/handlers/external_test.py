@@ -317,7 +317,7 @@ async def test_links_errors_gcs(
 
 @pytest.mark.asyncio
 async def test_links_errors_s3(
-    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+    client: AsyncClient, mock_butler: MockButler, s3: None
 ) -> None:
     await _test_links_errors(client, mock_butler)
 
