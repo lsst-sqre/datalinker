@@ -18,5 +18,6 @@ HIPS_DATASETS = (
     "images/band_i",
     "images/band_z",
     "images/band_y",
+    "images/2MASS/Color",
 )
 """HiPS data sets to include in the HiPS list."""
