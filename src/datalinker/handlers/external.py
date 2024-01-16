@@ -13,8 +13,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import storage
-from lsst.daf import butler
+from lsst.daf.butler import LabeledButlerFactory
 from lsst.daf.butler.registry import MissingCollectionError
+from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import Metadata, get_project_url
 from structlog.stdlib import BoundLogger
@@ -31,8 +32,8 @@ from ..models import Band, Detail, Index
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
-_BUTLER_CACHE: dict[str, butler.Butler] = {}
-"""Cache of Butlers by label."""
+_BUTLER_FACTORY = LabeledButlerFactory()
+"""Factory for creating Butlers from a label and Gafaelfawr token."""
 
 _TEMPLATES = Jinja2Templates(
     directory=str(Path(__file__).parent.parent / "templates")
@@ -61,29 +62,6 @@ def _create_tap_redirect(sql: str, logger: BoundLogger) -> str:
     url = "/api/tap/sync?" + urlencode(params)
     logger.info(f"Redirecting to {url}")
     return url
-
-
-def _get_butler(label: str) -> butler.Butler:
-    """Retrieve a cached Butler object or create a new one.
-
-    Don't bother adding a lock in, it's fine to make a couple if there's a
-    race condition, they'll get cleaned up.
-
-    Parameters
-    ----------
-    label
-        Label identifying the Butler repository.
-
-    Returns
-    -------
-    lsst.daf.butler.Butler
-        Corresponding Butler.
-    """
-    global _BUTLER_CACHE
-
-    if label not in _BUTLER_CACHE:
-        _BUTLER_CACHE[label] = butler.Butler(label)
-    return _BUTLER_CACHE[label]
 
 
 def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
@@ -226,18 +204,20 @@ def links(
         "application/x-votable+xml", title="Response format"
     ),
     logger: BoundLogger = Depends(logger_dependency),
+    delegated_token: str = Depends(auth_delegated_token_dependency),
 ) -> Response:
     butler_uri = urlparse(id)
     label = butler_uri.netloc
     uuid = butler_uri.path[1:]
     logger.debug("Retrieving object from Butler", label=label, uuid=uuid)
 
-    # Invalid Butler labels will cause the Butler constructor to raise a
-    # FileNotFoundError.  Hopefully this will stay consistent, since we want
-    # other errors (like problems reaching PostgreSQL) to return 500.
+    # Invalid Butler labels will cause the Butler factory to raise a KeyError.
+    # We want other errors (like problems reaching PostgreSQL) to return 500.
     try:
-        butler = _get_butler(label)
-    except FileNotFoundError:
+        butler = _BUTLER_FACTORY.create_butler(
+            label=label, access_token=delegated_token
+        )
+    except KeyError:
         logger.warning("Butler repository does not exist", label=label)
         raise HTTPException(
             status_code=404,

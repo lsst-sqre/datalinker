@@ -11,7 +11,7 @@ import boto3
 import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
-from lsst.daf import butler
+from lsst.daf.butler import LabeledButlerFactory
 
 from datalinker.config import config
 
@@ -369,10 +369,10 @@ async def test_links_bad_repo(client: AsyncClient) -> None:
     uuid = uuid4()
 
     # Rather than using the regular mock Butler, mock it out to raise
-    # FileNotFoundError from the constructor.  This simulates an invalid
+    # KeyError from the constructor.  This simulates an invalid
     # label.
-    with patch.object(butler, "Butler") as mock_butler:
-        mock_butler.side_effect = FileNotFoundError
+    with patch.object(LabeledButlerFactory, "create_butler") as mock_butler:
+        mock_butler.side_effect = KeyError
         r = await client.get(
             "/api/datalink/links",
             params={"id": f"butler://invalid-repo/{str(uuid)}"},

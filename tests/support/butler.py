@@ -7,7 +7,7 @@ from typing import Any
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
-from lsst.daf import butler
+from lsst.daf.butler import Butler, LabeledButlerFactory
 from lsst.daf.butler.registry import MissingCollectionError
 
 __all__ = ["MockButler", "patch_butler"]
@@ -40,7 +40,7 @@ class MockButler(Mock):
     """Mock of Butler for testing."""
 
     def __init__(self) -> None:
-        super().__init__(spec=butler.Butler)
+        super().__init__(spec=Butler)
         self.uuid = uuid4()
         self.is_raw = False
         self.needs_refresh = False
@@ -73,6 +73,6 @@ class MockButler(Mock):
 def patch_butler() -> Iterator[MockButler]:
     """Mock out Butler for testing."""
     mock_butler = MockButler()
-    with patch.object(butler, "Butler") as mock:
+    with patch.object(LabeledButlerFactory, "create_butler") as mock:
         mock.return_value = mock_butler
         yield mock_butler
