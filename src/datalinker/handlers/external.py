@@ -14,7 +14,6 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from google.cloud import storage
 from lsst.daf.butler import LabeledButlerFactory
-from lsst.daf.butler.registry import MissingCollectionError
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import Metadata, get_project_url
@@ -231,11 +230,7 @@ def links(
         )
 
     # This returns lsst.resources.ResourcePath.
-    try:
-        ref = butler.registry.getDataset(UUID(uuid))
-    except MissingCollectionError:
-        butler.registry.refresh()
-        ref = butler.registry.getDataset(UUID(uuid))
+    ref = butler.registry.getDataset(UUID(uuid))
 
     if not ref:
         logger.warning("Dataset does not exist", label=label, id=id)

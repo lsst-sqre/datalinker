@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
 from lsst.daf.butler import Butler, LabeledButlerFactory
-from lsst.daf.butler.registry import MissingCollectionError
 
 __all__ = ["MockButler", "patch_butler"]
 
@@ -43,7 +42,6 @@ class MockButler(Mock):
         super().__init__(spec=Butler)
         self.uuid = uuid4()
         self.is_raw = False
-        self.needs_refresh = False
         self.registry = self
         self.datastore = self
         self.registry = self
@@ -52,11 +50,6 @@ class MockButler(Mock):
         return Mock(**kwargs)
 
     def getDataset(self, uuid: UUID) -> MockDatasetRef | None:
-        if self.needs_refresh:
-            raise MissingCollectionError(
-                "Collection with key '1234' not found."
-            )
-
         dataset_type = "raw" if self.is_raw else "calexp"
         if uuid == self.uuid:
             return MockDatasetRef(uuid, dataset_type)
@@ -65,9 +58,6 @@ class MockButler(Mock):
 
     def getURI(self, ref: MockDatasetRef) -> MockResourcePath:
         return MockResourcePath(f"s3://some-bucket/{str(ref.uuid)}")
-
-    def refresh(self) -> None:
-        self.needs_refresh = False
 
 
 def patch_butler() -> Iterator[MockButler]:

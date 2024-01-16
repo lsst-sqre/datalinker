@@ -201,20 +201,6 @@ async def test_links_gcs(
 
 
 @pytest.mark.asyncio
-async def test_links_needs_refresh(
-    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
-) -> None:
-    label = "label-refresh"
-    url = f"https://example.com/{str(mock_butler.uuid)}"
-
-    # Since we cache the butler and hold onto it for days or weeks,
-    # we sometimes need to refresh the butler to find new collections.
-    mock_butler.needs_refresh = True
-
-    await _test_links(client, mock_butler, label, url)
-
-
-@pytest.mark.asyncio
 async def test_links_s3(
     client: AsyncClient, mock_butler: MockButler, s3: boto3.client
 ) -> None:
