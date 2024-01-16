@@ -249,7 +249,13 @@ def links(
 
     expires_in = timedelta(hours=1)
 
-    if config.storage_backend == "GCS":
+    if image_uri.scheme in ("https", "http"):
+        # Butler server returns signed URLs directly, so no additional signing
+        # is required.
+        image_url = str(image_uri)
+    elif config.storage_backend == "GCS":
+        # If we are using a direct connection to the Butler database, the URIs
+        # will be S3 or GCS URIs that need to be signed.
         image_url = _upload_to_gcs(str(image_uri), expires_in)
     elif config.storage_backend == "S3":
         image_url = _upload_to_S3(str(image_uri), expires_in)

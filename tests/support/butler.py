@@ -29,9 +29,12 @@ class MockButler(Mock):
         super().__init__(spec=Butler)
         self.uuid = uuid4()
         self.is_raw = False
+        self.mock_uri: str | None = None
 
     def _generate_mock_uri(self, ref: MockDatasetRef) -> str:
-        return f"s3://some-bucket/{str(ref.uuid)}"
+        if self.mock_uri is None:
+            return f"s3://some-bucket/{str(ref.uuid)}"
+        return self.mock_uri
 
     def _get_child_mock(self, /, **kwargs: Any) -> Mock:
         return Mock(**kwargs)

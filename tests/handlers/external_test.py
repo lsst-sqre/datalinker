@@ -216,6 +216,21 @@ async def test_links_s3(
     await _test_links(client, mock_butler, label, url)
 
 
+@pytest.mark.asyncio
+async def test_links_https(
+    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+) -> None:
+    label = "label-http"
+
+    # The URL is already signed, so it should be passed through unchanged
+    url = (
+        f"https://presigned-url.example.com/{str(mock_butler.uuid)}"
+        "?X-Amz-Signature=abcdef"
+    )
+    mock_butler.mock_uri = url
+    await _test_links(client, mock_butler, label, url)
+
+
 async def _test_links(
     client: AsyncClient, mock_butler: MockButler, label: str, url: str
 ) -> None:
