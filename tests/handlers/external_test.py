@@ -235,7 +235,7 @@ async def _test_links(
         cutout=True,
         id=f"butler://{label}/{str(mock_butler.uuid)}",
         image_url=url,
-        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        image_size=1234,
         cutout_url=config.cutout_url,
     )
     assert r.text == expected
@@ -301,7 +301,7 @@ async def _test_links_raw(
         cutout=False,
         id=f"butler://{label}/{str(mock_butler.uuid)}",
         image_url=url,
-        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        image_size=1234,
         cutout_url=config.cutout_url,
     )
     assert r.text == expected

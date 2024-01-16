@@ -8,22 +8,9 @@ from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
 from lsst.daf.butler import Butler, LabeledButlerFactory
+from lsst.resources import ResourcePath
 
 __all__ = ["MockButler", "patch_butler"]
-
-
-class MockResourcePath:
-    """Mock version of `lsst.resources.ResourcePath` for testing."""
-
-    def __init__(self, url: str) -> None:
-        self.url = url
-
-    def __str__(self) -> str:
-        return self.url
-
-    def size(self) -> int:
-        """Returns a fairly random number for testing."""
-        return len(self.url) * 10
 
 
 class MockDatasetRef:
@@ -43,6 +30,9 @@ class MockButler(Mock):
         self.uuid = uuid4()
         self.is_raw = False
 
+    def _generate_mock_uri(self, ref: MockDatasetRef) -> str:
+        return f"s3://some-bucket/{str(ref.uuid)}"
+
     def _get_child_mock(self, /, **kwargs: Any) -> Mock:
         return Mock(**kwargs)
 
@@ -53,8 +43,12 @@ class MockButler(Mock):
         else:
             return None
 
-    def getURI(self, ref: MockDatasetRef) -> MockResourcePath:
-        return MockResourcePath(f"s3://some-bucket/{str(ref.uuid)}")
+    def getURI(self, ref: MockDatasetRef) -> ResourcePath:
+        resource_path = ResourcePath(self._generate_mock_uri(ref))
+        # 'size' does I/O, so mock it out
+        mock = patch.object(resource_path, "size").start()
+        mock.return_value = 1234
+        return resource_path
 
 
 def patch_butler() -> Iterator[MockButler]:
