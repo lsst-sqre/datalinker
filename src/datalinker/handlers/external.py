@@ -230,7 +230,7 @@ def links(
         )
 
     # This returns lsst.resources.ResourcePath.
-    ref = butler.registry.getDataset(UUID(uuid))
+    ref = butler.get_dataset(UUID(uuid))
 
     if not ref:
         logger.warning("Dataset does not exist", label=label, id=id)

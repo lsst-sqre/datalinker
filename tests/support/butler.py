@@ -42,14 +42,11 @@ class MockButler(Mock):
         super().__init__(spec=Butler)
         self.uuid = uuid4()
         self.is_raw = False
-        self.registry = self
-        self.datastore = self
-        self.registry = self
 
     def _get_child_mock(self, /, **kwargs: Any) -> Mock:
         return Mock(**kwargs)
 
-    def getDataset(self, uuid: UUID) -> MockDatasetRef | None:
+    def get_dataset(self, uuid: UUID) -> MockDatasetRef | None:
         dataset_type = "raw" if self.is_raw else "calexp"
         if uuid == self.uuid:
             return MockDatasetRef(uuid, dataset_type)
