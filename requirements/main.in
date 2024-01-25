@@ -17,7 +17,7 @@ boto3
 google-cloud-storage
 httpx
 jinja2
-lsst-daf-butler[postgres]
+lsst-daf-butler[postgres,remote]
 lsst-resources[s3,gs]
 pyyaml
 safir[gcs]
