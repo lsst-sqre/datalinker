@@ -3,9 +3,19 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from pydantic import TypeAdapter
 
 __all__ = ["Configuration", "config"]
+
+
+def _get_butler_repositories() -> dict[str, str] | None:
+    json = os.getenv("DAF_BUTLER_REPOSITORIES", None)
+    if json is not None:
+        return TypeAdapter(dict[str, str]).validate_json(json)
+
+    return None
 
 
 @dataclass
@@ -74,6 +84,18 @@ class Configuration:
     """The S3 endpoint URL to use.
 
     Set with the ``S3_ENDPOINT_URL`` environment variable.
+    """
+
+    # TODO DM-42660: butler_repositories can be removed once there is a release
+    # of daf_butler available that handles DAF_BUTLER_REPOSITORIES itself.
+    butler_repositories: dict[str, str] | None = field(
+        default_factory=_get_butler_repositories
+    )
+    """Mapping from label to URI for Butler repositories used by this service.
+
+    Set with the ``DAF_BUTLER_REPOSITORIES`` environment variable.  If not set,
+    Butler will fall back to looking this up from a file whose URI is given in
+    the ``DAF_BUTLER_REPOSITORY_INDEX`` environment variable.
     """
 
 
