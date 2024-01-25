@@ -11,7 +11,7 @@ import boto3
 import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
-from lsst.daf import butler
+from lsst.daf.butler import LabeledButlerFactory
 
 from datalinker.config import config
 
@@ -201,20 +201,6 @@ async def test_links_gcs(
 
 
 @pytest.mark.asyncio
-async def test_links_needs_refresh(
-    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
-) -> None:
-    label = "label-refresh"
-    url = f"https://example.com/{str(mock_butler.uuid)}"
-
-    # Since we cache the butler and hold onto it for days or weeks,
-    # we sometimes need to refresh the butler to find new collections.
-    mock_butler.needs_refresh = True
-
-    await _test_links(client, mock_butler, label, url)
-
-
-@pytest.mark.asyncio
 async def test_links_s3(
     client: AsyncClient, mock_butler: MockButler, s3: boto3.client
 ) -> None:
@@ -227,6 +213,21 @@ async def test_links_s3(
         ExpiresIn=expires.total_seconds(),
     )
 
+    await _test_links(client, mock_butler, label, url)
+
+
+@pytest.mark.asyncio
+async def test_links_https(
+    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
+) -> None:
+    label = "label-http"
+
+    # The URL is already signed, so it should be passed through unchanged
+    url = (
+        f"https://presigned-url.example.com/{str(mock_butler.uuid)}"
+        "?X-Amz-Signature=abcdef"
+    )
+    mock_butler.mock_uri = url
     await _test_links(client, mock_butler, label, url)
 
 
@@ -249,7 +250,7 @@ async def _test_links(
         cutout=True,
         id=f"butler://{label}/{str(mock_butler.uuid)}",
         image_url=url,
-        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        image_size=1234,
         cutout_url=config.cutout_url,
     )
     assert r.text == expected
@@ -315,7 +316,7 @@ async def _test_links_raw(
         cutout=False,
         id=f"butler://{label}/{str(mock_butler.uuid)}",
         image_url=url,
-        image_size=len(f"s3://some-bucket/{str(mock_butler.uuid)}") * 10,
+        image_size=1234,
         cutout_url=config.cutout_url,
     )
     assert r.text == expected
@@ -369,10 +370,10 @@ async def test_links_bad_repo(client: AsyncClient) -> None:
     uuid = uuid4()
 
     # Rather than using the regular mock Butler, mock it out to raise
-    # FileNotFoundError from the constructor.  This simulates an invalid
+    # KeyError from the constructor.  This simulates an invalid
     # label.
-    with patch.object(butler, "Butler") as mock_butler:
-        mock_butler.side_effect = FileNotFoundError
+    with patch.object(LabeledButlerFactory, "create_butler") as mock_butler:
+        mock_butler.side_effect = KeyError
         r = await client.get(
             "/api/datalink/links",
             params={"id": f"butler://invalid-repo/{str(uuid)}"},
