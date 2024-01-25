@@ -6,7 +6,7 @@ if [ -n "$DATALINKER_TAP_METADATA_URL" ]; then
         exit 1
     fi
     curl -L "$DATALINKER_TAP_METADATA_URL" -o /tmp/datalink-columns.zip
-    unzip /tmp/datalink-columns.zip -d "$DATALINKER_TAP_METADATA_DIR"
+    unzip -o /tmp/datalink-columns.zip -d "$DATALINKER_TAP_METADATA_DIR"
 fi
 
 rm -rf /tmp/secrets
