@@ -13,7 +13,7 @@ from importlib.metadata import metadata, version
 
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
-from safir.logging import configure_logging
+from safir.logging import Profile, configure_logging, configure_uvicorn_logging
 from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
@@ -36,6 +36,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 configure_logging(
     profile=config.profile, log_level=config.log_level, name="datalinker"
 )
+if config.profile == Profile.production:
+    configure_uvicorn_logging(config.log_level)
 
 app = FastAPI(
     title="datalinker",
