@@ -17,6 +17,7 @@ from lsst.daf.butler import LabeledButlerFactory
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import Metadata, get_project_url
+from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
 from ..config import StorageBackend, config
@@ -28,7 +29,7 @@ from ..constants import (
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..models import Band, Detail, Index
 
-external_router = APIRouter()
+external_router = APIRouter(route_class=SlackRouteErrorHandler)
 """FastAPI router for all external handlers."""
 
 _BUTLER_FACTORY = LabeledButlerFactory(config.butler_repositories)

@@ -6,7 +6,7 @@ import os
 from enum import Enum
 from typing import Annotated
 
-from pydantic import Field, TypeAdapter
+from pydantic import Field, HttpUrl, TypeAdapter
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 
@@ -122,6 +122,10 @@ class Config(BaseSettings):
             validation_alias="SAFIR_LOG_LEVEL",
         ),
     ] = LogLevel.INFO
+
+    slack_webhook: Annotated[
+        HttpUrl | None, Field(title="Slack webhook for exception reporting")
+    ] = None
 
     model_config = SettingsConfigDict(
         env_prefix="DATALINKER_", case_sensitive=False
