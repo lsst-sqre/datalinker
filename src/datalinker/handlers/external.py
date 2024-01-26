@@ -31,7 +31,7 @@ from ..models import Band, Detail, Index
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
-_BUTLER_FACTORY = LabeledButlerFactory()
+_BUTLER_FACTORY = LabeledButlerFactory(config.butler_repositories)
 """Factory for creating Butlers from a label and Gafaelfawr token."""
 
 _TEMPLATES = Jinja2Templates(
