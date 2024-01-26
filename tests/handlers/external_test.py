@@ -20,7 +20,7 @@ from ..support.butler import MockButler
 
 @pytest.mark.asyncio
 async def test_get_index(client: AsyncClient) -> None:
-    """Test ``GET /api/datalink/``"""
+    """Test ``GET /api/datalink/``."""
     response = await client.get("/api/datalink/")
     assert response.status_code == 200
     data = response.json()
@@ -195,7 +195,7 @@ async def test_links_gcs(
     client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
 ) -> None:
     label = "label-gcs"
-    url = f"https://example.com/{str(mock_butler.uuid)}"
+    url = f"https://example.com/{mock_butler.uuid!s}"
 
     await _test_links(client, mock_butler, label, url)
 
@@ -224,7 +224,7 @@ async def test_links_https(
 
     # The URL is already signed, so it should be passed through unchanged
     url = (
-        f"https://presigned-url.example.com/{str(mock_butler.uuid)}"
+        f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
     )
     mock_butler.mock_uri = url
@@ -238,7 +238,7 @@ async def _test_links(
     # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
 
@@ -248,10 +248,10 @@ async def _test_links(
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=True,
-        id=f"butler://{label}/{str(mock_butler.uuid)}",
+        id=f"butler://{label}/{mock_butler.uuid!s}",
         image_url=url,
         image_size=1234,
-        cutout_url=config.cutout_url,
+        cutout_sync_url=config.cutout_sync_url,
     )
     assert r.text == expected
 
@@ -260,7 +260,7 @@ async def _test_links(
         r = await client.get(
             "/api/datalink/links",
             params={
-                "id": f"butler://{label}/{str(mock_butler.uuid)}",
+                "id": f"butler://{label}/{mock_butler.uuid!s}",
                 "responseformat": response_format,
             },
         )
@@ -276,7 +276,7 @@ async def test_links_raw_gcs(
         client,
         mock_butler,
         "label-gcs-raw",
-        f"https://example.com/{str(mock_butler.uuid)}",
+        f"https://example.com/{mock_butler.uuid!s}",
     )
 
 
@@ -304,7 +304,7 @@ async def _test_links_raw(
     # case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://{label}/{str(mock_butler.uuid)}"},
+        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
 
@@ -314,10 +314,10 @@ async def _test_links_raw(
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=False,
-        id=f"butler://{label}/{str(mock_butler.uuid)}",
+        id=f"butler://{label}/{mock_butler.uuid!s}",
         image_url=url,
         image_size=1234,
-        cutout_url=config.cutout_url,
+        cutout_sync_url=config.cutout_sync_url,
     )
     assert r.text == expected
     assert "cutout-sync" not in r.text
@@ -345,7 +345,7 @@ async def _test_links_errors(
     # Test an invalid IDs and ensure it returns 404.
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://test-butler/{str(uuid)}"},
+        params={"id": f"butler://test-butler/{uuid!s}"},
     )
     assert r.status_code == 404
 
@@ -358,7 +358,7 @@ async def _test_links_errors(
     r = await client.get(
         "/api/datalink/links",
         params={
-            "id": f"butler://test-butler/{str(uuid)}",
+            "id": f"butler://test-butler/{uuid!s}",
             "responseformat": "text/plain",
         },
     )
@@ -376,6 +376,6 @@ async def test_links_bad_repo(client: AsyncClient) -> None:
         mock_butler.side_effect = KeyError
         r = await client.get(
             "/api/datalink/links",
-            params={"id": f"butler://invalid-repo/{str(uuid)}"},
+            params={"id": f"butler://invalid-repo/{uuid!s}"},
         )
         assert r.status_code == 404

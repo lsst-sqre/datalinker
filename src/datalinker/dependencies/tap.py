@@ -1,13 +1,13 @@
 """Dependency that caches information about the TAP schema."""
 
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
 from ..config import config
 
 TAPMetadata = dict[str, dict[str, list[str]]]
+"""Type for TAP metadata."""
 
 __all__ = [
     "TAPMetadata",
@@ -29,7 +29,7 @@ class TAPMetadataDependency:
     """
 
     def __init__(self) -> None:
-        self._columns: Optional[TAPMetadata] = None
+        self._columns: TAPMetadata | None = None
 
     async def __call__(self) -> TAPMetadata:
         """Get column metadata about the TAP schema.
@@ -52,7 +52,7 @@ class TAPMetadataDependency:
         columns: TAPMetadata = {}
 
         for data_path in Path(config.tap_metadata_dir).iterdir():
-            if not data_path.suffix == ".yaml":
+            if data_path.suffix != ".yaml":
                 continue
             with data_path.open("r") as fh:
                 data = yaml.safe_load(fh)

@@ -34,9 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 configure_logging(
-    profile=config.profile,
-    log_level=config.log_level,
-    name=config.logger_name,
+    profile=config.profile, log_level=config.log_level, name="datalinker"
 )
 
 app = FastAPI(
