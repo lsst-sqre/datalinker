@@ -1,7 +1,9 @@
 # datalinker
 
 datalinker provides various facilities for discovering and referring to data products and services within the Rubin Science Platform.
-It is primarily based on the IVOA DataLink standard, but also provides some related service discovery facilities beyond the scope of that standard.
+It is deployed via [Phalanx](https://phalanx.lsst.io/) and depends on other Phalanx services such as [Gafaelfawr](https://gafaelfawr.lsst.io/) for authentication.
+
+The API provided by datalinker is primarily based on the IVOA DataLink standard, but it also provides some related service discovery facilities beyond the scope of that standard.
 
 - Implements a "links" endpoint, providing a variety of file and service links given an ID for an image in the RSP image services.
   This endpoint is the target of the `access_url` column in the RSP ObsTAP service.
@@ -19,4 +21,3 @@ datalinker implements [version 1.0 of the IVOA DataLink standard](https://www.iv
 - Errors are formatted as JSON rather than as VOTables.
 
 datalinker is developed with the [Safir](https://safir.lsst.io) framework.
-[Get started with development with the tutorial](https://safir.lsst.io/set-up-from-template.html).
