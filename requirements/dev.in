@@ -9,6 +9,7 @@
 
 -c main.txt
 
+# Testing
 asgi-lifespan
 coverage[toml]
 httpx
@@ -21,3 +22,6 @@ pytest-cov
 pytest-sugar
 respx
 types-PyYAML
+
+# Documentation
+scriv[toml]

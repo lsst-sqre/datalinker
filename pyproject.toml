@@ -10,16 +10,16 @@ keywords = [
 ]
 # https://pypi.org/classifiers/
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Natural Language :: English",
     "Operating System :: POSIX",
     "Typing :: Typed",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = []
 dynamic = ["version"]
 
@@ -90,10 +90,19 @@ skip = ["docs/conf.py"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
-python_files = [
-    "tests/*.py",
-    "tests/*/*.py"
+filterwarnings = [
+    # Google modules use PyType_Spec in a deprecated way.
+    "ignore:Type google\\..*metaclass.* custom tp_new:DeprecationWarning",
 ]
+# The python_files setting is not for test detection (pytest will pick up any
+# test files named *_test.py without this setting) but to enable special
+# assert processing in any non-test supporting files under tests.  We
+# conventionally put test support functions under tests.support and may
+# sometimes use assert in test fixtures in conftest.py, and pytest only
+# enables magical assert processing (showing a full diff on assert failures
+# with complex data structures rather than only the assert message) in files
+# listed in python_files.
+python_files = ["tests/*.py", "tests/*/*.py"]
 
 [tool.mypy]
 disallow_untyped_defs = true
