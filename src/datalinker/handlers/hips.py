@@ -8,10 +8,11 @@ it doesn't require authentication and is served with a different prefix.
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
+from safir.slack.webhook import SlackRouteErrorHandler
 
 from ..dependencies.hips import hips_list_dependency
 
-hips_router = APIRouter()
+hips_router = APIRouter(route_class=SlackRouteErrorHandler)
 """FastAPI router for HiPS handlers."""
 
 __all__ = ["hips_router"]
