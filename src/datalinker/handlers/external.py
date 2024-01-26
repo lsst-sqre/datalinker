@@ -265,6 +265,7 @@ def links(
         )
 
     return _TEMPLATES.TemplateResponse(
+        request,
         "links.xml",
         {
             "cutout": ref.datasetType.name != "raw",
@@ -272,7 +273,6 @@ def links(
             "image_url": image_url,
             "image_size": image_uri.size(),
             "cutout_url": config.cutout_url,
-            "request": request,
         },
         media_type="application/x-votable+xml",
     )

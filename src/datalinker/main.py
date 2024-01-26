@@ -7,6 +7,8 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from importlib.metadata import metadata, version
 
 from fastapi import FastAPI
@@ -23,6 +25,14 @@ from .handlers.internal import internal_router
 __all__ = ["app", "config"]
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Set up and tear down the application."""
+    yield
+
+    await http_client_dependency.aclose()
+
+
 configure_logging(
     profile=config.profile,
     log_level=config.log_level,
@@ -36,6 +46,7 @@ app = FastAPI(
     openapi_url="/api/datalink/openapi.json",
     docs_url="/api/datalink/docs",
     redoc_url="/api/datalink/redoc",
+    lifespan=lifespan,
 )
 """The main FastAPI application for datalinker."""
 
@@ -47,8 +58,3 @@ app.include_router(hips_router, prefix="/api/hips")
 # Add the middleware.
 app.add_middleware(CaseInsensitiveQueryMiddleware)
 app.add_middleware(XForwardedMiddleware)
-
-
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    await http_client_dependency.aclose()

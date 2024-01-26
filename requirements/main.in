@@ -19,6 +19,7 @@ httpx
 jinja2
 lsst-daf-butler[postgres,remote]
 lsst-resources[s3,gs]
+pydantic
 pyyaml
 safir[gcs]
 structlog
