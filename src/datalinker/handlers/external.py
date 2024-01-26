@@ -4,7 +4,7 @@ from datetime import timedelta
 from email.message import Message
 from importlib.metadata import metadata
 from pathlib import Path
-from typing import Literal, Optional, cast
+from typing import Annotated, Literal, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
@@ -19,7 +19,7 @@ from safir.dependencies.logger import logger_dependency
 from safir.metadata import Metadata, get_project_url
 from structlog.stdlib import BoundLogger
 
-from ..config import config
+from ..config import StorageBackend, config
 from ..constants import (
     ADQL_COMPOUND_TABLE_REGEX,
     ADQL_FOREIGN_COLUMN_REGEX,
@@ -99,7 +99,8 @@ def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
     summary="Application metadata",
 )
 async def get_index(
-    logger: BoundLogger = Depends(logger_dependency),
+    *,
+    logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> Index:
     """GET ``/datalinker/`` (the app's external root).
 
@@ -121,50 +122,54 @@ async def get_index(
 
 @external_router.get("/cone_search", response_class=RedirectResponse)
 async def cone_search(
-    table: str = Query(
-        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
-    ),
-    ra_col: str = Query(
-        ..., title="Column for ra", pattern=ADQL_IDENTIFIER_REGEX
-    ),
-    dec_col: str = Query(
-        ..., title="Column for dec", pattern=ADQL_IDENTIFIER_REGEX
-    ),
-    ra_val: float = Query(..., title="ra value"),
-    dec_val: float = Query(..., title="dec value"),
-    radius: float = Query(..., title="Radius of cone"),
-    logger: BoundLogger = Depends(logger_dependency),
+    *,
+    table: Annotated[
+        str, Query(title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX)
+    ],
+    ra_col: Annotated[
+        str, Query(title="Column for ra", pattern=ADQL_IDENTIFIER_REGEX)
+    ],
+    dec_col: Annotated[
+        str, Query(title="Column for dec", pattern=ADQL_IDENTIFIER_REGEX)
+    ],
+    ra_val: Annotated[float, Query(title="ra value")],
+    dec_val: Annotated[float, Query(title="dec value")],
+    radius: Annotated[float, Query(title="Radius of cone")],
+    logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> str:
-    sql = (
+    adql = (
         f"SELECT * FROM {table} WHERE"
         f" CONTAINS(POINT('ICRS',{ra_col},{dec_col}),"
         f"CIRCLE('ICRS',{ra_val},{dec_val},{radius})"
         ")=1"
     )
-    return _create_tap_redirect(sql, logger)
+    return _create_tap_redirect(adql, logger)
 
 
 @external_router.get("/timeseries", response_class=RedirectResponse)
 async def timeseries(
-    id: int = Query(..., title="Object identifier"),
-    table: str = Query(
-        ..., title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX
-    ),
-    id_column: str = Query(
-        ..., title="Object ID column", pattern=ADQL_IDENTIFIER_REGEX
-    ),
-    band_column: str = Query(
-        "band", title="Band column", pattern=ADQL_IDENTIFIER_REGEX
-    ),
-    band: Band = Query(Band.all, title="Abstract filter band"),
-    detail: Detail = Query(Detail.full, title="Column detail"),
-    join_time_column: Optional[str] = Query(
-        None,
-        title="Foreign column for time variable",
-        pattern=ADQL_FOREIGN_COLUMN_REGEX,
-    ),
-    tap_metadata: TAPMetadata = Depends(tap_metadata_dependency),
-    logger: BoundLogger = Depends(logger_dependency),
+    *,
+    id: Annotated[int, Query(title="Object identifier")],
+    table: Annotated[
+        str, Query(title="Table name", pattern=ADQL_COMPOUND_TABLE_REGEX)
+    ],
+    id_column: Annotated[
+        str, Query(title="Object ID column", pattern=ADQL_IDENTIFIER_REGEX)
+    ],
+    band_column: Annotated[
+        str, Query(title="Band column", pattern=ADQL_IDENTIFIER_REGEX)
+    ] = "band",
+    band: Annotated[Band, Query(title="Abstract filter band")] = Band.all,
+    detail: Annotated[Detail, Query(title="Column detail")] = Detail.full,
+    join_time_column: Annotated[
+        str | None,
+        Query(
+            title="Foreign column for time variable",
+            pattern=ADQL_FOREIGN_COLUMN_REGEX,
+        ),
+    ] = None,
+    tap_metadata: Annotated[TAPMetadata, Depends(tap_metadata_dependency)],
+    logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> str:
     columns = _get_tap_columns(table, detail, tap_metadata)
 
@@ -172,18 +177,18 @@ async def timeseries(
     # In those cases we have to join with another table on ccdVisitId.
     if join_time_column:
         join_table, time_column = join_time_column.rsplit(".", 1)
-        sql = (
+        adql = (
             f"SELECT t.{time_column},{columns} FROM {table} AS s"
             f" JOIN {join_table} AS t ON s.ccdVisitId = t.ccdVisitId"
         )
     else:
-        sql = f"SELECT {columns} FROM {table} AS s"
+        adql = f"SELECT {columns} FROM {table} AS s"
 
-    sql += f" WHERE s.{id_column} = {id}"
+    adql += f" WHERE s.{id_column} = {id}"
     if band != Band.all:
-        sql += f" AND s.{band_column} = '{band.value}'"
+        adql += f" AND s.{band_column} = '{band.value}'"
 
-    return _create_tap_redirect(sql, logger)
+    return _create_tap_redirect(adql, logger)
 
 
 @external_router.get(
@@ -192,18 +197,22 @@ async def timeseries(
     summary="DataLink links for object",
 )
 def links(
+    *,
     request: Request,
-    id: str = Query(
-        ...,
-        title="Object ID",
-        examples=["butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127"],
-        pattern="^butler://[^/]+/[a-f0-9-]+$",
-    ),
-    responseformat: Literal["votable", "application/x-votable+xml"] = Query(
-        "application/x-votable+xml", title="Response format"
-    ),
-    logger: BoundLogger = Depends(logger_dependency),
-    delegated_token: str = Depends(auth_delegated_token_dependency),
+    id: Annotated[
+        str,
+        Query(
+            title="Object ID",
+            examples=["butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127"],
+            pattern="^butler://[^/]+/[a-f0-9-]+$",
+        ),
+    ],
+    responseformat: Annotated[
+        Literal["votable", "application/x-votable+xml"],
+        Query(title="Response format"),
+    ] = "application/x-votable+xml",
+    logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    delegated_token: Annotated[str, Depends(auth_delegated_token_dependency)],
 ) -> Response:
     butler_uri = urlparse(id)
     label = butler_uri.netloc
@@ -216,7 +225,7 @@ def links(
         butler = _BUTLER_FACTORY.create_butler(
             label=label, access_token=delegated_token
         )
-    except KeyError:
+    except KeyError as e:
         logger.warning("Butler repository does not exist", label=label)
         raise HTTPException(
             status_code=404,
@@ -227,7 +236,7 @@ def links(
                     "type": "not_found",
                 }
             ],
-        )
+        ) from e
 
     # This returns lsst.resources.ResourcePath.
     ref = butler.get_dataset(UUID(uuid))
@@ -253,16 +262,12 @@ def links(
         # Butler server returns signed URLs directly, so no additional signing
         # is required.
         image_url = str(image_uri)
-    elif config.storage_backend == "GCS":
+    elif config.storage_backend == StorageBackend.GCS:
         # If we are using a direct connection to the Butler database, the URIs
         # will be S3 or GCS URIs that need to be signed.
         image_url = _upload_to_gcs(str(image_uri), expires_in)
-    elif config.storage_backend == "S3":
-        image_url = _upload_to_S3(str(image_uri), expires_in)
-    else:
-        raise Exception(
-            f"Config error: {config.storage_backend} is not a valid backend."
-        )
+    elif config.storage_backend == StorageBackend.S3:
+        image_url = _upload_to_s3(str(image_uri), expires_in)
 
     return _TEMPLATES.TemplateResponse(
         request,
@@ -272,7 +277,7 @@ def links(
             "id": id,
             "image_url": image_url,
             "image_size": image_uri.size(),
-            "cutout_url": config.cutout_url,
+            "cutout_sync_url": config.cutout_sync_url,
         },
         media_type="application/x-votable+xml",
     )
@@ -297,7 +302,7 @@ def _upload_to_gcs(image_uri: str, expiry: timedelta) -> str:
     storage_client = storage.Client()
     bucket = storage_client.bucket(image_uri_parts.netloc)
     blob = bucket.blob(image_uri_parts.path[1:])
-    signed_url = blob.generate_signed_url(
+    return blob.generate_signed_url(
         version="v4",
         # This URL is valid for one hour.
         expiration=expiry,
@@ -305,10 +310,8 @@ def _upload_to_gcs(image_uri: str, expiry: timedelta) -> str:
         method="GET",
     )
 
-    return signed_url
 
-
-def _upload_to_S3(image_uri: str, expiry: timedelta) -> str:
+def _upload_to_s3(image_uri: str, expiry: timedelta) -> str:
     """Use S3 to upload a file and get a signed URL.
 
     Parameters
@@ -331,10 +334,8 @@ def _upload_to_S3(image_uri: str, expiry: timedelta) -> str:
         "s3", endpoint_url=config.s3_endpoint_url, region_name="us-east-1"
     )
 
-    signed_url = s3_client.generate_presigned_url(
+    return s3_client.generate_presigned_url(
         "get_object",
         Params={"Bucket": bucket, "Key": key},
         ExpiresIn=expiry.total_seconds(),
     )
-
-    return signed_url

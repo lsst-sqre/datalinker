@@ -20,10 +20,11 @@ jinja2
 lsst-daf-butler[postgres,remote]
 lsst-resources[s3,gs]
 pydantic
+pydantic-settings
 pyyaml
 safir[gcs]
 structlog
 
 # Uncomment this, change the branch, comment out safir above, and run make
 # update-deps-no-hashes to test against an unreleased version of Safir.
-#git+https://github.com/lsst-sqre/safir@main#egg=safir[gcs]
+# safir[gcs] @ git+https://github.com/lsst-sqre/safir@main

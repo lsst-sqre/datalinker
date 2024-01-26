@@ -68,7 +68,7 @@
      </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
-          value="{{ cutout_url }}"/>
+          value="{{ cutout_sync_url }}"/>
    <PARAM arraysize="*" datatype="char" name="standardID"
           value="ivo://ivoa.net/std/SODA#sync-1.0"/>
  </RESOURCE>

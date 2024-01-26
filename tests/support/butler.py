@@ -33,7 +33,7 @@ class MockButler(Mock):
 
     def _generate_mock_uri(self, ref: MockDatasetRef) -> str:
         if self.mock_uri is None:
-            return f"s3://some-bucket/{str(ref.uuid)}"
+            return f"s3://some-bucket/{ref.uuid!s}"
         return self.mock_uri
 
     def _get_child_mock(self, /, **kwargs: Any) -> Mock:

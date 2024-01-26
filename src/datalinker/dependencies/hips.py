@@ -1,7 +1,7 @@
 """HiPS list cache."""
 
 import re
-from typing import Optional
+from typing import Annotated
 
 from fastapi import Depends
 from httpx import AsyncClient
@@ -30,12 +30,12 @@ class HiPSListDependency:
     """
 
     def __init__(self) -> None:
-        self._hips_list: Optional[str] = None
+        self._hips_list: str | None = None
 
     async def __call__(
         self,
-        client: AsyncClient = Depends(http_client_dependency),
-        logger: BoundLogger = Depends(logger_dependency),
+        client: Annotated[AsyncClient, Depends(http_client_dependency)],
+        logger: Annotated[BoundLogger, Depends(logger_dependency)],
     ) -> str:
         if not self._hips_list:
             self._hips_list = await self._build_hips_list(client, logger)
