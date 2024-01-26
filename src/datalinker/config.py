@@ -107,6 +107,25 @@ class Config(BaseSettings):
         ),
     ] = "datalinker"
 
+    path_prefix: Annotated[
+        str,
+        Field(
+            title="URL prefix for DataLink API",
+            description=(
+                "This URL prefix is used for the IVOA DataLink API and for"
+                " any other helper APIs exposed via DataLink descriptors"
+            ),
+        ),
+    ] = "/api/datalink"
+
+    hips_path_prefix: Annotated[
+        str,
+        Field(
+            title="URL prefix for HiPS API",
+            description="URL prefix used to inject the HiPS list file",
+        ),
+    ] = "/api/hips"
+
     profile: Annotated[
         Profile,
         Field(

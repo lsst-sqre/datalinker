@@ -45,17 +45,17 @@ app = FastAPI(
     title="datalinker",
     description=metadata("datalinker")["Summary"],
     version=version("datalinker"),
-    openapi_url="/api/datalink/openapi.json",
-    docs_url="/api/datalink/docs",
-    redoc_url="/api/datalink/redoc",
+    openapi_url=f"{config.path_prefix}/openapi.json",
+    docs_url=f"{config.path_prefix}/docs",
+    redoc_url=f"{config.path_prefix}/redoc",
     lifespan=lifespan,
 )
 """The main FastAPI application for datalinker."""
 
 # Attach the routers.
 app.include_router(internal_router)
-app.include_router(external_router, prefix="/api/datalink")
-app.include_router(hips_router, prefix="/api/hips")
+app.include_router(external_router, prefix=config.path_prefix)
+app.include_router(hips_router, prefix=config.hips_path_prefix)
 
 # Add the middleware.
 app.add_middleware(CaseInsensitiveQueryMiddleware)
