@@ -5,3 +5,24 @@ datalinker is versioned with [semver](https://semver.org/). Dependencies are upd
 Find changes for the upcoming release in the project's [changelog.d directory](https://github.com/lsst-sqre/datalinker/tree/main/changelog.d/).
 
 <!-- scriv-insert-here -->
+
+<a id='changelog-1.7.0'></a>
+## 1.7.0 (2024-01-26)
+
+### New features
+
+- Add support for querying the Butler server for images rather than instantiating local Butler instances. To support this, datalinker now requests delegated tokens from Gafaelfawr so that it can make API calls on behalf of the user.
+- Standardize using a `DATALINKER_` prefix for all environment variables used to configure datalinker.
+- Diagnose more errors in environment variable settings and fail on startup if the configuration is not valid.
+- Add support for reporting uncaught exceptions to a Slack incoming webhook.
+- Support configuration of the DataLink and HiPS URL prefixes on which datalinker should listen.
+- Configure Uvicorn to log accesses in a JSON format if datalinker is configured to use the production logging profile.
+
+### Bug fixes
+
+- Validate the configuration parameters passed via environment variables and error out early if they are set to invalid values.
+
+### Other changes
+
+- Add a change log maintained using [scriv](https://scriv.readthedocs.io/en/latest/).
+- Use [Ruff](https://docs.astral.sh/ruff/) for linting and formatting instead of Black, flake8, and isort.
