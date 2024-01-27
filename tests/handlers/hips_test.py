@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 import respx
+from _pytest.monkeypatch import MonkeyPatch
 from httpx import AsyncClient, Response
+from pydantic import HttpUrl
 
 from datalinker.config import config
 from datalinker.constants import HIPS_DATASETS
@@ -15,7 +17,7 @@ from datalinker.constants import HIPS_DATASETS
 
 @pytest.mark.asyncio
 async def test_hips_list(
-    client: AsyncClient, respx_mock: respx.Router
+    client: AsyncClient, respx_mock: respx.Router, monkeypatch: MonkeyPatch
 ) -> None:
     hips_list_template = (
         Path(__file__).parent.parent / "data" / "hips-properties"
@@ -34,11 +36,10 @@ async def test_hips_list(
         )
         hips_lists.append(hips_list)
 
-    try:
-        config.hips_base_url = "https://hips.example.com"
-        r = await client.get("/api/hips/list")
-        assert r.status_code == 200
-        assert r.headers["Content-Type"].startswith("text/plain")
-        assert r.text == "\n".join(hips_lists)
-    finally:
-        config.hips_base_url = ""
+    monkeypatch.setattr(
+        config, "hips_base_url", HttpUrl("https://hips.example.com")
+    )
+    r = await client.get("/api/hips/list")
+    assert r.status_code == 200
+    assert r.headers["Content-Type"].startswith("text/plain")
+    assert r.text == "\n".join(hips_lists)

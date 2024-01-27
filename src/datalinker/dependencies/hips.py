@@ -58,7 +58,7 @@ class HiPSListDependency:
         """
         lists = []
         for dataset in HIPS_DATASETS:
-            url = config.hips_base_url + f"/{dataset}"
+            url = str(config.hips_base_url).rstrip("/") + f"/{dataset}"
             r = await client.get(
                 url + "/properties",
                 headers={"Authorization": f"bearer {config.token}"},

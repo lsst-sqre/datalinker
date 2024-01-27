@@ -1,6 +1,5 @@
 """Dependency that caches information about the TAP schema."""
 
-from pathlib import Path
 
 import yaml
 
@@ -49,9 +48,9 @@ class TAPMetadataDependency:
         """Load and cache the schema data."""
         if not config.tap_metadata_dir:
             return {}
-        columns: TAPMetadata = {}
 
-        for data_path in Path(config.tap_metadata_dir).iterdir():
+        columns: TAPMetadata = {}
+        for data_path in config.tap_metadata_dir.iterdir():
             if data_path.suffix != ".yaml":
                 continue
             with data_path.open("r") as fh:

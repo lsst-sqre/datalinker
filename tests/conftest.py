@@ -14,6 +14,7 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
 from moto import mock_s3
+from pydantic import HttpUrl
 from safir.testing.gcs import MockStorageClient, patch_google_storage
 
 from datalinker import main
@@ -23,27 +24,29 @@ from .support.butler import MockButler, patch_butler
 
 
 @pytest_asyncio.fixture
-async def app() -> AsyncIterator[FastAPI]:
+async def app(monkeypatch: MonkeyPatch) -> AsyncIterator[FastAPI]:
     """Return a configured test application.
 
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
-    config.tap_metadata_dir = str(Path(__file__).parent / "data")
+    monkeypatch.setattr(
+        config, "tap_metadata_dir", Path(__file__).parent / "data"
+    )
     async with LifespanManager(main.app):
         yield main.app
-    config.tap_metadata_dir = ""
 
 
 @pytest_asyncio.fixture
 async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
-    """Return an ``httpx.AsyncClient`` configured to talk to the test app."""
+    """Return an ``httpx.AsyncClient`` configured to talk to the test app.
+
+    Mock the Gafaelfawr delegated token header, needed by endpoints that use
+    Butler.
+    """
+    headers = {"X-Auth-Request-Token": "sometoken"}
     async with AsyncClient(
-        app=app,
-        base_url="https://example.com/",
-        # Mock the Gafaelfawr delegated token header, needed by endpoints that
-        # use Butler
-        headers={"x-auth-request-token": "sometoken"},
+        app=app, base_url="https://example.com/", headers=headers
     ) as client:
         yield client
 
@@ -64,11 +67,13 @@ def s3(monkeypatch: MonkeyPatch) -> Iterator[boto3.client]:
     monkeypatch.setenv("AWS_SESSION_TOKEN", "testing")
     monkeypatch.setattr(config, "storage_backend", StorageBackend.S3)
     monkeypatch.setattr(
-        config, "s3_endpoint_url", "https://s3.amazonaws.com/bucket"
+        config, "s3_endpoint_url", HttpUrl("https://s3.amazonaws.com/bucket")
     )
     with mock_s3():
         yield boto3.client(
-            "s3", endpoint_url=config.s3_endpoint_url, region_name="us-east-1"
+            "s3",
+            endpoint_url=str(config.s3_endpoint_url),
+            region_name="us-east-1",
         )
 
 
@@ -79,7 +84,7 @@ def mock_google_storage(
     """Mock out the Google Cloud Storage API."""
     monkeypatch.setattr(config, "storage_backend", StorageBackend.GCS)
     monkeypatch.setattr(
-        config, "s3_endpoint_url", "https://storage.googleapis.com"
+        config, "s3_endpoint_url", HttpUrl("https://storage.googleapis.com")
     )
     yield from patch_google_storage(
         expected_expiration=timedelta(hours=1),

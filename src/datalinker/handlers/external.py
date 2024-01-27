@@ -278,7 +278,7 @@ def links(
             "id": id,
             "image_url": image_url,
             "image_size": image_uri.size(),
-            "cutout_sync_url": config.cutout_sync_url,
+            "cutout_sync_url": str(config.cutout_sync_url),
         },
         media_type="application/x-votable+xml",
     )
@@ -332,7 +332,7 @@ def _upload_to_s3(image_uri: str, expiry: timedelta) -> str:
     key = image_uri_parts.path[1:]
 
     s3_client = client(
-        "s3", endpoint_url=config.s3_endpoint_url, region_name="us-east-1"
+        "s3", endpoint_url=str(config.s3_endpoint_url), region_name="us-east-1"
     )
 
     return s3_client.generate_presigned_url(
