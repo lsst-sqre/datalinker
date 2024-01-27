@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from enum import Enum
+from pathlib import Path
 from typing import Annotated
 
-from pydantic import Field, HttpUrl, TypeAdapter
+from pydantic import Field, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 
@@ -15,14 +15,6 @@ __all__ = [
     "StorageBackend",
     "config",
 ]
-
-
-def _get_butler_repositories() -> dict[str, str] | None:
-    json = os.getenv("DAF_BUTLER_REPOSITORIES", None)
-    if json is not None:
-        return TypeAdapter(dict[str, str]).validate_json(json)
-
-    return None
 
 
 class StorageBackend(Enum):
@@ -36,26 +28,26 @@ class Config(BaseSettings):
     """Configuration for datalinker."""
 
     cutout_sync_url: Annotated[
-        str,
+        HttpUrl,
         Field(
             title="URL to SODA sync API",
             description=(
                 "URL to the sync API for the SODA service that does cutouts"
             ),
         ),
-    ] = ""
+    ]
 
-    hips_base_url: Annotated[str, Field(title="Base URL for HiPS lists")] = ""
+    hips_base_url: Annotated[HttpUrl, Field(title="Base URL for HiPS lists")]
 
     tap_metadata_dir: Annotated[
-        str,
+        Path | None,
         Field(
             title="Path to TAP YAML metadata",
             description=(
                 "Directory containing YAML metadata files about TAP schema"
             ),
         ),
-    ] = ""
+    ] = None
 
     token: Annotated[
         str,
@@ -63,20 +55,20 @@ class Config(BaseSettings):
             title="Token for API authentication",
             description="Token to use to authenticate to the HiPS service",
         ),
-    ] = ""
+    ]
 
     storage_backend: Annotated[
         StorageBackend,
         Field(
             title="Storage backend",
             description="Which storage backend to use for uploaded files",
-            validation_alias="STORAGE_BACKEND",
         ),
     ] = StorageBackend.GCS
 
     s3_endpoint_url: Annotated[
-        str, Field(title="Storage API URL", validation_alias="S3_ENDPOINT_URL")
-    ] = "https://storage.googleapis.com"
+        HttpUrl,
+        Field(title="Storage API URL", validation_alias="S3_ENDPOINT_URL"),
+    ] = HttpUrl("https://storage.googleapis.com")
 
     # TODO(DM-42660): butler_repositories can be removed once there is a
     # release of daf_butler available that handles DAF_BUTLER_REPOSITORIES
@@ -97,14 +89,7 @@ class Config(BaseSettings):
 
     name: Annotated[
         str,
-        Field(
-            title="Application name",
-            description=(
-                "The application's name, which doubles as the root HTTP"
-                " endpoint path"
-            ),
-            validation_alias="SAFIR_NAME",
-        ),
+        Field(title="Application name"),
     ] = "datalinker"
 
     path_prefix: Annotated[
@@ -130,16 +115,12 @@ class Config(BaseSettings):
         Profile,
         Field(
             title="Application logging profile",
-            validation_alias="SAFIR_PROFILE",
         ),
-    ] = Profile.development
+    ] = Profile.production
 
     log_level: Annotated[
         LogLevel,
-        Field(
-            title="Log level of the application's logger",
-            validation_alias="SAFIR_LOG_LEVEL",
-        ),
+        Field(title="Log level of the application's logger"),
     ] = LogLevel.INFO
 
     slack_webhook: Annotated[
