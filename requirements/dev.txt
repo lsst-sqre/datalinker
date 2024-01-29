@@ -418,9 +418,9 @@ mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
     # via markdown-it-py
-moto[s3]==4.2.13 \
-    --hash=sha256:01aef6a489a725c8d725bd3dc6f70ff1bedaee3e2641752e4b471ff0ede4b4d7 \
-    --hash=sha256:93e0fd13b624bd79115494f833308c3641b2be0fc9f4f18aa9264aa01f6168e0
+moto[s3]==5.0.0 \
+    --hash=sha256:1d01de681da1453335ec09ba43db521e577cbd58d25ddfb61e5965534b8be539 \
+    --hash=sha256:4a94a147ee70e85e0842da8d1093728c66085165775d1d302f0f77538bf92b95
     # via -r requirements/dev.in
 mypy==1.8.0 \
     --hash=sha256:028cf9f2cae89e202d7b6593cd98db6759379f17a319b5faf4f9978d7084cdc6 \
@@ -496,9 +496,9 @@ pytest==7.4.4 \
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-sugar
-pytest-asyncio==0.23.3 \
-    --hash=sha256:37a9d912e8338ee7b4a3e917381d1c95bfc8682048cb0fbc35baba316ec1faba \
-    --hash=sha256:af313ce900a62fbe2b1aed18e37ad757f1ef9940c6b6a88e2954de38d6b1fb9f
+pytest-asyncio==0.23.4 \
+    --hash=sha256:2143d9d9375bf372a73260e4114541485e84fca350b0b6b92674ca56ff5f7ea2 \
+    --hash=sha256:b0079dfac14b60cd1ce4691fbfb1748fe939db7d0234b5aba97197d10fbe0fef
     # via -r requirements/dev.in
 pytest-cov==4.1.0 \
     --hash=sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6 \
