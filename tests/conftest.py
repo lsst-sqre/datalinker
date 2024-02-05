@@ -13,7 +13,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
-from moto import mock_s3
+from moto import mock_aws  # type: ignore[attr-defined]
 from pydantic import HttpUrl
 from safir.testing.gcs import MockStorageClient, patch_google_storage
 
@@ -69,7 +69,7 @@ def s3(monkeypatch: MonkeyPatch) -> Iterator[boto3.client]:
     monkeypatch.setattr(
         config, "s3_endpoint_url", HttpUrl("https://s3.amazonaws.com/bucket")
     )
-    with mock_s3():
+    with mock_aws():
         yield boto3.client(
             "s3",
             endpoint_url=str(config.s3_endpoint_url),
