@@ -13,7 +13,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
-from moto import mock_aws  # type: ignore[attr-defined]
+from moto import mock_aws
 from pydantic import HttpUrl
 from safir.testing.gcs import MockStorageClient, patch_google_storage
 
