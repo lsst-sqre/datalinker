@@ -1,6 +1,6 @@
 .PHONY: help
 help:
-	@echo "Make targets for Gafaelfawr"
+	@echo "Make targets for datalinker"
 	@echo "make init - Set up dev environment"
 	@echo "make run - Run development instance of server"
 	@echo "make update - Update pinned dependencies and run make init"
@@ -9,10 +9,10 @@ help:
 
 .PHONY: init
 init:
-	pip install --upgrade pip
-	pip install --upgrade pre-commit tox
-	pip install --editable .
-	pip install --upgrade -r requirements/main.txt -r requirements/dev.txt
+	pip install --upgrade uv
+	uv pip install pre-commit tox
+	uv pip install --editable .
+	uv pip install -r requirements/main.txt -r requirements/dev.txt
 	rm -rf .tox
 	pre-commit install
 
@@ -24,25 +24,21 @@ update: update-deps init
 # dependency file.
 .PHONY: update-deps
 update-deps:
-	pip install --upgrade pre-commit
+	pip install --upgrade uv
+	uv pip install pre-commit
 	pre-commit autoupdate
-	pip install --upgrade pip-tools pip setuptools
-	pip-compile --upgrade --resolver=backtracking --build-isolation \
-	    --allow-unsafe --generate-hashes				\
+	uv pip compile --upgrade --generate-hashes			\
 	    --output-file requirements/main.txt requirements/main.in
-	pip-compile --upgrade --resolver=backtracking --build-isolation \
-	    --allow-unsafe --generate-hashes				\
+	uv pip compile --upgrade --generate-hashes			\
 	    --output-file requirements/dev.txt requirements/dev.in
 
 # Useful for testing against a Git version of a dependency.
 .PHONY: update-deps-no-hashes
 update-deps-no-hashes:
-	pip install --upgrade pip-tools pip setuptools
-	pip-compile --upgrade --resolver=backtracking --build-isolation \
-	    --allow-unsafe						\
+	pip install --upgrade uv
+	uv pip compile --upgrade					\
 	    --output-file requirements/main.txt requirements/main.in
-	pip-compile --upgrade --resolver=backtracking --build-isolation \
-	    --allow-unsafe						\
+	uv pip compile --upgrade					\
 	    --output-file requirements/dev.txt requirements/dev.in
 
 .PHONY: run

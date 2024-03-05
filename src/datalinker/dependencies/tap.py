@@ -1,6 +1,5 @@
 """Dependency that caches information about the TAP schema."""
 
-
 import yaml
 
 from ..config import config
