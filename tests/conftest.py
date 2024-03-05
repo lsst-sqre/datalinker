@@ -12,7 +12,7 @@ import pytest_asyncio
 from _pytest.monkeypatch import MonkeyPatch
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from moto import mock_aws
 from pydantic import HttpUrl
 from safir.testing.gcs import MockStorageClient, patch_google_storage
@@ -44,9 +44,10 @@ async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
     Mock the Gafaelfawr delegated token header, needed by endpoints that use
     Butler.
     """
-    headers = {"X-Auth-Request-Token": "sometoken"}
     async with AsyncClient(
-        app=app, base_url="https://example.com/", headers=headers
+        transport=ASGITransport(app=app),  # type: ignore[arg-type]
+        base_url="https://example.com/",
+        headers={"X-Auth-Request-Token": "sometoken"},
     ) as client:
         yield client
 
