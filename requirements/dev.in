@@ -9,6 +9,11 @@
 
 -c main.txt
 
+# Development
+pre-commit
+tox
+tox-uv
+
 # Testing
 asgi-lifespan
 coverage[toml]

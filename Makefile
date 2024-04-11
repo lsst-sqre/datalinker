@@ -10,7 +10,6 @@ help:
 .PHONY: init
 init:
 	pip install --upgrade uv
-	uv pip install pre-commit tox
 	uv pip install --editable .
 	uv pip install -r requirements/main.txt -r requirements/dev.txt
 	rm -rf .tox
@@ -19,9 +18,6 @@ init:
 .PHONY: update
 update: update-deps init
 
-# The dependencies need --allow-unsafe because pre-commit transitively
-# depends on setuptools, which is normally not allowed to appear in a hashed
-# dependency file.
 .PHONY: update-deps
 update-deps:
 	pip install --upgrade uv

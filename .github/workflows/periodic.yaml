@@ -33,6 +33,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           tox-envs: "lint,typing,py"
+          tox-plugins: tox-uv
 
       - name: Report status
         if: always()
