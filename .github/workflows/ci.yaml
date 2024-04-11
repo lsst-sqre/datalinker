@@ -48,6 +48,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           tox-envs: "py,coverage-report,typing"
+          tox-plugins: tox-uv
 
   build:
     runs-on: ubuntu-latest
