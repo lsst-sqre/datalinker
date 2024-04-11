@@ -6,6 +6,17 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-1.7.1'></a>
+## 1.7.1 (2024-04-11)
+
+### Bug fixes
+
+- Update lsst-resources, fixing a memory leak.
+
+### Other changes
+
+- Update to the latest Butler client, which may require running an equally new version of the Butler server.
+
 <a id='changelog-1.7.0'></a>
 ## 1.7.0 (2024-01-26)
 
