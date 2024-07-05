@@ -6,11 +6,11 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
-##  (2024-06-28)
+## 2.0.0 (2024-06-28)
 
 ### Backwards-incompatible changes
 
-- Update to a new version of daf_butler, with support for the new release of Butler server with a new REST API which broke backwards compatibility with the previous version we were using.
+- Update to a new version of `lsst.daf.butler`, which changes the REST API implementation in a backward-incompatible way to match the new release of the Butler server.
 
 <a id='changelog-1.7.1'></a>
 ## 1.7.1 (2024-04-11)
