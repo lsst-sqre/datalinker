@@ -31,12 +31,17 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Update dependencies
-        run: make update-deps
+        run: |
+          pip install --upgrade uv
+          uv venv
+          source .venv/bin/activate
+          make update-deps
+        shell: bash
 
       - name: Run tests in tox
         uses: lsst-sqre/run-tox@v1
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ env.PYTHON_VERSION }}
           tox-envs: "lint,typing,py"
           tox-plugins: tox-uv
           use-cache: false
