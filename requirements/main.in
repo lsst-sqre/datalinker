@@ -17,7 +17,7 @@ boto3
 google-cloud-storage
 httpx
 jinja2
-lsst-daf-butler[postgres,remote]
+lsst-daf-butler[postgres,remote]<=26.2024.1500
 lsst-resources[s3,gs]
 pydantic
 pydantic-settings

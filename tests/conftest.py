@@ -48,6 +48,7 @@ async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
         transport=ASGITransport(app=app),  # type: ignore[arg-type]
         base_url="https://example.com/",
         headers={"X-Auth-Request-Token": "sometoken"},
+        timeout=10,
     ) as client:
         yield client
 
