@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 import respx
-from _pytest.monkeypatch import MonkeyPatch
 from httpx import AsyncClient, Response
 from pydantic import HttpUrl
 
@@ -17,7 +16,9 @@ from datalinker.constants import HIPS_DATASETS
 
 @pytest.mark.asyncio
 async def test_hips_list(
-    client: AsyncClient, respx_mock: respx.Router, monkeypatch: MonkeyPatch
+    client: AsyncClient,
+    respx_mock: respx.Router,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     hips_list_template = (
         Path(__file__).parent.parent / "data" / "hips-properties"

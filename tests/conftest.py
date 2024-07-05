@@ -9,7 +9,6 @@ from pathlib import Path
 import boto3
 import pytest
 import pytest_asyncio
-from _pytest.monkeypatch import MonkeyPatch
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
@@ -24,7 +23,7 @@ from .support.butler import MockButler, patch_butler
 
 
 @pytest_asyncio.fixture
-async def app(monkeypatch: MonkeyPatch) -> AsyncIterator[FastAPI]:
+async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[FastAPI]:
     """Return a configured test application.
 
     Wraps the application in a lifespan manager so that startup and shutdown
@@ -60,7 +59,7 @@ def mock_butler() -> Iterator[MockButler]:
 
 
 @pytest.fixture
-def s3(monkeypatch: MonkeyPatch) -> Iterator[boto3.client]:
+def s3(monkeypatch: pytest.MonkeyPatch) -> Iterator[boto3.client]:
     """Mock out S3 for testing."""
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "testing")
     monkeypatch.setenv("AWS_DEFAULT_REGION", "us-east-1")
@@ -81,7 +80,7 @@ def s3(monkeypatch: MonkeyPatch) -> Iterator[boto3.client]:
 
 @pytest.fixture
 def mock_google_storage(
-    monkeypatch: MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> Iterator[MockStorageClient]:
     """Mock out the Google Cloud Storage API."""
     monkeypatch.setattr(config, "storage_backend", StorageBackend.GCS)
