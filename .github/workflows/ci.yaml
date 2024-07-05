@@ -52,7 +52,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           tox-envs: "py,coverage-report,typing"
-          tox-plugins: tox-uv
+          tox-requirements: requirements/tox.txt
 
   build:
     runs-on: ubuntu-latest
