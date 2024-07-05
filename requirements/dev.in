@@ -9,24 +9,17 @@
 
 -c main.txt
 
-# Development
-pre-commit
-tox
-tox-uv
-
 # Testing
 asgi-lifespan
 coverage[toml]
 httpx
 moto[s3]
 mypy
-pre-commit
 pytest
 pytest-asyncio
 pytest-cov
 pytest-sugar
 respx
-ruff
 types-PyYAML
 
 # Documentation
