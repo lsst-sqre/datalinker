@@ -113,10 +113,11 @@ python_files = ["tests/*.py", "tests/*/*.py"]
 line-length = 79
 target-version = "py312"
 
+[tool.ruff.format]
+docstring-code-format = true
+
 [tool.ruff.lint]
 ignore = [
-    "ANN101",  # self should not have a type annotation
-    "ANN102",  # cls should not have a type annotation
     "ANN401",  # sometimes Any is the right type
     "ARG001",  # unused function arguments are often legitimate
     "ARG002",  # unused method arguments are often legitimate
