@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -12,16 +11,8 @@ from safir.logging import LogLevel, Profile
 
 __all__ = [
     "Config",
-    "StorageBackend",
     "config",
 ]
-
-
-class StorageBackend(Enum):
-    """Possible choices for a storage backend."""
-
-    GCS = "GCS"
-    S3 = "S3"
 
 
 class Config(BaseSettings):
@@ -57,19 +48,6 @@ class Config(BaseSettings):
         ),
     ]
 
-    storage_backend: Annotated[
-        StorageBackend,
-        Field(
-            title="Storage backend",
-            description="Which storage backend to use for uploaded files",
-        ),
-    ] = StorageBackend.GCS
-
-    s3_endpoint_url: Annotated[
-        HttpUrl,
-        Field(title="Storage API URL", validation_alias="S3_ENDPOINT_URL"),
-    ] = HttpUrl("https://storage.googleapis.com")
-
     # TODO(DM-42660): butler_repositories can be removed once there is a
     # release of daf_butler available that handles DAF_BUTLER_REPOSITORIES
     # itself.
@@ -87,10 +65,7 @@ class Config(BaseSettings):
         ),
     ] = None
 
-    name: Annotated[
-        str,
-        Field(title="Application name"),
-    ] = "datalinker"
+    name: Annotated[str, Field(title="Application name")] = "datalinker"
 
     path_prefix: Annotated[
         str,
@@ -113,9 +88,7 @@ class Config(BaseSettings):
 
     profile: Annotated[
         Profile,
-        Field(
-            title="Application logging profile",
-        ),
+        Field(title="Application logging profile"),
     ] = Profile.production
 
     log_level: Annotated[

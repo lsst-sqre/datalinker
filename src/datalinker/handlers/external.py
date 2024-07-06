@@ -1,6 +1,5 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
-from datetime import timedelta
 from email.message import Message
 from importlib.metadata import metadata
 from pathlib import Path
@@ -8,11 +7,9 @@ from typing import Annotated, Literal, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
-from boto3 import client
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from google.cloud import storage
 from lsst.daf.butler import LabeledButlerFactory
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
@@ -20,7 +17,7 @@ from safir.metadata import Metadata, get_project_url
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
-from ..config import StorageBackend, config
+from ..config import config
 from ..constants import (
     ADQL_COMPOUND_TABLE_REGEX,
     ADQL_FOREIGN_COLUMN_REGEX,
@@ -256,19 +253,17 @@ def links(
         )
     image_uri = butler.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
-
-    expires_in = timedelta(hours=1)
-
-    if image_uri.scheme in ("https", "http"):
-        # Butler server returns signed URLs directly, so no additional signing
-        # is required.
-        image_url = str(image_uri)
-    elif config.storage_backend == StorageBackend.GCS:
-        # If we are using a direct connection to the Butler database, the URIs
-        # will be S3 or GCS URIs that need to be signed.
-        image_url = _upload_to_gcs(str(image_uri), expires_in)
-    elif config.storage_backend == StorageBackend.S3:
-        image_url = _upload_to_s3(str(image_uri), expires_in)
+    if image_uri.scheme not in ("https", "http"):
+        logger.error("Image URL from Butler not signed", image_uri=image_uri)
+        raise HTTPException(
+            status_code=500,
+            detail=[
+                {
+                    "msg": "Image URL from Butler server was not signed",
+                    "type": "invalid_butler_response",
+                }
+            ],
+        )
 
     return _TEMPLATES.TemplateResponse(
         request,
@@ -276,67 +271,9 @@ def links(
         {
             "cutout": ref.datasetType.name != "raw",
             "id": id,
-            "image_url": image_url,
+            "image_url": str(image_uri),
             "image_size": image_uri.size(),
             "cutout_sync_url": str(config.cutout_sync_url),
         },
         media_type="application/x-votable+xml",
-    )
-
-
-def _upload_to_gcs(image_uri: str, expiry: timedelta) -> str:
-    """Use GCS to upload a file and get a signed URL.
-
-    Parameters
-    ----------
-    image_uri
-        The URI of the file
-    expiry
-        Time that the URL will be valid
-
-    Returns
-    -------
-    str
-        The signed URL
-    """
-    image_uri_parts = urlparse(image_uri)
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(image_uri_parts.netloc)
-    blob = bucket.blob(image_uri_parts.path[1:])
-    return blob.generate_signed_url(
-        version="v4",
-        # This URL is valid for one hour.
-        expiration=expiry,
-        # Allow only GET requests using this URL.
-        method="GET",
-    )
-
-
-def _upload_to_s3(image_uri: str, expiry: timedelta) -> str:
-    """Use S3 to upload a file and get a signed URL.
-
-    Parameters
-    ----------
-    image_uri
-        The URI of the file
-    expiry
-        Time that the URL will be valid
-
-    Returns
-    -------
-    str
-        The signed URL
-    """
-    image_uri_parts = urlparse(image_uri)
-    bucket = image_uri_parts.netloc
-    key = image_uri_parts.path[1:]
-
-    s3_client = client(
-        "s3", endpoint_url=str(config.s3_endpoint_url), region_name="us-east-1"
-    )
-
-    return s3_client.generate_presigned_url(
-        "get_object",
-        Params={"Bucket": bucket, "Key": key},
-        ExpiresIn=expiry.total_seconds(),
     )
