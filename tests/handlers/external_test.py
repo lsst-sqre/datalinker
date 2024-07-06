@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
-import boto3
 import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -191,65 +189,28 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links_gcs(
-    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
-) -> None:
-    label = "label-gcs"
-    url = f"https://example.com/{mock_butler.uuid!s}"
-
-    await _test_links(client, mock_butler, label, url)
-
-
-@pytest.mark.asyncio
-async def test_links_s3(
-    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
-) -> None:
-    label = "label-s3"
-
-    expires = timedelta(hours=1)
-    url = s3.generate_presigned_url(
-        "get_object",
-        Params={"Bucket": "some-bucket", "Key": str(mock_butler.uuid)},
-        ExpiresIn=expires.total_seconds(),
-    )
-
-    await _test_links(client, mock_butler, label, url)
-
-
-@pytest.mark.asyncio
-async def test_links_https(
-    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
-) -> None:
-    label = "label-http"
-
-    # The URL is already signed, so it should be passed through unchanged
-    url = (
+async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
+    mock_butler.mock_uri = (
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
     )
-    mock_butler.mock_uri = url
-    await _test_links(client, mock_butler, label, url)
 
-
-async def _test_links(
-    client: AsyncClient, mock_butler: MockButler, label: str, url: str
-) -> None:
-    # Note: use iD to test the IVOA requirement of
-    # case insensitive parameters.
+    # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
+        params={"iD": f"butler://label-http/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
 
+    # The URL is already signed, so it should be passed through unchanged
     env = Environment(
         loader=PackageLoader("datalinker"), autoescape=select_autoescape()
     )
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=True,
-        id=f"butler://{label}/{mock_butler.uuid!s}",
-        image_url=url,
+        id=f"butler://label-http/{mock_butler.uuid!s}",
+        image_url=mock_butler.mock_uri,
         image_size=1234,
         cutout_sync_url=config.cutout_sync_url,
     )
@@ -260,7 +221,7 @@ async def _test_links(
         r = await client.get(
             "/api/datalink/links",
             params={
-                "id": f"butler://{label}/{mock_butler.uuid!s}",
+                "id": f"butler://label-http/{mock_butler.uuid!s}",
                 "responseformat": response_format,
             },
         )
@@ -269,53 +230,28 @@ async def _test_links(
 
 
 @pytest.mark.asyncio
-async def test_links_raw_gcs(
-    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
-) -> None:
-    await _test_links_raw(
-        client,
-        mock_butler,
-        "label-gcs-raw",
-        f"https://example.com/{mock_butler.uuid!s}",
-    )
-
-
-@pytest.mark.asyncio
-async def test_links_raw_s3(
-    client: AsyncClient, mock_butler: MockButler, s3: boto3.client
-) -> None:
-    label = "label-s3-raw"
-
-    expires = timedelta(hours=1)
-    url = s3.generate_presigned_url(
-        "get_object",
-        Params={"Bucket": "some-bucket", "Key": str(mock_butler.uuid)},
-        ExpiresIn=expires.total_seconds(),
-    )
-
-    await _test_links_raw(client, mock_butler, label, url)
-
-
-async def _test_links_raw(
-    client: AsyncClient, mock_butler: MockButler, label: str, url: str
-) -> None:
+async def test_links_raw(client: AsyncClient, mock_butler: MockButler) -> None:
     mock_butler.is_raw = True
-    # Note: use iD to test the IVOA requirement of
-    # case insensitive parameters.
+    mock_butler.mock_uri = (
+        f"https://presigned-url.example.com/{mock_butler.uuid!s}"
+        "?X-Amz-Signature=abcdef"
+    )
+
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
+        params={"id": f"butler://label-raw/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
 
+    # The URL is already signed, so it should be passed through unchanged
     env = Environment(
         loader=PackageLoader("datalinker"), autoescape=select_autoescape()
     )
     template = env.get_template("links.xml")
     expected = template.render(
         cutout=False,
-        id=f"butler://{label}/{mock_butler.uuid!s}",
-        image_url=url,
+        id=f"butler://label-raw/{mock_butler.uuid!s}",
+        image_url=mock_butler.mock_uri,
         image_size=1234,
         cutout_sync_url=config.cutout_sync_url,
     )
@@ -324,20 +260,7 @@ async def _test_links_raw(
 
 
 @pytest.mark.asyncio
-async def test_links_errors_gcs(
-    client: AsyncClient, mock_butler: MockButler, mock_google_storage: None
-) -> None:
-    await _test_links_errors(client, mock_butler)
-
-
-@pytest.mark.asyncio
-async def test_links_errors_s3(
-    client: AsyncClient, mock_butler: MockButler, s3: None
-) -> None:
-    await _test_links_errors(client, mock_butler)
-
-
-async def _test_links_errors(
+async def test_links_errors(
     client: AsyncClient, mock_butler: MockButler
 ) -> None:
     uuid = uuid4()
@@ -369,9 +292,8 @@ async def _test_links_errors(
 async def test_links_bad_repo(client: AsyncClient) -> None:
     uuid = uuid4()
 
-    # Rather than using the regular mock Butler, mock it out to raise
-    # KeyError from the constructor.  This simulates an invalid
-    # label.
+    # Rather than using the regular mock Butler, mock it out to raise KeyError
+    # from the constructor. This simulates an invalid label.
     with patch.object(LabeledButlerFactory, "create_butler") as mock_butler:
         mock_butler.side_effect = KeyError
         r = await client.get(
