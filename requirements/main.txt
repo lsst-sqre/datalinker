@@ -38,9 +38,9 @@ astropy==6.1.1 \
     #   lsst-daf-butler
     #   lsst-resources
     #   lsst-utils
-astropy-iers-data==0.2024.7.1.0.34.3 \
-    --hash=sha256:0e3b47ae2ed44a03c3bea40a2b73bfce1858cf4059b4612c677a5e4a90f86003 \
-    --hash=sha256:195053a2b198f964ad89440b419fa4e506d9db6a8e1cc18a387bc9c3b480a09e
+astropy-iers-data==0.2024.7.8.0.31.19 \
+    --hash=sha256:c00af2f9b7d7bab47a03e9cfc7ef6c0c1b5bab1aaaf2a2812c4f7d4f9e8deb44 \
+    --hash=sha256:dc6c14804e3d208755422eb8526a3eb3be4626e91ae707ceb705ad04170edd59
     # via astropy
 backoff==2.2.1 \
     --hash=sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba \
@@ -49,9 +49,7 @@ backoff==2.2.1 \
 boto3==1.34.140 \
     --hash=sha256:23ca8d8f7a30c3bbd989808056b5fc5d68ff5121c02c722c6167b6b1bb7f8726 \
     --hash=sha256:578bbd5e356005719b6b610d03edff7ea1b0824d078afe62d3fb8bea72f83a87
-    # via
-    #   -r requirements/main.in
-    #   lsst-resources
+    # via lsst-resources
 botocore==1.34.140 \
     --hash=sha256:43940d3a67d946ba3301631ba4078476a75f1015d4fb0fb0272d0b754b2cf9de \
     --hash=sha256:86302b2226c743b9eec7915a4c6cfaffd338ae03989cd9ee181078ef39d1ab39
@@ -306,7 +304,6 @@ google-auth==2.31.0 \
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
-    #   safir
 google-cloud-core==2.4.1 \
     --hash=sha256:9b7749272a812bde58fff28868d0c5e2f585b82f37e09a1f6ed2d4d10f134073 \
     --hash=sha256:a9e6a4422b9ac5c29f79a0ede9485473338e2ce78d91f2370c01e730eab22e61
@@ -314,10 +311,7 @@ google-cloud-core==2.4.1 \
 google-cloud-storage==2.17.0 \
     --hash=sha256:49378abff54ef656b52dca5ef0f2eba9aa83dc2b2c72c78714b03a1a95fe9388 \
     --hash=sha256:5b393bc766b7a3bc6f5407b9e665b2450d36282614b7945e570b3480a456d1e1
-    # via
-    #   -r requirements/main.in
-    #   lsst-resources
-    #   safir
+    # via lsst-resources
 google-crc32c==1.5.0 \
     --hash=sha256:024894d9d3cfbc5943f8f230e23950cd4906b2fe004c72e29b209420a1e6b05a \
     --hash=sha256:02c65b9817512edc6a4ae7c7e987fea799d2e0ee40c53ec573a692bee24de876 \
