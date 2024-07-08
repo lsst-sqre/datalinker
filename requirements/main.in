@@ -13,8 +13,6 @@ starlette
 uvicorn[standard]
 
 # Other dependencies.
-boto3
-google-cloud-storage
 httpx
 jinja2
 lsst-daf-butler[postgres,remote]<=26.2024.1500
@@ -22,7 +20,7 @@ lsst-resources[s3,gs]
 pydantic
 pydantic-settings
 pyyaml
-safir[gcs]
+safir
 structlog
 
 # Uncomment this, change the branch, comment out safir above, and run make
