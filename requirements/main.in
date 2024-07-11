@@ -15,8 +15,7 @@ uvicorn[standard]
 # Other dependencies.
 httpx
 jinja2
-lsst-daf-butler[postgres,remote]<=26.2024.1500
-lsst-resources[s3,gs]
+lsst-daf-butler[remote]
 pydantic
 pydantic-settings
 pyyaml
