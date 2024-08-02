@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-3.0.0'></a>
+## 3.0.0 (2024-08-02)
+
+### Backwards-incompatible changes
+
+- Drop support for direct Butler and require client/server Butler.
+
 <a id='changelog-2.0.0'></a>
 ## 2.0.0 (2024-06-28)
 
