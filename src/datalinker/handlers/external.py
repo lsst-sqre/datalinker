@@ -92,7 +92,6 @@ def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
 
 @external_router.get(
     "/",
-    response_model=Index,
     response_model_exclude_none=True,
     summary="Application metadata",
 )

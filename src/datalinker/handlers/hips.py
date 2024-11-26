@@ -6,6 +6,8 @@ the same Science Platform deployment.  This route is a separate router because
 it doesn't require authentication and is served with a different prefix.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 from safir.slack.webhook import SlackRouteErrorHandler
@@ -21,5 +23,7 @@ __all__ = ["hips_router"]
 @hips_router.get(
     "/list", response_class=PlainTextResponse, include_in_schema=False
 )
-async def get_hips_list(hips_list: str = Depends(hips_list_dependency)) -> str:
+async def get_hips_list(
+    hips_list: Annotated[str, Depends(hips_list_dependency)],
+) -> str:
     return hips_list
