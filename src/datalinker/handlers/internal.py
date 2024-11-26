@@ -28,7 +28,6 @@ internal_router = APIRouter(route_class=SlackRouteErrorHandler)
         " therefore cannot be used by external clients."
     ),
     include_in_schema=False,
-    response_model=Metadata,
     response_model_exclude_none=True,
     summary="Application metadata",
 )
