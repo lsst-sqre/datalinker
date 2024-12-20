@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 
@@ -17,6 +17,10 @@ __all__ = [
 
 class Config(BaseSettings):
     """Configuration for datalinker."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="DATALINKER_", case_sensitive=False
+    )
 
     cutout_sync_url: Annotated[
         HttpUrl,
@@ -30,40 +34,18 @@ class Config(BaseSettings):
 
     hips_base_url: Annotated[HttpUrl, Field(title="Base URL for HiPS lists")]
 
-    tap_metadata_dir: Annotated[
-        Path | None,
-        Field(
-            title="Path to TAP YAML metadata",
-            description=(
-                "Directory containing YAML metadata files about TAP schema"
-            ),
-        ),
-    ] = None
-
-    token: Annotated[
+    hips_path_prefix: Annotated[
         str,
         Field(
-            title="Token for API authentication",
-            description="Token to use to authenticate to the HiPS service",
+            title="URL prefix for HiPS API",
+            description="URL prefix used to inject the HiPS list file",
         ),
-    ]
+    ] = "/api/hips"
 
-    # TODO(DM-42660): butler_repositories can be removed once there is a
-    # release of daf_butler available that handles DAF_BUTLER_REPOSITORIES
-    # itself.
-    butler_repositories: Annotated[
-        dict[str, str] | None,
-        Field(
-            title="Butler repository labels",
-            description=(
-                "Mapping from label to URI for Butler repositories used by"
-                " this service. If not set, Butler will ball back to looking"
-                " this up from a file whose URI is given in the"
-                " `DAF_BUTLER_REPOSITORY_INDEX` environment variable."
-            ),
-            validation_alias="DAF_BUTLER_REPOSITORIES",
-        ),
-    ] = None
+    log_level: Annotated[
+        LogLevel,
+        Field(title="Log level of the application's logger"),
+    ] = LogLevel.INFO
 
     name: Annotated[str, Field(title="Application name")] = "datalinker"
 
@@ -78,31 +60,32 @@ class Config(BaseSettings):
         ),
     ] = "/api/datalink"
 
-    hips_path_prefix: Annotated[
-        str,
-        Field(
-            title="URL prefix for HiPS API",
-            description="URL prefix used to inject the HiPS list file",
-        ),
-    ] = "/api/hips"
-
     profile: Annotated[
         Profile,
         Field(title="Application logging profile"),
     ] = Profile.production
 
-    log_level: Annotated[
-        LogLevel,
-        Field(title="Log level of the application's logger"),
-    ] = LogLevel.INFO
-
-    slack_webhook: Annotated[
-        HttpUrl | None, Field(title="Slack webhook for exception reporting")
+    tap_metadata_dir: Annotated[
+        Path | None,
+        Field(
+            title="Path to TAP YAML metadata",
+            description=(
+                "Directory containing YAML metadata files about TAP schema"
+            ),
+        ),
     ] = None
 
-    model_config = SettingsConfigDict(
-        env_prefix="DATALINKER_", case_sensitive=False
-    )
+    slack_webhook: Annotated[
+        SecretStr | None, Field(title="Slack webhook for exception reporting")
+    ] = None
+
+    token: Annotated[
+        str,
+        Field(
+            title="Token for API authentication",
+            description="Token to use to authenticate to the HiPS service",
+        ),
+    ]
 
 
 config = Config()

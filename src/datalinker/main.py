@@ -63,7 +63,7 @@ app.add_middleware(XForwardedMiddleware)
 
 # Configure Slack alerts.
 if config.slack_webhook:
-    webhook = str(config.slack_webhook)
+    webhook = config.slack_webhook
     logger = structlog.get_logger(__name__)
     SlackRouteErrorHandler.initialize(webhook, config.name, logger)
     logger.debug("Initialized Slack webhook")

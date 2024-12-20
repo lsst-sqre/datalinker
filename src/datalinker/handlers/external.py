@@ -29,7 +29,7 @@ from ..models import Band, Detail, Index
 external_router = APIRouter(route_class=SlackRouteErrorHandler)
 """FastAPI router for all external handlers."""
 
-_BUTLER_FACTORY = LabeledButlerFactory(config.butler_repositories)
+_BUTLER_FACTORY = LabeledButlerFactory()
 """Factory for creating Butlers from a label and Gafaelfawr token."""
 
 _TEMPLATES = Jinja2Templates(
