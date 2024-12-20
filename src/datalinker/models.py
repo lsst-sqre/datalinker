@@ -1,6 +1,6 @@
 """Models for datalinker."""
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 from safir.metadata import Metadata as SafirMetadata
@@ -8,7 +8,7 @@ from safir.metadata import Metadata as SafirMetadata
 __all__ = ["Band", "Detail", "Index"]
 
 
-class Band(str, Enum):
+class Band(StrEnum):
     """An abstract filter band for restricting the scope of a query."""
 
     all = "all"
@@ -20,7 +20,7 @@ class Band(str, Enum):
     y = "y"
 
 
-class Detail(str, Enum):
+class Detail(StrEnum):
     """Amount of column detail to return from a query."""
 
     minimal = "minimal"
