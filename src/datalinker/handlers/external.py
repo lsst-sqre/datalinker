@@ -2,11 +2,11 @@
 
 from email.message import Message
 from importlib.metadata import metadata
-from pathlib import Path
 from typing import Annotated, Literal, cast
 from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
+import jinja2
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -32,9 +32,12 @@ external_router = APIRouter(route_class=SlackRouteErrorHandler)
 _BUTLER_FACTORY = LabeledButlerFactory()
 """Factory for creating Butlers from a label and Gafaelfawr token."""
 
-_TEMPLATES = Jinja2Templates(
-    directory=str(Path(__file__).parent.parent / "templates")
+_environment = jinja2.Environment(
+    loader=jinja2.PackageLoader("datalinker", "templates"),
+    undefined=jinja2.StrictUndefined,
+    autoescape=True,
 )
+_TEMPLATES = Jinja2Templates(env=_environment)
 """FastAPI renderer for templated responses."""
 
 __all__ = ["external_router"]
