@@ -20,7 +20,18 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi>=0.100",
+    "httpx",
+    "jinja2",
+    "lsst-daf-butler[remote]",
+    "pydantic>2",
+    "pydantic-settings",
+    "pyyaml",
+    "safir>=6.2.0",
+    "structlog",
+    "uvicorn[standard]",
+]
 dynamic = ["version"]
 
 [[project.authors]]
