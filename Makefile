@@ -5,7 +5,6 @@ help:
 	@echo "make run - Run development instance of server"
 	@echo "make update - Update pinned dependencies and run make init"
 	@echo "make update-deps - Update pinned dependencies"
-	@echo "make update-deps-no-hashes - Pin dependencies without hashes"
 
 .PHONY: init
 init:
@@ -17,6 +16,10 @@ init:
 	uv pip install --upgrade pre-commit
 	pre-commit install
 
+.PHONY: run
+run:
+	tox -e run
+
 .PHONY: update
 update: update-deps init
 
@@ -26,23 +29,8 @@ update-deps:
 	uv pip install --upgrade pre-commit
 	pre-commit autoupdate
 	uv pip compile --upgrade --universal --generate-hashes		\
-	    --output-file requirements/main.txt requirements/main.in
+	    --output-file requirements/main.txt pyproject.toml
 	uv pip compile --upgrade --universal --generate-hashes		\
 	    --output-file requirements/dev.txt requirements/dev.in
 	uv pip compile --upgrade --universal --generate-hashes		\
 	    --output-file requirements/tox.txt requirements/tox.in
-
-# Useful for testing against a Git version of a dependency.
-.PHONY: update-deps-no-hashes
-update-deps-no-hashes:
-	pip install --upgrade uv
-	uv pip compile --upgrade --universal				\
-	    --output-file requirements/main.txt requirements/main.in
-	uv pip compile --upgrade --universal				\
-	    --output-file requirements/dev.txt requirements/dev.in
-	uv pip compile --upgrade --universal				\
-	    --output-file requirements/tox.txt requirements/tox.in
-
-.PHONY: run
-run:
-	tox -e run
