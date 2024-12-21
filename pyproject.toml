@@ -52,8 +52,6 @@ requires = [
 ]
 build-backend = 'setuptools.build_meta'
 
-[tool.setuptools_scm]
-
 [tool.coverage.run]
 parallel = true
 branch = true
@@ -138,3 +136,5 @@ format = "md"
 md_header_level = "2"
 new_fragment_template = "file:changelog.d/_template.md.jinja"
 skip_fragments = "_template.md.jinja"
+
+[tool.setuptools_scm]
