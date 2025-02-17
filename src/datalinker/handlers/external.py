@@ -3,14 +3,13 @@
 from email.message import Message
 from importlib.metadata import metadata
 from typing import Annotated, Literal, cast
-from urllib.parse import urlencode, urlparse
-from uuid import UUID
+from urllib.parse import urlencode
 
 import jinja2
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from lsst.daf.butler import LabeledButlerFactory
+from lsst.daf.butler import Butler, LabeledButlerFactory
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import Metadata, get_project_url
@@ -203,8 +202,12 @@ def links(
         str,
         Query(
             title="Object ID",
-            examples=["butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127"],
-            pattern="^butler://[^/]+/[a-f0-9-]+$",
+            examples=[
+                "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+                "ivo://org.rubinobs/usdac/dp1?"
+                "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+            ],
+            pattern="^(butler|ivo)://.+$",
         ),
     ],
     responseformat: Annotated[
@@ -214,19 +217,18 @@ def links(
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
     delegated_token: Annotated[str, Depends(auth_delegated_token_dependency)],
 ) -> Response:
-    butler_uri = urlparse(id)
-    label = butler_uri.netloc
-    uuid = butler_uri.path[1:]
-    logger.debug("Retrieving object from Butler", label=label, uuid=uuid)
-
-    # Invalid Butler labels will cause the Butler factory to raise a KeyError.
-    # We want other errors (like problems reaching PostgreSQL) to return 500.
+    bound_factory = _BUTLER_FACTORY.bind(access_token=delegated_token)
     try:
-        butler = _BUTLER_FACTORY.create_butler(
-            label=label, access_token=delegated_token
+        dataset_result = Butler.get_dataset_from_uri(id, factory=bound_factory)
+        logger.debug(
+            "Retrieving object from Butler",
+            butler=str(dataset_result.butler),
+            uuid=str(dataset_result.dataset),
         )
-    except KeyError as e:
-        logger.warning("Butler repository does not exist", label=label)
+    except FileNotFoundError as e:
+        # Invalid Butler labels will cause it to fall back to trying to
+        # read a local Butler config.
+        logger.warning("Butler repository does not exist")
         raise HTTPException(
             status_code=404,
             detail=[
@@ -237,12 +239,25 @@ def links(
                 }
             ],
         ) from e
+    except ValueError as e:
+        # Bad or missing UUID in URI.
+        logger.warning("Butler URI has malformed or missing UUID")
+        raise HTTPException(
+            status_code=422,
+            detail=[
+                {
+                    "loc": ["query", "id"],
+                    "msg": f"Unable to extract valid dataset ID from {id}",
+                    "type": "not_found",
+                }
+            ],
+        ) from e
 
-    # This returns lsst.resources.ResourcePath.
-    ref = butler.get_dataset(UUID(uuid))
+    ref = dataset_result.dataset
+    butler = dataset_result.butler
 
     if not ref:
-        logger.warning("Dataset does not exist", label=label, id=id)
+        logger.warning("Dataset does not exist", label=str(butler), id=id)
         raise HTTPException(
             status_code=404,
             detail=[
@@ -253,6 +268,7 @@ def links(
                 }
             ],
         )
+    # This returns lsst.resources.ResourcePath.
     image_uri = butler.getURI(ref)
     logger.debug("Got image URI from Butler", image_uri=image_uri)
     if image_uri.scheme not in ("https", "http"):
