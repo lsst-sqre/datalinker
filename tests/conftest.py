@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncGenerator, Iterator
 from pathlib import Path
 
 import pytest
@@ -18,7 +18,7 @@ from .support.butler import MockButler, patch_butler
 
 
 @pytest_asyncio.fixture
-async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[FastAPI]:
+async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncGenerator[FastAPI]:
     """Return a configured test application.
 
     Wraps the application in a lifespan manager so that startup and shutdown
@@ -32,7 +32,7 @@ async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[FastAPI]:
 
 
 @pytest_asyncio.fixture
-async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
+async def client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Return an ``httpx.AsyncClient`` configured to talk to the test app.
 
     Mock the Gafaelfawr delegated token header, needed by endpoints that use
