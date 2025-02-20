@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-3.1.0'></a>
+## 3.1.0 (2025-02-20)
+
+### New features
+
+- Use `lsst.daf.butler` to parse Butler URIs rather than doing the parsing internally. This adds support for the new Butler URI format that will be used for future data releases.
+
 <a id='changelog-3.0.0'></a>
 ## 3.0.0 (2024-08-02)
 
