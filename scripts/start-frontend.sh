@@ -9,8 +9,4 @@ if [ -n "$DATALINKER_TAP_METADATA_URL" ]; then
     unzip -o /tmp/datalink-columns.zip -d "$DATALINKER_TAP_METADATA_DIR"
 fi
 
-rm -rf /tmp/secrets
-cp -RL /etc/butler/secrets /tmp
-chmod -R 0400 /tmp/secrets/*
-
 uvicorn datalinker.main:app --host 0.0.0.0 --port 8080
