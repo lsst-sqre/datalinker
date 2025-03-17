@@ -1,8 +1,6 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
-from email.message import Message
-from importlib.metadata import metadata
-from typing import Annotated, Literal, cast
+from typing import Annotated, Literal
 from urllib.parse import urlencode
 
 import jinja2
@@ -12,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from lsst.daf.butler import Butler, LabeledButlerFactory
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
-from safir.metadata import Metadata, get_project_url
+from safir.metadata import get_metadata
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
@@ -107,14 +105,9 @@ async def get_index(
     ``metadata`` that provides the same Safir-generated metadata as the
     internal root endpoint.
     """
-    pkg_metadata = cast(Message, metadata("datalinker"))
     return Index(
-        metadata=Metadata(
-            name="datalinker",
-            version=pkg_metadata["Version"],
-            description=pkg_metadata["Summary"],
-            repository_url=get_project_url(pkg_metadata, "Source"),
-            documentation_url=get_project_url(pkg_metadata, "Homepage"),
+        metadata=get_metadata(
+            package_name="datalinker", application_name=config.name
         )
     )
 
