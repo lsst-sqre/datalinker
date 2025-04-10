@@ -1,12 +1,5 @@
 name: CI
 
-env:
-  # Current supported Python version. For applications, there is generally no
-  # reason to support multiple Python versions, so all actions are run with
-  # this version. Quote the version to avoid interpretation as a floating
-  # point number.
-  PYTHON_VERSION: "3.13"
-
 "on":
   merge_group: {}
   pull_request: {}
@@ -25,21 +18,6 @@ env:
       - "*"
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
-
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -47,16 +25,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run tox
-        uses: lsst-sqre/run-tox@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          tox-envs: "py,coverage-report,typing"
-          tox-requirements: requirements/tox.txt
+          python-version-file: ".python-version"
+
+      - name: Run tox
+        run: uv run --only-group=tox tox run -e lint,typing,py,coverage-report
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [test]
     timeout-minutes: 10
 
     # Only do Docker builds of tagged releases and pull requests from ticket
