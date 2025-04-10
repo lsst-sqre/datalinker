@@ -52,6 +52,31 @@ requires = [
 ]
 build-backend = 'setuptools.build_meta'
 
+[dependency-groups]
+dev = [
+    "asgi-lifespan",
+    "coverage[toml]",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-sugar",
+    "respx",
+    "scriv[toml]",
+]
+lint = [
+    "pre-commit",
+    "pre-commit-uv",
+    "ruff>=0.9",
+]
+tox = [
+    "tox>=4.24",
+    "tox-uv>=1.25",
+]
+typing = [
+    "mypy>=1.15",
+    "types-PyYAML",
+]
+
 [tool.coverage.run]
 parallel = true
 branch = true

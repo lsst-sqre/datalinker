@@ -12,37 +12,40 @@
 #   - Runs a non-root user.
 #   - Sets up the entrypoint and port.
 
-FROM python:3.13.2-slim-bookworm as base-image
+FROM python:3.13.2-slim-bookworm AS base-image
 
 # Update system packages
 COPY scripts/install-base-packages.sh .
-RUN ./install-base-packages.sh && rm ./install-base-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-base-packages.sh && rm ./install-base-packages.sh
 
 FROM base-image AS install-image
 
 # Install uv.
-COPY --from=ghcr.io/astral-sh/uv:0.6.2 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.6.14 /uv /bin/uv
 
-# Install system packages only needed for building dependencies.
+# Install some additional packages required for building dependencies.
 COPY scripts/install-dependency-packages.sh .
-RUN ./install-dependency-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-dependency-packages.sh
 
-# Create a Python virtual environment
-ENV VIRTUAL_ENV=/opt/venv
-RUN uv venv $VIRTUAL_ENV
+# Disable hard links during uv package installation since we're using a
+# cache on a separate file system.
+ENV UV_LINK_MODE=copy
 
-# Make sure we use the virtualenv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Install the dependencies.
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-default-groups --compile-bytecode --no-install-project
 
-# Install the app's Python runtime dependencies
-COPY requirements/main.txt ./requirements.txt
-RUN uv pip install --compile-bytecode --verify-hashes --no-cache \
-    -r requirements.txt
-
-# Install the application.
-COPY . /workdir
-WORKDIR /workdir
-RUN uv pip install --compile-bytecode --no-cache .
+# Install the application itself.
+ADD . /app
+RUN --mount=type=cache,target=/.root/.cache/uv \
+    uv pip install --no-deps --compile-bytecode .
 
 FROM base-image AS runtime-image
 
@@ -50,13 +53,14 @@ FROM base-image AS runtime-image
 RUN useradd --create-home appuser
 
 # Copy the virtualenv
-COPY --from=install-image /opt/venv /opt/venv
+COPY --from=install-image /app /app
 
 # Copy the startup script
 COPY scripts/start-frontend.sh /start-frontend.sh
 
 # Make sure we use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
+WORKDIR /app
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Switch to the non-root user.
 USER appuser

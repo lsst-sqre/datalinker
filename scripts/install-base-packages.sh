@@ -27,7 +27,3 @@ apt-get -y upgrade
 
 # Butler requires libpq-dev. TAP schema metadata requires curl and unzip.
 apt-get -y install --no-install-recommends curl libpq-dev unzip
-
-# Delete cached files we don't need anymore:
-apt-get clean
-rm -rf /var/lib/apt/lists/*
