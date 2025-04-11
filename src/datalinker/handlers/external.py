@@ -1,5 +1,7 @@
 """Handlers for the app's external root, ``/datalinker/``."""
 
+from datetime import UTC, datetime
+from email.utils import format_datetime
 from typing import Annotated, Literal
 from urllib.parse import urlencode
 
@@ -276,6 +278,8 @@ def links(
             ],
         )
 
+    lifetime = int(config.links_lifetime.total_seconds())
+    expires = datetime.now(tz=UTC) + config.links_lifetime
     return _TEMPLATES.TemplateResponse(
         request,
         "links.xml",
@@ -285,6 +289,10 @@ def links(
             "image_url": str(image_uri),
             "image_size": image_uri.size(),
             "cutout_sync_url": str(config.cutout_sync_url),
+        },
+        headers={
+            "Cache-Control": f"max-age={lifetime}",
+            "Expires": format_datetime(expires, usegmt=True),
         },
         media_type="application/x-votable+xml",
     )
