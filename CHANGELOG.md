@@ -6,6 +6,17 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-3.2.0'></a>
+## 3.2.0 (2025-04-11)
+
+### New features
+
+- Set `Expires` and `Cache-Control` headers on the links reply reflecting the expiration time of signed image URLs, informing clients that the response should not be cached beyond the expiration of those URLs. The lifetime of the links is specified as a new configuration option for now. That option will be removed once that lifetime is available from Butler.
+
+### Other changes
+
+- datalinker now requires [uv](https://docs.astral.sh/uv/) for development and frozen dependencies.
+
 <a id='changelog-3.1.0'></a>
 ## 3.1.0 (2025-02-20)
 
