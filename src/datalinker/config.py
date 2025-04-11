@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from pathlib import Path
 from typing import Annotated
 
 from pydantic import Field, HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
+from safir.pydantic import HumanTimedelta
 
 __all__ = [
     "Config",
@@ -41,6 +43,14 @@ class Config(BaseSettings):
             description="URL prefix used to inject the HiPS list file",
         ),
     ] = "/api/hips"
+
+    links_lifetime: Annotated[
+        HumanTimedelta,
+        Field(
+            title="Lifetime of image links replies",
+            description="Should match the lifetime of signed URLs from Butler",
+        ),
+    ] = timedelta(hours=1)
 
     log_level: Annotated[
         LogLevel,
