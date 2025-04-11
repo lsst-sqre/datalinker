@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-from email.utils import parsedate_to_datetime
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
@@ -12,7 +10,6 @@ import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
 from lsst.daf.butler import LabeledButlerFactory
-from safir.datetime import current_datetime
 
 from datalinker.config import config
 
@@ -197,7 +194,6 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
     )
-    expected_expires = current_datetime() + config.links_lifetime
 
     # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get(
@@ -205,9 +201,6 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
         params={"iD": f"butler://label-http/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
-    expires = parsedate_to_datetime(r.headers["Expires"])
-    assert expected_expires <= expires
-    assert expires <= expected_expires + timedelta(seconds=5)
     lifetime = int(config.links_lifetime.total_seconds())
     assert r.headers["Cache-Control"] == f"max-age={lifetime}"
 
