@@ -14,12 +14,13 @@ from safir.metadata import get_metadata
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
-from ..config import config
+from ..config import Config
 from ..constants import (
     ADQL_COMPOUND_TABLE_REGEX,
     ADQL_FOREIGN_COLUMN_REGEX,
     ADQL_IDENTIFIER_REGEX,
 )
+from ..dependencies.config import config_dependency
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..models import Band, Detail, Index
 
@@ -98,6 +99,7 @@ def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
 async def get_index(
     *,
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    config: Annotated[Config, Depends(config_dependency)],
 ) -> Index:
     """GET ``/datalinker/`` (the app's external root).
 
@@ -208,6 +210,7 @@ def links(
         Query(title="Response format"),
     ] = "application/x-votable+xml",
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    config: Annotated[Config, Depends(config_dependency)],
     delegated_token: Annotated[str, Depends(auth_delegated_token_dependency)],
 ) -> Response:
     bound_factory = _BUTLER_FACTORY.bind(access_token=delegated_token)

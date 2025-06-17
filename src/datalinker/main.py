@@ -21,9 +21,9 @@ from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
 from safir.slack.webhook import SlackRouteErrorHandler
 
-from .config import config
+from .dependencies.config import config_dependency
 from .handlers.external import external_router
-from .handlers.hips import hips_router
+from .handlers.hips import hips_router, hips_v2_router
 from .handlers.internal import internal_router
 
 __all__ = ["app"]
@@ -36,6 +36,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
     await http_client_dependency.aclose()
 
+
+config = config_dependency.config()
 
 configure_logging(
     profile=config.profile, log_level=config.log_level, name="datalinker"
@@ -58,6 +60,7 @@ app = FastAPI(
 app.include_router(internal_router)
 app.include_router(external_router, prefix=config.path_prefix)
 app.include_router(hips_router, prefix=config.hips_path_prefix)
+app.include_router(hips_v2_router, prefix=config.hips_v2_path_prefix)
 
 # Add the middleware.
 app.add_middleware(CaseInsensitiveQueryMiddleware)
