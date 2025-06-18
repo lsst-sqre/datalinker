@@ -6,6 +6,21 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-3.3.0'></a>
+## 3.3.0 (2025-06-18)
+
+### New features
+
+- Change Config to load configuration from local file, to support more complex structures for the hips release data
+- Introduce v2 hips router. Add an additional hips dependency that builds a hips list per data release, given the data release lists and their paths via configuration
+- Add new tests for v2 and legacy hips list endpoint
+
+### Other changes
+
+- Drop `Expires` from the reply headers of the `{links}` endpoint, since that header is effectively obsolete since HTTP/1.1 given the presence of `Cache-Control` with a `max-age` parameter.
+
+- Upgraded dependencies and python version
+
 <a id='changelog-3.2.0'></a>
 ## 3.2.0 (2025-04-11)
 
