@@ -11,13 +11,13 @@ from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
 from lsst.daf.butler import LabeledButlerFactory
 
-from datalinker.config import config
+from datalinker.config import Config
 
 from ..support.butler import MockButler
 
 
 @pytest.mark.asyncio
-async def test_get_index(client: AsyncClient) -> None:
+async def test_get_index(client: AsyncClient, config: Config) -> None:
     """Test ``GET /api/datalink/``."""
     response = await client.get("/api/datalink/")
     assert response.status_code == 200
@@ -189,7 +189,9 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
+async def test_links(
+    client: AsyncClient, config: Config, mock_butler: MockButler
+) -> None:
     mock_butler.mock_uri = (
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
@@ -232,7 +234,9 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links_raw(client: AsyncClient, mock_butler: MockButler) -> None:
+async def test_links_raw(
+    client: AsyncClient, config: Config, mock_butler: MockButler
+) -> None:
     mock_butler.is_raw = True
     mock_butler.mock_uri = (
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"

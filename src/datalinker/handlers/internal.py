@@ -8,11 +8,14 @@ These handlers should be used for monitoring, health checks, internal status,
 or other information that should not be visible outside the Kubernetes cluster.
 """
 
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from safir.metadata import Metadata, get_metadata
 from safir.slack.webhook import SlackRouteErrorHandler
 
-from ..config import config
+from ..config import Config
+from ..dependencies.config import config_dependency
 
 __all__ = ["get_index", "internal_router"]
 
@@ -31,7 +34,9 @@ internal_router = APIRouter(route_class=SlackRouteErrorHandler)
     response_model_exclude_none=True,
     summary="Application metadata",
 )
-async def get_index() -> Metadata:
+async def get_index(
+    config: Annotated[Config, Depends(config_dependency)],
+) -> Metadata:
     """GET ``/`` (the app's internal root).
 
     By convention, this endpoint returns only the application's metadata.

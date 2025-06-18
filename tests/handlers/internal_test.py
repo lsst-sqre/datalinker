@@ -5,11 +5,11 @@ from __future__ import annotations
 import pytest
 from httpx import AsyncClient
 
-from datalinker.config import config
+from datalinker.config import Config
 
 
 @pytest.mark.asyncio
-async def test_get_index(client: AsyncClient) -> None:
+async def test_get_index(client: AsyncClient, config: Config) -> None:
     """Test ``GET /``."""
     response = await client.get("/")
     assert response.status_code == 200

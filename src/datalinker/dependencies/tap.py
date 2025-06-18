@@ -2,7 +2,7 @@
 
 import yaml
 
-from ..config import config
+from .config import config_dependency
 
 TAPMetadata = dict[str, dict[str, list[str]]]
 """Type for TAP metadata."""
@@ -45,6 +45,7 @@ class TAPMetadataDependency:
 
     def _load_data(self) -> TAPMetadata:
         """Load and cache the schema data."""
+        config = config_dependency.config()
         if not config.tap_metadata_dir:
             return {}
 

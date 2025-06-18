@@ -23,7 +23,7 @@ dependencies = [
     "httpx",
     "jinja2",
     "lsst-daf-butler[remote]",
-    "pydantic>2",
+    "pydantic>=2.11",
     "pydantic-settings",
     "pyyaml",
     "safir>=6.2.0",
