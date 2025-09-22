@@ -160,6 +160,9 @@ async def timeseries(
             pattern=ADQL_FOREIGN_COLUMN_REGEX,
         ),
     ] = None,
+    join_style: Annotated[
+        Literal["ccdVisit", "visit_detector"], Query(title="Join style")
+    ] = "ccdVisit",
     tap_metadata: Annotated[TAPMetadata, Depends(tap_metadata_dependency)],
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
 ) -> str:
@@ -169,9 +172,13 @@ async def timeseries(
     # In those cases we have to join with another table on ccdVisitId.
     if join_time_column:
         join_table, time_column = join_time_column.rsplit(".", 1)
+        if join_style == "visit_detector":
+            join_clause = "(s.visit = t.visitId AND s.detector = t.detector)"
+        else:
+            join_clause = "s.ccdVisitId = t.ccdVisitId"
         adql = (
             f"SELECT t.{time_column},{columns} FROM {table} AS s"
-            f" JOIN {join_table} AS t ON s.ccdVisitId = t.ccdVisitId"
+            f" JOIN {join_table} AS t ON {join_clause}"
         )
     else:
         adql = f"SELECT {columns} FROM {table} AS s"
