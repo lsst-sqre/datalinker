@@ -14,10 +14,6 @@ from httpx import ASGITransport, AsyncClient
 from datalinker import main
 from datalinker.config import Config
 from datalinker.dependencies.config import config_dependency
-from datalinker.dependencies.hips import (
-    dataset_hips_list_dependency,
-    hips_list_dependency,
-)
 
 from .constants import TEST_DATA_DIR
 from .support.butler import MockButler, patch_butler
@@ -71,17 +67,3 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
 def mock_butler() -> Iterator[MockButler]:
     """Mock Butler for testing."""
     yield from patch_butler()
-
-
-@pytest.fixture(autouse=True)
-def clear_hips_cache() -> Iterator[None]:
-    """Clear HiPS dependency caches between tests."""
-    # Clear caches before test
-    hips_list_dependency.clear_cache()
-    dataset_hips_list_dependency.clear_cache()
-
-    yield
-
-    # Clear caches after test
-    hips_list_dependency.clear_cache()
-    dataset_hips_list_dependency.clear_cache()
