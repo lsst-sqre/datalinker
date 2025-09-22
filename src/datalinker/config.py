@@ -7,29 +7,12 @@ from pathlib import Path
 from typing import Annotated, Self
 
 import yaml
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import Field, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 from safir.pydantic import HumanTimedelta
 
-__all__ = ["Config", "HiPSDatasetConfig"]
-
-
-class HiPSDatasetConfig(BaseModel):
-    """Configuration for a single HiPS dataset."""
-
-    url: Annotated[
-        HttpUrl,
-        Field(title="Base URL", description="Base URL for this HiPS dataset"),
-    ]
-
-    paths: Annotated[
-        list[str],
-        Field(
-            title="HiPS paths",
-            description="List of available HiPS paths",
-        ),
-    ]
+__all__ = ["Config"]
 
 
 class Config(BaseSettings):
@@ -47,46 +30,6 @@ class Config(BaseSettings):
             validation_alias="cutoutSyncUrl",
         ),
     ]
-
-    hips_base_url: Annotated[
-        HttpUrl,
-        Field(title="Base URL for HiPS lists", validation_alias="hipsBaseUrl"),
-    ]
-
-    hips_datasets: Annotated[
-        dict[str, HiPSDatasetConfig],
-        Field(
-            title="HiPS dataset configurations",
-            description=(
-                "Mapping of dataset names to their configuration. "
-                "Each dataset has a base URL and list of available HiPS paths."
-            ),
-            validation_alias="hipsDatasets",
-        ),
-    ] = {}
-
-    hips_default_dataset: Annotated[
-        str, Field(validation_alias="hipsDefaultDataset")
-    ] = ""
-    """The dataset to serve from v1 routes. Must be a key in hips_datasets"""
-
-    hips_path_prefix: Annotated[
-        str,
-        Field(
-            title="URL prefix for HiPS API",
-            description="URL prefix used to inject the HiPS list file",
-            validation_alias="hipsPathPrefix",
-        ),
-    ] = "/api/hips"
-
-    hips_v2_path_prefix: Annotated[
-        str,
-        Field(
-            title="URL prefix for HiPS API",
-            description="URL prefix used to inject the HiPS list file",
-            validation_alias="hipsV2PathPrefix",
-        ),
-    ] = "/api/hips/v2"
 
     links_lifetime: Annotated[
         HumanTimedelta,
@@ -166,44 +109,6 @@ class Config(BaseSettings):
         ),
         validation_alias="DATALINKER_SLACK_WEBHOOK",
     )
-
-    token: str = Field(
-        title="Token for API authentication",
-        description="Token to use to authenticate to the HiPS service",
-        validation_alias="DATALINKER_TOKEN",
-    )
-
-    def has_hips_datasets(self) -> bool:
-        """Check if any HiPS datasets are configured."""
-        return bool(self.hips_datasets)
-
-    def get_default_hips_dataset(self) -> HiPSDatasetConfig:
-        """Return the HiPS dataset config for the default dataset.
-
-        Returns
-        -------
-        HiPSDatasetConfig | None
-            The default dataset configuration, or None if not configured.
-        """
-        return self.hips_datasets[self.hips_default_dataset]
-
-    @model_validator(mode="after")
-    def validate_default_hips_dataset(self) -> Self:
-        """Validate that the default HiPS dataset exists if specified."""
-        if self.hips_default_dataset:
-            if not self.hips_datasets:
-                msg = (
-                    f"HiPS dataset key {self.hips_default_dataset} specified "
-                    "but no datasets are configured in hips_datasets"
-                )
-                raise ValueError(msg)
-            if self.hips_default_dataset not in self.hips_datasets:
-                msg = (
-                    f"HiPS dataset key {self.hips_default_dataset} not found. "
-                    f"Available datasets: {list(self.hips_datasets.keys())}"
-                )
-                raise ValueError(msg)
-        return self
 
     @classmethod
     def from_file(cls, path: Path) -> Self:
