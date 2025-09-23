@@ -18,20 +18,11 @@ from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
 from safir.slack.webhook import SlackRouteErrorHandler
 
-from .dependencies.config import config_dependency
+from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 
 __all__ = ["app"]
-
-
-config = config_dependency.config()
-
-configure_logging(
-    profile=config.profile, log_level=config.log_level, name="datalinker"
-)
-if config.profile == Profile.production:
-    configure_uvicorn_logging(config.log_level)
 
 app = FastAPI(
     title="datalinker",
@@ -42,6 +33,13 @@ app = FastAPI(
     redoc_url=f"{config.path_prefix}/redoc",
 )
 """The main FastAPI application for datalinker."""
+
+# Configure logging.
+configure_logging(
+    profile=config.log_profile, log_level=config.log_level, name="datalinker"
+)
+if config.log_profile == Profile.production:
+    configure_uvicorn_logging(config.log_level)
 
 # Attach the routers.
 app.include_router(internal_router)

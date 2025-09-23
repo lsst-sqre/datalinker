@@ -4,21 +4,22 @@ from __future__ import annotations
 
 from datetime import timedelta
 from pathlib import Path
-from typing import Annotated, Self
+from typing import Annotated
 
-import yaml
 from pydantic import Field, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 from safir.pydantic import HumanTimedelta
 
-__all__ = ["Config"]
+__all__ = ["Config", "config"]
 
 
 class Config(BaseSettings):
     """Configuration for datalinker."""
 
-    model_config = SettingsConfigDict(extra="forbid", populate_by_name=True)
+    model_config = SettingsConfigDict(
+        env_prefix="DATALINKER_", case_sensitive=False
+    )
 
     cutout_sync_url: Annotated[
         HttpUrl,
@@ -27,7 +28,6 @@ class Config(BaseSettings):
             description=(
                 "URL to the sync API for the SODA service that does cutouts"
             ),
-            validation_alias="cutoutSyncUrl",
         ),
     ]
 
@@ -36,17 +36,16 @@ class Config(BaseSettings):
         Field(
             title="Lifetime of image links replies",
             description="Should match the lifetime of signed URLs from Butler",
-            validation_alias="linksLifetime",
         ),
     ] = timedelta(hours=1)
 
     log_level: Annotated[
-        LogLevel,
-        Field(
-            title="Log level of the application's logger",
-            validation_alias="logLevel",
-        ),
+        LogLevel, Field(title="Log level of the application's logger")
     ] = LogLevel.INFO
+
+    log_profile: Annotated[
+        Profile, Field(title="Application logging profile")
+    ] = Profile.production
 
     name: Annotated[str, Field(title="Application name")] = "datalinker"
 
@@ -58,14 +57,8 @@ class Config(BaseSettings):
                 "This URL prefix is used for the IVOA DataLink API and for"
                 " any other helper APIs exposed via DataLink descriptors"
             ),
-            validation_alias="pathPrefix",
         ),
     ] = "/api/datalink"
-
-    profile: Annotated[
-        Profile,
-        Field(title="Application logging profile"),
-    ] = Profile.production
 
     tap_metadata_url: Annotated[
         Path | None,
@@ -74,7 +67,6 @@ class Config(BaseSettings):
             description=(
                 "URL containing TAP schema metadata used to construct queries"
             ),
-            validation_alias="tapMetadataUrl",
         ),
     ] = None
 
@@ -85,19 +77,8 @@ class Config(BaseSettings):
             description=(
                 "Directory containing YAML metadata files about TAP schema"
             ),
-            validation_alias="tapMetadataDir",
         ),
     ] = None
-
-    slack_alerts: bool = Field(
-        False,
-        title="Enable Slack alerts",
-        description=(
-            "Whether to enable Slack alerts. If true, ``slack_webhook`` must"
-            " also be set."
-        ),
-        validation_alias="slackAlerts",
-    )
 
     slack_webhook: str | None = Field(
         None,
@@ -107,22 +88,8 @@ class Config(BaseSettings):
             " uncaught exceptions in the Nublado controller will be"
             " reported to Slack via this webhook"
         ),
-        validation_alias="DATALINKER_SLACK_WEBHOOK",
     )
 
-    @classmethod
-    def from_file(cls, path: Path) -> Self:
-        """Construct a Configuration object from a configuration file.
 
-        Parameters
-        ----------
-        path
-            Path to the configuration file in YAML.
-
-        Returns
-        -------
-        Config
-            The corresponding `Configuration` object.
-        """
-        with path.open("r") as f:
-            return cls.model_validate(yaml.safe_load(f))
+config = Config()
+"""Configuration for datalinker."""

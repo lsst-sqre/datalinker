@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Iterator
-from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -12,23 +11,10 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from datalinker import main
-from datalinker.config import Config
-from datalinker.dependencies.config import config_dependency
+from datalinker.config import config
 
 from .constants import TEST_DATA_DIR
 from .support.butler import MockButler, patch_butler
-
-
-@pytest.fixture
-def config(monkeypatch: pytest.MonkeyPatch) -> Config:
-    """Return a configured test configuration."""
-    config_path = TEST_DATA_DIR / "config" / "base.yaml"
-    config_dependency.set_config_path(config_path)
-    config = config_dependency.config()
-    monkeypatch.setattr(
-        config, "tap_metadata_dir", Path(__file__).parent / "data"
-    )
-    return config
 
 
 @pytest_asyncio.fixture
@@ -38,12 +24,7 @@ async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncGenerator[FastAPI]:
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
-    config_path = TEST_DATA_DIR / "config" / "base.yaml"
-    config_dependency.set_config_path(config_path)
-    config = config_dependency.config()
-    monkeypatch.setattr(
-        config, "tap_metadata_dir", Path(__file__).parent / "data"
-    )
+    monkeypatch.setattr(config, "tap_metadata_dir", TEST_DATA_DIR)
     async with LifespanManager(main.app):
         yield main.app
 
