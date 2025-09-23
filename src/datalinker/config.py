@@ -6,7 +6,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 from safir.pydantic import HumanTimedelta
@@ -20,16 +20,6 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="DATALINKER_", case_sensitive=False
     )
-
-    cutout_sync_url: Annotated[
-        HttpUrl,
-        Field(
-            title="URL to SODA sync API",
-            description=(
-                "URL to the sync API for the SODA service that does cutouts"
-            ),
-        ),
-    ]
 
     links_lifetime: Annotated[
         HumanTimedelta,

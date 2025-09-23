@@ -10,6 +10,7 @@ import pytest
 from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
 from lsst.daf.butler import LabeledButlerFactory
+from rubin.repertoire import Discovery
 
 from datalinker.config import config
 
@@ -189,16 +190,19 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
+async def test_links(
+    client: AsyncClient, mock_butler: MockButler, mock_discovery: Discovery
+) -> None:
     mock_butler.mock_uri = (
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
     )
+    label = "label-http"
 
     # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get(
         "/api/datalink/links",
-        params={"iD": f"butler://label-http/{mock_butler.uuid!s}"},
+        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
     lifetime = int(config.links_lifetime.total_seconds())
@@ -214,7 +218,7 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
         id=f"butler://label-http/{mock_butler.uuid!s}",
         image_url=mock_butler.mock_uri,
         image_size=1234,
-        cutout_sync_url=config.cutout_sync_url,
+        cutout_sync_url=mock_discovery.services.data["cutout-sync"][label].url,
     )
     assert r.text == expected
 
@@ -223,7 +227,7 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
         r = await client.get(
             "/api/datalink/links",
             params={
-                "id": f"butler://label-http/{mock_butler.uuid!s}",
+                "id": f"butler://{label}/{mock_butler.uuid!s}",
                 "responseformat": response_format,
             },
         )
@@ -232,16 +236,19 @@ async def test_links(client: AsyncClient, mock_butler: MockButler) -> None:
 
 
 @pytest.mark.asyncio
-async def test_links_raw(client: AsyncClient, mock_butler: MockButler) -> None:
+async def test_links_raw(
+    client: AsyncClient, mock_butler: MockButler, mock_discovery: Discovery
+) -> None:
     mock_butler.is_raw = True
     mock_butler.mock_uri = (
         f"https://presigned-url.example.com/{mock_butler.uuid!s}"
         "?X-Amz-Signature=abcdef"
     )
+    label = "label-raw"
 
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://label-raw/{mock_butler.uuid!s}"},
+        params={"id": f"butler://{label}/{mock_butler.uuid!s}"},
     )
     assert r.status_code == 200
 
@@ -255,7 +262,7 @@ async def test_links_raw(client: AsyncClient, mock_butler: MockButler) -> None:
         id=f"butler://label-raw/{mock_butler.uuid!s}",
         image_url=mock_butler.mock_uri,
         image_size=1234,
-        cutout_sync_url=config.cutout_sync_url,
+        cutout_sync_url=mock_discovery.services.data["cutout-sync"][label].url,
     )
     assert r.text == expected
     assert "cutout-sync" not in r.text

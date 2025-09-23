@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from lsst.daf.butler import Butler, LabeledButlerFactory
+from rubin.repertoire import DiscoveryClient, discovery_dependency
 from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
@@ -182,6 +183,24 @@ async def timeseries(
     return _create_tap_redirect(adql, logger)
 
 
+async def cutout_url_dependency(
+    *,
+    id: str,
+    discovery: Annotated[DiscoveryClient, Depends(discovery_dependency)],
+) -> str | None:
+    """Get the cutout URL for the provided object ID.
+
+    This has to be kept separate from the links endpoint because the latter
+    must be sync due to the Butler client's lack of async support.
+    """
+    try:
+        parsed_uri = Butler.parse_dataset_uri(id)
+    except Exception:
+        return None
+    label = parsed_uri.label
+    return await discovery.url_for_data_service("cutout-sync", label)
+
+
 @external_router.get(
     "/links",
     responses={404: {"description": "Specified identifier not found"}},
@@ -207,6 +226,7 @@ def links(
         Query(title="Response format"),
     ] = "application/x-votable+xml",
     logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    cutout_url: Annotated[str | None, Depends(cutout_url_dependency)],
     delegated_token: Annotated[str, Depends(auth_delegated_token_dependency)],
 ) -> Response:
     bound_factory = _BUTLER_FACTORY.bind(access_token=delegated_token)
@@ -280,11 +300,11 @@ def links(
         request,
         "links.xml",
         {
-            "cutout": ref.datasetType.name != "raw",
+            "cutout": ref.datasetType.name != "raw" and cutout_url,
             "id": id,
             "image_url": str(image_uri),
             "image_size": image_uri.size(),
-            "cutout_sync_url": str(config.cutout_sync_url),
+            "cutout_sync_url": cutout_url,
         },
         headers={"Cache-Control": f"max-age={lifetime}"},
         media_type="application/x-votable+xml",
