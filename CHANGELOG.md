@@ -6,20 +6,28 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.0.0'></a>
+## 4.0.0 (2025-09-24)
+
+### Backwards-incompatible changes
+
+- Remove HiPS list support. This has moved to [Repertoire](https://repertoire.lsst.io/).
+- Use service discovery via Repertoire to get the URL of the cutout service. As of this release, Repertoire must be enabled and deployed in the same Phalanx environment for datalinker to work.
+
+### New features
+
+- Add optional support for reporting exceptions to Sentry.
+
 <a id='changelog-3.3.0'></a>
 ## 3.3.0 (2025-06-18)
 
 ### New features
 
-- Change Config to load configuration from local file, to support more complex structures for the hips release data
-- Introduce v2 hips router. Add an additional hips dependency that builds a hips list per data release, given the data release lists and their paths via configuration
-- Add new tests for v2 and legacy hips list endpoint
+- Add new HiPS list routes for the v2 path layout, which provides a separate HiPS tree, with its own list, for each data release.
 
 ### Other changes
 
 - Drop `Expires` from the reply headers of the `{links}` endpoint, since that header is effectively obsolete since HTTP/1.1 given the presence of `Cache-Control` with a `max-age` parameter.
-
-- Upgraded dependencies and python version
 
 <a id='changelog-3.2.0'></a>
 ## 3.2.0 (2025-04-11)
