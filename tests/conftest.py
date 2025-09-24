@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Iterator
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
+import respx
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from rubin.repertoire import Discovery, register_mock_discovery
 
 from datalinker import main
 from datalinker.config import config
@@ -48,3 +51,12 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
 def mock_butler() -> Iterator[MockButler]:
     """Mock Butler for testing."""
     yield from patch_butler()
+
+
+@pytest.fixture(autouse=True)
+def mock_discovery(
+    respx_mock: respx.Router, monkeypatch: pytest.MonkeyPatch
+) -> Discovery:
+    monkeypatch.setenv("REPERTOIRE_BASE_URL", "https://example.com/repertoire")
+    path = Path(__file__).parent / "data" / "discovery.json"
+    return register_mock_discovery(respx_mock, path)

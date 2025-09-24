@@ -20,15 +20,15 @@ classifiers = [
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.100",
-    "httpx",
-    "jinja2",
-    "lsst-daf-butler[remote]",
+    "jinja2>=3",
+    "lsst-daf-butler[remote]>=29",
     "pydantic>=2.11",
-    "pydantic-settings",
-    "pyyaml",
+    "pydantic-settings>=2",
+    "pyyaml>=6",
+    "rubin-repertoire>=0.3.0",
     "safir>=6.2.0",
-    "structlog",
-    "uvicorn[standard]",
+    "structlog>=25",
+    "uvicorn[standard]>=0.34",
 ]
 dynamic = ["version"]
 
@@ -43,17 +43,14 @@ Source = "https://github.com/lsst-sqre/datalinker"
 "Issue tracker" = "https://github.com/lsst-sqre/datalinker/issues"
 
 [build-system]
-requires = [
-    "setuptools>=61",
-    "wheel",
-    "setuptools_scm[toml]>=6.2"
-]
+requires = ["setuptools>=61", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = 'setuptools.build_meta'
 
 [dependency-groups]
 dev = [
     "asgi-lifespan",
     "coverage[toml]",
+    "httpx",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",

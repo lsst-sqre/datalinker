@@ -1,0 +1,14 @@
+{
+  "services": {
+    "data": {
+      "cutout-sync": {
+        "label-http": {
+          "url": "https://data.example.com/api/cutout/sync"
+        },
+        "label-raw": {
+          "url": "https://data.example.com/api/cutout/sync"
+        }
+      }
+    }
+  }
+}
