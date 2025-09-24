@@ -190,6 +190,67 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_timeseries_join_style(client: AsyncClient) -> None:
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp1.ForcedSource",
+            "id_column": "diaObjectId",
+            "detail": "principal",
+            "join_time_column": "dp1.CcdVisit.expMidptMJD",
+            "join_style": "ccdVisit",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT t.expMidptMJD,s.band,s.detector,s.objectId,"
+                "s.psfDiffFlux,s.psfDiffFluxErr,s.psfFlux,s.psfFluxErr,s.visit"
+                " FROM dp1.ForcedSource"
+                " AS s JOIN dp1.CcdVisit AS t ON s.ccdVisitId = t.ccdVisitId"
+                " WHERE s.diaObjectId = 18446744073709551617"
+            )
+        ],
+    }
+
+    r = await client.get(
+        "/api/datalink/timeseries",
+        params={
+            "id": 18446744073709551617,
+            "table": "dp1.ForcedSource",
+            "id_column": "diaObjectId",
+            "detail": "principal",
+            "join_time_column": "dp1.CcdVisit.expMidptMJD",
+            "join_style": "visit_detector",
+        },
+    )
+    assert r.status_code == 307
+    url = urlparse(r.headers["Location"])
+    assert url.path == "/api/tap/sync"
+    query = parse_qs(url.query)
+    assert query == {
+        "LANG": ["ADQL"],
+        "REQUEST": ["doQuery"],
+        "QUERY": [
+            (
+                "SELECT t.expMidptMJD,s.band,s.detector,s.objectId,"
+                "s.psfDiffFlux,s.psfDiffFluxErr,s.psfFlux,s.psfFluxErr,s.visit"
+                " FROM dp1.ForcedSource AS s JOIN dp1.CcdVisit AS t"
+                " ON (s.visit = t.visitId AND s.detector = t.detector)"
+                " WHERE s.diaObjectId = 18446744073709551617"
+            )
+        ],
+    }
+
+
+@pytest.mark.asyncio
 async def test_links(
     client: AsyncClient, mock_butler: MockButler, mock_discovery: Discovery
 ) -> None:
