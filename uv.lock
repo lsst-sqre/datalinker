@@ -368,7 +368,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "rubin-repertoire", specifier = ">=0.3.0" },
-    { name = "safir", specifier = ">=6.2.0" },
+    { name = "safir", specifier = ">=13" },
     { name = "structlog", specifier = ">=25" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34" },
 ]
