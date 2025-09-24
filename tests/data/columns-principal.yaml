@@ -306,6 +306,29 @@ tables:
     tap:principal: []
   dp02_test_PREOPS863_00.Visit:
     tap:principal: []
+  dp1.CcdVisit:
+    tap:principal:
+    - band
+    - dec
+    - detector
+    - expTime
+    - magLim
+    - psfSigma
+    - ra
+    - seeing
+    - zenithDistance
+    - visitId
+    - expMidptMJD
+  dp1.ForcedSource:
+    tap:principal:
+    - band
+    - detector
+    - objectId
+    - psfDiffFlux
+    - psfDiffFluxErr
+    - psfFlux
+    - psfFluxErr
+    - visit
   ivoa.ObsCore:
     tap:principal:
     - dataproduct_type
