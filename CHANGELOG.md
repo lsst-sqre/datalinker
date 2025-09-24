@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.1.0'></a>
+## 4.1.0 (2025-09-24)
+
+### New features
+
+- Add an optional `join_style` query parameter when constructing time series that can be set to either `ccdVisit` (the original scheme) or `visit_detector`. If set to `visit_detector`, the constructed query will join on `visit` and `detector` columns.
+
 <a id='changelog-4.0.0'></a>
 ## 4.0.0 (2025-09-24)
 
