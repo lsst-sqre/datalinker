@@ -16,13 +16,17 @@ from fastapi import FastAPI
 from safir.logging import Profile, configure_logging, configure_uvicorn_logging
 from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
 from safir.middleware.x_forwarded import XForwardedMiddleware
+from safir.sentry import initialize_sentry
 from safir.slack.webhook import SlackRouteErrorHandler
 
+from . import __version__
 from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 
 __all__ = ["app"]
+
+initialize_sentry(release=__version__)
 
 app = FastAPI(
     title="datalinker",
