@@ -16,7 +16,6 @@ from rubin.repertoire import Discovery, register_mock_discovery
 from datalinker import main
 from datalinker.config import config
 
-from .constants import TEST_DATA_DIR
 from .support.butler import MockButler, patch_butler
 
 
@@ -27,7 +26,8 @@ async def app(monkeypatch: pytest.MonkeyPatch) -> AsyncGenerator[FastAPI]:
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
-    monkeypatch.setattr(config, "tap_metadata_dir", TEST_DATA_DIR)
+    test_data_path = Path(__file__).parent / "data"
+    monkeypatch.setattr(config, "tap_metadata_dir", test_data_path)
     async with LifespanManager(main.app):
         yield main.app
 
