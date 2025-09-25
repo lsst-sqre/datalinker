@@ -205,7 +205,9 @@ async def cutout_url_dependency(
     except Exception:
         return None
     label = parsed_uri.label
-    return await discovery.url_for_data_service("cutout-sync", label)
+    return await discovery.url_for_data(
+        "cutout", label, version="soda-sync-1.0"
+    )
 
 
 @external_router.get(
