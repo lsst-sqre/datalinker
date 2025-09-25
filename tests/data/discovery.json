@@ -1,12 +1,32 @@
 {
   "services": {
     "data": {
-      "cutout-sync": {
+      "cutout": {
         "label-http": {
-          "url": "https://data.example.com/api/cutout/sync"
+          "url": "https://data.example.com/api/cutout",
+          "versions": {
+            "soda-async-1.0": {
+              "url": "https://data-dev.lsst.cloud/api/cutout/jobs",
+              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#async-1.0"
+            },
+            "soda-sync-1.0": {
+              "url": "https://data-dev.lsst.cloud/api/cutout/sync",
+              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#sync-1.0"
+            }
+          }
         },
         "label-raw": {
-          "url": "https://data.example.com/api/cutout/sync"
+          "url": "https://data.example.com/api/cutout",
+          "versions": {
+            "soda-async-1.0": {
+              "url": "https://data-dev.lsst.cloud/api/cutout/jobs",
+              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#async-1.0"
+            },
+            "soda-sync-1.0": {
+              "url": "https://data-dev.lsst.cloud/api/cutout/sync",
+              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#sync-1.0"
+            }
+          }
         }
       }
     }
