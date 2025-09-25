@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.1.1'></a>
+## 4.1.1 (2025-09-25)
+
+### Other changes
+
+- Retrieve the cutout sync URL using Repertoire 0.4.0 support for API versions.
+
 <a id='changelog-4.1.0'></a>
 ## 4.1.0 (2025-09-24)
 
