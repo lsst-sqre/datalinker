@@ -6,6 +6,17 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.2.0'></a>
+## 4.2.0 (2025-10-17)
+
+### New features
+
+- Publish multi-platform images that support both linux/amd64 and linux/arm64.
+
+### Other changes
+
+- Update to the latest Repertoire client for compatibility with the new service discovery model. This release requires Repertoire 0.6.0 or later.
+
 <a id='changelog-4.1.1'></a>
 ## 4.1.1 (2025-09-25)
 

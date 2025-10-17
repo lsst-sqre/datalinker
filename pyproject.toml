@@ -43,7 +43,7 @@ Source = "https://github.com/lsst-sqre/datalinker"
 "Issue tracker" = "https://github.com/lsst-sqre/datalinker/issues"
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=61", "setuptools_scm[toml]>=6.2"]
 build-backend = 'setuptools.build_meta'
 
 [dependency-groups]
