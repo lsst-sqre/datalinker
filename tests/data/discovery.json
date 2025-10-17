@@ -1,8 +1,8 @@
 {
-  "services": {
-    "data": {
-      "cutout": {
-        "label-http": {
+  "datasets": {
+    "label-http": {
+      "services": {
+        "cutout": {
           "url": "https://data.example.com/api/cutout",
           "versions": {
             "soda-async-1.0": {
@@ -14,8 +14,12 @@
               "ivoa_standard_id": "ivo://ivoa.net/std/SODA#sync-1.0"
             }
           }
-        },
-        "label-raw": {
+        }
+      }
+    },
+    "label-raw": {
+      "services": {
+        "cutout": {
           "url": "https://data.example.com/api/cutout",
           "versions": {
             "soda-async-1.0": {
