@@ -47,7 +47,7 @@ jobs:
 
   build:
     needs: [test]
-    uses: lsst-sqre/multiplatform-build-and-push/.github/workflows/build.yaml@v1
+    uses: lsst-sqre/multiplatform-build-and-push/.github/workflows/build.yaml@v2
     secrets: inherit
     with:
       images: ghcr.io/${{ github.repository }}
