@@ -66,6 +66,17 @@
        <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
+     <PARAM arraysize="*" datatype="char" name="CUTOUTMODE" value="image">
+       <DESCRIPTION>Amount of information to include in the cutout: image
+         for only the image pixels; masked-image for the image, variance,
+         and mask; or exposure for the full original exposure including
+         afw-format metadata tables.</DESCRIPTION>
+       <VALUES>
+         <OPTION value="image"/>
+         <OPTION value="masked-image"/>
+         <OPTION value="exposure"/>
+       </VALUES>
+     </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
           value="{{ cutout_sync_url }}"/>
