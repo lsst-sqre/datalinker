@@ -39,8 +39,28 @@
       <TD/>
       <TD>cutout-sync</TD>
       <TD/>
-      <TD>Cutout service (SODA sync)</TD>
+      <TD>Cutout service (SODA sync), only image pixels</TD>
       <TD>#cutout</TD>
+      <TD>application/fits</TD>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>{{ id }}</TD>
+      <TD/>
+      <TD>cutout-sync-maskedimage</TD>
+      <TD/>
+      <TD>Cutout service (SODA sync), MaskedImage extensions</TD>
+      <TD>https://rsp.lsst.io/guides/api/soda.html#MaskedImage</TD>
+      <TD>application/fits</TD>
+      <TD/>
+     </TR>
+     <TR>
+      <TD>{{ id }}</TD>
+      <TD/>
+      <TD>cutout-sync-exposure</TD>
+      <TD/>
+      <TD>Cutout service (SODA sync), Exposure with afw metadata</TD>
+      <TD>https://rsp.lsst.io/guides/api/soda.html#Exposure</TD>
       <TD>application/fits</TD>
       <TD/>
      </TR>
@@ -66,16 +86,72 @@
        <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
-     <PARAM arraysize="*" datatype="char" name="CUTOUTMODE" value="image">
+     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Image">
        <DESCRIPTION>Amount of information to include in the cutout: image
          for only the image pixels; masked-image for the image, variance,
          and mask; or exposure for the full original exposure including
          afw-format metadata tables.</DESCRIPTION>
        <VALUES>
-         <OPTION value="image"/>
-         <OPTION value="masked-image"/>
-         <OPTION value="exposure"/>
+         <OPTION value="Image"/>
+         <OPTION value="MaskedImage"/>
+         <OPTION value="Exposure"/>
        </VALUES>
+     </PARAM>
+   </GROUP>
+   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
+          value="{{ cutout_sync_url }}"/>
+   <PARAM arraysize="*" datatype="char" name="standardID"
+          value="ivo://ivoa.net/std/SODA#sync-1.0"/>
+ </RESOURCE>
+ <RESOURCE ID="cutout-sync-maskedimage" type="meta" utype="adhoc:service">
+   <GROUP name="inputParams">
+     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
+            value="{{ id }}">
+       <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="*" datatype="double" name="POLYGON"
+            ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
+       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that
+         should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="3" datatype="double" name="CIRCLE"
+            ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
+       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
+         that should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="MaskedImage">
+       <DESCRIPTION>Amount of information to include in the cutout: image
+         for only the image pixels; masked-image for the image, variance,
+         and mask; or exposure for the full original exposure including
+         afw-format metadata tables.</DESCRIPTION>
+     </PARAM>
+   </GROUP>
+   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
+          value="{{ cutout_sync_url }}"/>
+   <PARAM arraysize="*" datatype="char" name="standardID"
+          value="ivo://ivoa.net/std/SODA#sync-1.0"/>
+ </RESOURCE>
+ <RESOURCE ID="cutout-sync-exposure" type="meta" utype="adhoc:service">
+   <GROUP name="inputParams">
+     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
+            value="{{ id }}">
+       <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="*" datatype="double" name="POLYGON"
+            ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
+       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that
+         should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="3" datatype="double" name="CIRCLE"
+            ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
+       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
+         that should be covered by the cutout.</DESCRIPTION>
+     </PARAM>
+     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Exposure">
+       <DESCRIPTION>Amount of information to include in the cutout: image
+         for only the image pixels; masked-image for the image, variance,
+         and mask; or exposure for the full original exposure including
+         afw-format metadata tables.</DESCRIPTION>
      </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
