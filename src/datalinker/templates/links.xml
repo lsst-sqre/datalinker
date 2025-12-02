@@ -33,7 +33,7 @@
       <TD>application/fits</TD>
       <TD>{{ image_size }}</TD>
      </TR>
-     {%- if cutout %}
+     {%- if cutout_sync_url %}
      <TR>
       <TD>{{ id }}</TD>
       <TD/>
@@ -69,7 +69,7 @@
    </DATA>
   </TABLE>
  </RESOURCE>
- {%- if cutout %}
+ {%- if cutout_sync_url %}
  <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"

@@ -3,15 +3,11 @@
 from typing import Annotated, Literal
 from urllib.parse import urlencode
 
-import jinja2
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-from lsst.daf.butler import Butler, LabeledButlerFactory
-from rubin.repertoire import DiscoveryClient, discovery_dependency
-from safir.dependencies.gafaelfawr import auth_delegated_token_dependency
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
+from safir.models import ErrorLocation
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
@@ -21,22 +17,14 @@ from ..constants import (
     ADQL_FOREIGN_COLUMN_REGEX,
     ADQL_IDENTIFIER_REGEX,
 )
+from ..dependencies.context import RequestContext, context_dependency
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
+from ..exceptions import IdentifierError
 from ..models import Band, Detail, Index
+from ..templates import templates
 
 external_router = APIRouter(route_class=SlackRouteErrorHandler)
 """FastAPI router for all external handlers."""
-
-_BUTLER_FACTORY = LabeledButlerFactory()
-"""Factory for creating Butlers from a label and Gafaelfawr token."""
-
-_environment = jinja2.Environment(
-    loader=jinja2.PackageLoader("datalinker", "templates"),
-    undefined=jinja2.StrictUndefined,
-    autoescape=True,
-)
-_TEMPLATES = Jinja2Templates(env=_environment)
-"""FastAPI renderer for templated responses."""
 
 __all__ = ["external_router"]
 
@@ -190,24 +178,18 @@ async def timeseries(
     return _create_tap_redirect(adql, logger)
 
 
-async def cutout_url_dependency(
+async def cutout_sync_url_dependency(
     *,
     id: str,
-    discovery: Annotated[DiscoveryClient, Depends(discovery_dependency)],
+    context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> str | None:
     """Get the cutout URL for the provided object ID.
 
     This has to be kept separate from the links endpoint because the latter
     must be sync due to the Butler client's lack of async support.
     """
-    try:
-        parsed_uri = Butler.parse_dataset_uri(id)
-    except Exception:
-        return None
-    label = parsed_uri.label
-    return await discovery.url_for_data(
-        "cutout", label, version="soda-sync-1.0"
-    )
+    links_service = context.factory.create_links_service()
+    return await links_service.get_cutout_sync_url(id)
 
 
 @external_router.get(
@@ -234,87 +216,21 @@ def links(
         Literal["votable", "application/x-votable+xml"],
         Query(title="Response format"),
     ] = "application/x-votable+xml",
-    logger: Annotated[BoundLogger, Depends(logger_dependency)],
-    cutout_url: Annotated[str | None, Depends(cutout_url_dependency)],
-    delegated_token: Annotated[str, Depends(auth_delegated_token_dependency)],
+    cutout_sync_url: Annotated[str, Depends(cutout_sync_url_dependency)],
+    context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> Response:
-    bound_factory = _BUTLER_FACTORY.bind(access_token=delegated_token)
+    links_service = context.factory.create_links_service()
     try:
-        dataset_result = Butler.get_dataset_from_uri(id, factory=bound_factory)
-        logger.debug(
-            "Retrieving object from Butler",
-            butler=str(dataset_result.butler),
-            uuid=str(dataset_result.dataset),
-        )
-    except FileNotFoundError as e:
-        # Invalid Butler labels will cause it to fall back to trying to
-        # read a local Butler config.
-        logger.warning("Butler repository does not exist")
-        raise HTTPException(
-            status_code=404,
-            detail=[
-                {
-                    "loc": ["query", "id"],
-                    "msg": f"Repository for {id} does not exist",
-                    "type": "not_found",
-                }
-            ],
-        ) from e
-    except ValueError as e:
-        # Bad or missing UUID in URI.
-        logger.warning("Butler URI has malformed or missing UUID")
-        raise HTTPException(
-            status_code=422,
-            detail=[
-                {
-                    "loc": ["query", "id"],
-                    "msg": f"Unable to extract valid dataset ID from {id}",
-                    "type": "not_found",
-                }
-            ],
-        ) from e
-
-    ref = dataset_result.dataset
-    butler = dataset_result.butler
-
-    if not ref:
-        logger.warning("Dataset does not exist", label=str(butler), id=id)
-        raise HTTPException(
-            status_code=404,
-            detail=[
-                {
-                    "loc": ["query", "id"],
-                    "msg": f"Dataset {id} does not exist",
-                    "type": "not_found",
-                }
-            ],
-        )
-    # This returns lsst.resources.ResourcePath.
-    image_uri = butler.getURI(ref)
-    logger.debug("Got image URI from Butler", image_uri=image_uri)
-    if image_uri.scheme not in ("https", "http"):
-        logger.error("Image URL from Butler not signed", image_uri=image_uri)
-        raise HTTPException(
-            status_code=500,
-            detail=[
-                {
-                    "msg": "Image URL from Butler server was not signed",
-                    "type": "invalid_butler_response",
-                }
-            ],
-        )
-
+        datalink = links_service.build_datalink(id, cutout_sync_url)
+    except IdentifierError as e:
+        e.location = ErrorLocation.query
+        e.field_path = ["id"]
+        raise
     lifetime = int(config.links_lifetime.total_seconds())
-    return _TEMPLATES.TemplateResponse(
-        request,
+    return templates.TemplateResponse(
+        context.request,
         "links.xml",
-        {
-            "cutout": ref.datasetType.name != "raw" and cutout_url,
-            "id": id,
-            "image_url": str(image_uri),
-            "image_size": image_uri.size(),
-            "cutout_sync_url": cutout_url,
-        },
+        datalink.to_dict(),
         headers={"Cache-Control": f"max-age={lifetime}"},
         media_type="application/x-votable+xml",
     )
