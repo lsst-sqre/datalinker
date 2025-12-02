@@ -87,9 +87,9 @@
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Image">
-       <DESCRIPTION>Amount of information to include in the cutout: image
-         for only the image pixels; masked-image for the image, variance,
-         and mask; or exposure for the full original exposure including
+       <DESCRIPTION>Amount of information to include in the cutout: Image
+         for only the image pixels; MaskedImage for the image, variance,
+         and mask; or Exposure for the full original exposure including
          afw-format metadata tables.</DESCRIPTION>
        <VALUES>
          <OPTION value="Image"/>
@@ -120,9 +120,9 @@
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="MaskedImage">
-       <DESCRIPTION>Amount of information to include in the cutout: image
-         for only the image pixels; masked-image for the image, variance,
-         and mask; or exposure for the full original exposure including
+       <DESCRIPTION>Amount of information to include in the cutout: Image
+         for only the image pixels; MaskedImage for the image, variance,
+         and mask; or Exposure for the full original exposure including
          afw-format metadata tables.</DESCRIPTION>
      </PARAM>
    </GROUP>
@@ -148,9 +148,9 @@
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Exposure">
-       <DESCRIPTION>Amount of information to include in the cutout: image
-         for only the image pixels; masked-image for the image, variance,
-         and mask; or exposure for the full original exposure including
+       <DESCRIPTION>Amount of information to include in the cutout: Image
+         for only the image pixels; MaskedImage for the image, variance,
+         and mask; or Exposure for the full original exposure including
          afw-format metadata tables.</DESCRIPTION>
      </PARAM>
    </GROUP>
