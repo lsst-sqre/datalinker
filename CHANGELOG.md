@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.3.0'></a>
+## 4.3.0 (2025-12-02)
+
+### New features
+
+- Include the new CUTOUTMODE parameter to the cutout service in the DataLink descriptor for image cutouts. Provide three services, `cutout-sync`, `cutout-sync-maskedimage`, and `cutout-sync-exposure`, corresponding to the three possible settings of that parameter. The default is now `Image`, containing only the image pixels.
+
 <a id='changelog-4.2.0'></a>
 ## 4.2.0 (2025-10-17)
 
