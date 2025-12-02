@@ -276,7 +276,6 @@ async def test_links(
     template = env.get_template("links.xml")
     versions = mock_discovery.datasets[label].services["cutout"].versions
     expected = template.render(
-        cutout=True,
         id=f"butler://label-http/{mock_butler.uuid!s}",
         image_url=mock_butler.mock_uri,
         image_size=1234,
@@ -319,13 +318,11 @@ async def test_links_raw(
         loader=PackageLoader("datalinker"), autoescape=select_autoescape()
     )
     template = env.get_template("links.xml")
-    versions = mock_discovery.datasets[label].services["cutout"].versions
     expected = template.render(
-        cutout=False,
         id=f"butler://label-raw/{mock_butler.uuid!s}",
         image_url=mock_butler.mock_uri,
         image_size=1234,
-        cutout_sync_url=versions["soda-sync-1.0"].url,
+        cutout_sync_url=None,
     )
     assert r.text == expected
     assert "cutout-sync" not in r.text
