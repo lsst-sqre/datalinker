@@ -41,19 +41,20 @@ class ContextDependency:
     """
 
     def __init__(self) -> None:
-        self._butler_factory = LabeledButlerFactory()
+        self._butler_factory: LabeledButlerFactory | None = None
 
     async def __call__(
         self,
         *,
         request: Request,
         discovery: Annotated[DiscoveryClient, Depends(discovery_dependency)],
-        delegated_token: Annotated[
-            str, Depends(auth_delegated_token_dependency)
-        ],
+        token: Annotated[str, Depends(auth_delegated_token_dependency)],
         logger: Annotated[BoundLogger, Depends(logger_dependency)],
     ) -> RequestContext:
-        bound_factory = self._butler_factory.bind(access_token=delegated_token)
+        if not self._butler_factory:
+            butler_repositories = await discovery.butler_repositories()
+            self._butler_factory = LabeledButlerFactory(butler_repositories)
+        bound_factory = self._butler_factory.bind(access_token=token)
         factory = Factory(bound_factory, discovery, logger)
         return RequestContext(request=request, factory=factory, logger=logger)
 
