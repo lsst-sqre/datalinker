@@ -1,7 +1,5 @@
 """Tests for the datalinker.handlers.external module and routes."""
 
-from __future__ import annotations
-
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4

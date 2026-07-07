@@ -1,7 +1,5 @@
 """Exceptions for datalinker."""
 
-from __future__ import annotations
-
 from fastapi import status
 from safir.fastapi import ClientRequestError
 

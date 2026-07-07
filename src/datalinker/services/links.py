@@ -1,7 +1,5 @@
 """Generate a DataLink response for an identifier."""
 
-from __future__ import annotations
-
 from lsst.daf.butler import Butler, LabeledButlerFactoryProtocol
 from rubin.repertoire import DiscoveryClient
 from structlog.stdlib import BoundLogger

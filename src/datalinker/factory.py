@@ -1,7 +1,5 @@
 """Component factory for datalinker."""
 
-from __future__ import annotations
-
 from lsst.daf.butler import LabeledButlerFactoryProtocol
 from rubin.repertoire import DiscoveryClient
 from structlog.stdlib import BoundLogger
