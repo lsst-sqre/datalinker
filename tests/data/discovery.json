@@ -1,6 +1,7 @@
 {
   "datasets": {
     "label-http": {
+      "butler_config": "https://example.com/api/butler/repo/label/butler.yaml",
       "services": {
         "cutout": {
           "url": "https://data.example.com/api/cutout",
@@ -18,6 +19,7 @@
       }
     },
     "label-raw": {
+      "butler_config": "https://example.com/api/butler/repo/label/butler.yaml",
       "services": {
         "cutout": {
           "url": "https://data.example.com/api/cutout",
