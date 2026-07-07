@@ -56,12 +56,14 @@ dev = [
     "pytest-cov",
     "pytest-sugar",
     "respx",
+]
+docs = [
     "scriv[toml]",
 ]
 lint = [
-    "pre-commit",
-    "pre-commit-uv",
+    "prek",
     "ruff>=0.9",
+    "uv",
 ]
 nox = [
     "nox",
