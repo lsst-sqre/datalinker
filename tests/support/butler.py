@@ -1,7 +1,5 @@
 """Mock Butler for testing."""
 
-from __future__ import annotations
-
 from collections.abc import Iterator
 from typing import Any, override
 from unittest.mock import Mock, patch

@@ -1,7 +1,5 @@
 """Models for datalinker."""
 
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 
