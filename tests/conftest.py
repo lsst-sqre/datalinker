@@ -51,7 +51,10 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="https://example.com/",
-        headers={"X-Auth-Request-Token": "sometoken"},
+        headers={
+            "X-Auth-Request-Token": "sometoken",
+            "X-Auth-Request-User": "some-user",
+        },
     ) as client:
         yield client
 

@@ -29,15 +29,6 @@ class LinksService:
         Service discovery client.
     logger
         Logger to use.
-
-    Raises
-    ------
-    ButlerError
-        Raised if there was some failure parsing the Butler results.
-    IdentifierMalformedError
-        Raised if the identifier could not be parsed.
-    IdentifierNotFoundError
-        Raised if no dataset is found for the provided identifier.
     """
 
     def __init__(
@@ -68,6 +59,15 @@ class LinksService:
         cutout_sync_url
             URL to the SODA sync service for making cutouts, if any. This
             should be obtained by calling `get_cutout_sync_url` first.
+
+        Raises
+        ------
+        ButlerUriNotSignedError
+            Raised if the URL returned by Butler is not signed.
+        IdentifierMalformedError
+            Raised if the identifier could not be parsed.
+        IdentifierNotFoundError
+            Raised if no dataset is found for the provided identifier.
         """
         logger = self._logger.bind(id=id)
         factory = self._butler_factory

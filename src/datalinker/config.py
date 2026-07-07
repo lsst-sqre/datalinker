@@ -7,6 +7,7 @@ from typing import Annotated
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
+from safir.metrics import MetricsConfiguration, metrics_configuration_factory
 from safir.pydantic import HumanTimedelta
 
 __all__ = ["Config", "config"]
@@ -34,6 +35,11 @@ class Config(BaseSettings):
     log_profile: Annotated[
         Profile, Field(title="Application logging profile")
     ] = Profile.production
+
+    metrics: MetricsConfiguration = Field(
+        default_factory=metrics_configuration_factory,
+        title="Metrics configuration",
+    )
 
     name: Annotated[str, Field(title="Application name")] = "datalinker"
 

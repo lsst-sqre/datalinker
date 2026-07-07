@@ -9,8 +9,10 @@ from httpx import AsyncClient
 from jinja2 import Environment, PackageLoader, select_autoescape
 from lsst.daf.butler import LabeledButlerFactory
 from rubin.repertoire import Discovery
+from safir.metrics import MockEventPublisher
 
 from datalinker.config import config
+from datalinker.dependencies.context import context_dependency
 
 from ..support.butler import MockButler
 
@@ -257,12 +259,10 @@ async def test_links(
         "?X-Amz-Signature=abcdef"
     )
     label = "label-http"
+    dataset_id = f"butler://{label}/{mock_butler.uuid!s}"
 
     # Use iD to test the IVOA requirement of case insensitive parameters.
-    r = await client.get(
-        "/api/datalink/links",
-        params={"iD": f"butler://{label}/{mock_butler.uuid!s}"},
-    )
+    r = await client.get("/api/datalink/links", params={"iD": dataset_id})
     assert r.status_code == 200
     lifetime = int(config.links_lifetime.total_seconds())
     assert r.headers["Cache-Control"] == f"max-age={lifetime}"
@@ -274,7 +274,7 @@ async def test_links(
     template = env.get_template("links.xml")
     versions = mock_discovery.datasets[label].services["cutout"].versions
     expected = template.render(
-        id=f"butler://label-http/{mock_butler.uuid!s}",
+        id=dataset_id,
         image_url=mock_butler.mock_uri,
         image_size=1234,
         cutout_sync_url=versions["soda-sync-1.0"].url,
@@ -285,13 +285,18 @@ async def test_links(
     for response_format in ("votable", "application/x-votable+xml"):
         r = await client.get(
             "/api/datalink/links",
-            params={
-                "id": f"butler://{label}/{mock_butler.uuid!s}",
-                "responseformat": response_format,
-            },
+            params={"id": dataset_id, "responseformat": response_format},
         )
         assert r.status_code == 200
         assert r.text == expected
+
+    # Check that the appropriate metrics events were posted.
+    events = context_dependency._events
+    assert events
+    assert isinstance(events.links, MockEventPublisher)
+    events.links.published.assert_published_all(
+        [{"username": "some-user", "dataset_id": dataset_id, "size": 1234}] * 3
+    )
 
 
 @pytest.mark.asyncio
