@@ -32,6 +32,11 @@ def test(session: nox.Session) -> None:
         "--cov-branch",
         "--cov-report=",
         *session.posargs,
+        env={
+            "METRICS_APPLICATION": "datalinker",
+            "METRICS_ENABLED": "false",
+            "METRICS_MOCK": "true",
+        },
     )
 
 

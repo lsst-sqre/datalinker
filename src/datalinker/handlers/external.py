@@ -5,6 +5,10 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import RedirectResponse
+from safir.dependencies.gafaelfawr import (
+    auth_dependency,
+    auth_logger_dependency,
+)
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
 from safir.models import ErrorLocation
@@ -19,8 +23,9 @@ from ..constants import (
 )
 from ..dependencies.context import RequestContext, context_dependency
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
+from ..events import LinksEvent
 from ..exceptions import IdentifierError
-from ..models import Band, Detail, Index
+from ..models import Band, DataLink, Detail, Index
 from ..templates import templates
 
 external_router = APIRouter(route_class=SlackRouteErrorHandler)
@@ -84,9 +89,7 @@ def _get_tap_columns(table: str, detail: Detail, metadata: TAPMetadata) -> str:
     response_model_exclude_none=True,
     summary="Application metadata",
 )
-async def get_index(
-    *, logger: Annotated[BoundLogger, Depends(logger_dependency)]
-) -> Index:
+async def get_index() -> Index:
     """GET ``/datalinker/`` (the app's external root).
 
     By convention, the root of the external API includes a field called
@@ -115,7 +118,7 @@ async def cone_search(
     ra_val: Annotated[float, Query(title="ra value")],
     dec_val: Annotated[float, Query(title="dec value")],
     radius: Annotated[float, Query(title="Radius of cone")],
-    logger: Annotated[BoundLogger, Depends(logger_dependency)],
+    logger: Annotated[BoundLogger, Depends(auth_logger_dependency)],
 ) -> str:
     adql = (
         f"SELECT * FROM {table} WHERE"
@@ -192,12 +195,7 @@ async def cutout_sync_url_dependency(
     return await links_service.get_cutout_sync_url(id)
 
 
-@external_router.get(
-    "/links",
-    responses={404: {"description": "Specified identifier not found"}},
-    summary="DataLink links for object",
-)
-def links(
+def datalink_dependency(
     *,
     request: Request,
     id: Annotated[
@@ -218,14 +216,36 @@ def links(
     ] = "application/x-votable+xml",
     cutout_sync_url: Annotated[str, Depends(cutout_sync_url_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
-) -> Response:
+) -> DataLink:
+    """Get the DataLink details for an identifier.
+
+    This has to be run in a separate dependency so that it can be run
+    synchronously in a thread pool, since Butler does not support async.
+    """
     links_service = context.factory.create_links_service()
     try:
-        datalink = links_service.build_datalink(id, cutout_sync_url)
+        return links_service.build_datalink(id, cutout_sync_url)
     except IdentifierError as e:
         e.location = ErrorLocation.query
         e.field_path = ["id"]
         raise
+
+
+@external_router.get(
+    "/links",
+    responses={404: {"description": "Specified identifier not found"}},
+    summary="DataLink links for object",
+)
+async def links(
+    *,
+    datalink: Annotated[DataLink, Depends(datalink_dependency)],
+    username: Annotated[str, Depends(auth_dependency)],
+    context: Annotated[RequestContext, Depends(context_dependency)],
+) -> Response:
+    event = LinksEvent(
+        username=username, dataset_id=datalink.id, size=datalink.image_size
+    )
+    await context.events.links.publish(event)
     lifetime = int(config.links_lifetime.total_seconds())
     return templates.TemplateResponse(
         context.request,

@@ -7,6 +7,8 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from importlib.metadata import metadata, version
 
 import structlog
@@ -20,12 +22,26 @@ from safir.slack.webhook import SlackRouteErrorHandler
 
 from . import __version__
 from .config import config
+from .dependencies.context import context_dependency
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 
 __all__ = ["app"]
 
 initialize_sentry(release=__version__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+    """Set up and tear down the application."""
+    event_manager = config.metrics.make_manager()
+    await event_manager.initialize()
+    await context_dependency.initialize(event_manager)
+
+    yield
+
+    await event_manager.aclose()
+
 
 app = FastAPI(
     title="datalinker",
@@ -34,6 +50,7 @@ app = FastAPI(
     openapi_url=f"{config.path_prefix}/openapi.json",
     docs_url=f"{config.path_prefix}/docs",
     redoc_url=f"{config.path_prefix}/redoc",
+    lifespan=lifespan,
 )
 """The main FastAPI application for datalinker."""
 
