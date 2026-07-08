@@ -41,9 +41,12 @@ jobs:
         run: uv run --only-group=nox nox -s lint typing test coverage-report
 
   build:
+    concurrency:
+      group: packages
+      queue: max
     needs: [test]
-    uses: lsst-sqre/multiplatform-build-and-push/.github/workflows/build.yaml@v4
     secrets: inherit
+    uses: lsst-sqre/multiplatform-build-and-push/.github/workflows/build.yaml@v4
     with:
       images: ghcr.io/${{ github.repository }}
 
