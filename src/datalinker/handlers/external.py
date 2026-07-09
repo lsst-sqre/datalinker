@@ -252,5 +252,5 @@ async def links(
         "links.xml",
         datalink.to_dict(),
         headers={"Cache-Control": f"max-age={lifetime}"},
-        media_type="application/x-votable+xml",
+        media_type="application/x-votable+xml;content=datalink",
     )
