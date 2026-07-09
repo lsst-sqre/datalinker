@@ -66,9 +66,9 @@ def data(request: pytest.FixtureRequest) -> Data:
 
 
 @pytest.fixture
-def mock_butler() -> Iterator[MockButler]:
+def mock_butler(data: Data) -> Iterator[MockButler]:
     """Mock Butler for testing."""
-    yield from patch_butler()
+    yield from patch_butler(data)
 
 
 @pytest.fixture(autouse=True)

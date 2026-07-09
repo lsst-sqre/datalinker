@@ -51,6 +51,7 @@ dev = [
     "asgi-lifespan",
     "coverage[toml]",
     "httpx",
+    "lsst-resources",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
