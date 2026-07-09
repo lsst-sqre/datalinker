@@ -1,0 +1,12 @@
+{
+  "ac691f52-c1a0-4199-b049-182cf403dc37": {
+    "size": 1234,
+    "type": "calexp",
+    "uri": "https://presigned-url.example.com/ac691f52-c1a0-4199-b049-182cf403dc37?X-Amz-Signature=abcdef"
+  },
+  "c6956c99-88d9-4678-a3df-36dd913dd4bc": {
+    "size": 5678,
+    "type": "raw",
+    "uri": "https://presigned-url.example.com/c6956c99-88d9-4678-a3df-36dd913dd4bc?X-Amz-Signature=abcdef"
+  }
+}

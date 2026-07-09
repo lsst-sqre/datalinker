@@ -6,10 +6,10 @@ from uuid import uuid4
 
 import pytest
 from httpx import AsyncClient
-from jinja2 import Environment, PackageLoader, select_autoescape
 from lsst.daf.butler import LabeledButlerFactory
 from rubin.repertoire import Discovery
 from safir.metrics import MockEventPublisher
+from safir.testing.data import Data
 
 from datalinker.config import config
 from datalinker.dependencies.context import context_dependency
@@ -250,36 +250,34 @@ async def test_timeseries_join_style(client: AsyncClient) -> None:
     }
 
 
+def get_dataset_uuid(data: Data, dataset_type: str) -> str:
+    """Get a dataset UUID of the desired type."""
+    butler_data = data.read_json("butler/datasets")
+    for uuid, info in butler_data.items():
+        if info["type"] == dataset_type:
+            return uuid
+    raise AssertionError(f"No UUID found for dataset type {dataset_type}")
+
+
 @pytest.mark.asyncio
 async def test_links(
-    client: AsyncClient, mock_butler: MockButler, mock_discovery: Discovery
+    *,
+    data: Data,
+    client: AsyncClient,
+    mock_butler: MockButler,
+    mock_discovery: Discovery,
 ) -> None:
-    mock_butler.mock_uri = (
-        f"https://presigned-url.example.com/{mock_butler.uuid!s}"
-        "?X-Amz-Signature=abcdef"
-    )
-    label = "label-http"
-    dataset_id = f"butler://{label}/{mock_butler.uuid!s}"
+    dataset_uuid = get_dataset_uuid(data, "calexp")
+    dataset_id = f"butler://dr1/{dataset_uuid}"
+    butler_data = data.read_json("butler/datasets")
 
     # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get("/api/datalink/links", params={"iD": dataset_id})
     assert r.status_code == 200
     lifetime = int(config.links_lifetime.total_seconds())
     assert r.headers["Cache-Control"] == f"max-age={lifetime}"
-
-    # The URL is already signed, so it should be passed through unchanged
-    env = Environment(
-        loader=PackageLoader("datalinker"), autoescape=select_autoescape()
-    )
-    template = env.get_template("links.xml")
-    versions = mock_discovery.datasets[label].services["cutout"].versions
-    expected = template.render(
-        id=dataset_id,
-        image_url=mock_butler.mock_uri,
-        image_size=1234,
-        cutout_sync_url=versions["soda-sync-1.0"].url,
-    )
-    assert r.text == expected
+    assert r.headers["Content-Type"] == "application/x-votable+xml"
+    data.assert_text_matches(r.text, "links/calexp.xml")
 
     # Check the same with explicit RESPONSEFORMAT.
     for response_format in ("votable", "application/x-votable+xml"):
@@ -288,47 +286,35 @@ async def test_links(
             params={"id": dataset_id, "responseformat": response_format},
         )
         assert r.status_code == 200
-        assert r.text == expected
+        assert r.headers["Content-Type"] == "application/x-votable+xml"
+        data.assert_text_matches(r.text, "links/calexp.xml")
 
     # Check that the appropriate metrics events were posted.
     events = context_dependency._events
     assert events
     assert isinstance(events.links, MockEventPublisher)
-    events.links.published.assert_published_all(
-        [{"username": "some-user", "dataset_id": dataset_id, "size": 1234}] * 3
-    )
+    event = {
+        "username": "some-user",
+        "dataset_id": dataset_id,
+        "size": butler_data[dataset_uuid]["size"],
+    }
+    events.links.published.assert_published_all([event] * 3)
 
 
 @pytest.mark.asyncio
 async def test_links_raw(
-    client: AsyncClient, mock_butler: MockButler, mock_discovery: Discovery
+    *,
+    data: Data,
+    client: AsyncClient,
+    mock_butler: MockButler,
+    mock_discovery: Discovery,
 ) -> None:
-    mock_butler.is_raw = True
-    mock_butler.mock_uri = (
-        f"https://presigned-url.example.com/{mock_butler.uuid!s}"
-        "?X-Amz-Signature=abcdef"
-    )
-    label = "label-raw"
+    dataset_uuid = get_dataset_uuid(data, "raw")
+    dataset_id = f"butler://dr1/{dataset_uuid}"
 
-    r = await client.get(
-        "/api/datalink/links",
-        params={"id": f"butler://{label}/{mock_butler.uuid!s}"},
-    )
+    r = await client.get("/api/datalink/links", params={"id": dataset_id})
     assert r.status_code == 200
-
-    # The URL is already signed, so it should be passed through unchanged
-    env = Environment(
-        loader=PackageLoader("datalinker"), autoescape=select_autoescape()
-    )
-    template = env.get_template("links.xml")
-    expected = template.render(
-        id=f"butler://label-raw/{mock_butler.uuid!s}",
-        image_url=mock_butler.mock_uri,
-        image_size=1234,
-        cutout_sync_url=None,
-    )
-    assert r.text == expected
-    assert "cutout-sync" not in r.text
+    data.assert_text_matches(r.text, "links/raw.xml")
 
 
 @pytest.mark.asyncio
@@ -340,7 +326,7 @@ async def test_links_errors(
     # Test an invalid IDs and ensure it returns 404.
     r = await client.get(
         "/api/datalink/links",
-        params={"id": f"butler://test-butler/{uuid!s}"},
+        params={"id": f"butler://dr1/{uuid!s}"},
     )
     assert r.status_code == 404
 
@@ -353,7 +339,7 @@ async def test_links_errors(
     r = await client.get(
         "/api/datalink/links",
         params={
-            "id": f"butler://test-butler/{uuid!s}",
+            "id": f"butler://dr1/{uuid!s}",
             "responseformat": "text/plain",
         },
     )

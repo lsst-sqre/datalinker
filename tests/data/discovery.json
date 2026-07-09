@@ -1,25 +1,7 @@
 {
   "datasets": {
-    "label-http": {
-      "butler_config": "https://example.com/api/butler/repo/label/butler.yaml",
-      "services": {
-        "cutout": {
-          "url": "https://data.example.com/api/cutout",
-          "versions": {
-            "soda-async-1.0": {
-              "url": "https://data-dev.lsst.cloud/api/cutout/jobs",
-              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#async-1.0"
-            },
-            "soda-sync-1.0": {
-              "url": "https://data-dev.lsst.cloud/api/cutout/sync",
-              "ivoa_standard_id": "ivo://ivoa.net/std/SODA#sync-1.0"
-            }
-          }
-        }
-      }
-    },
-    "label-raw": {
-      "butler_config": "https://example.com/api/butler/repo/label/butler.yaml",
+    "dr1": {
+      "butler_config": "https://example.com/api/butler/repo/dr1/butler.yaml",
       "services": {
         "cutout": {
           "url": "https://data.example.com/api/cutout",
