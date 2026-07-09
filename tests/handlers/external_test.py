@@ -7,7 +7,6 @@ from uuid import uuid4
 import pytest
 from httpx import AsyncClient
 from lsst.daf.butler import LabeledButlerFactory
-from rubin.repertoire import Discovery
 from safir.metrics import MockEventPublisher
 from safir.testing.data import Data
 
@@ -261,11 +260,9 @@ def get_dataset_uuid(data: Data, dataset_type: str) -> str:
 
 @pytest.mark.asyncio
 async def test_links(
-    *,
     data: Data,
     client: AsyncClient,
     mock_butler: MockButler,
-    mock_discovery: Discovery,
 ) -> None:
     dataset_uuid = get_dataset_uuid(data, "calexp")
     dataset_id = f"butler://dr1/{dataset_uuid}"
@@ -303,11 +300,9 @@ async def test_links(
 
 @pytest.mark.asyncio
 async def test_links_raw(
-    *,
     data: Data,
     client: AsyncClient,
     mock_butler: MockButler,
-    mock_discovery: Discovery,
 ) -> None:
     dataset_uuid = get_dataset_uuid(data, "raw")
     dataset_id = f"butler://dr1/{dataset_uuid}"
@@ -315,6 +310,22 @@ async def test_links_raw(
     r = await client.get("/api/datalink/links", params={"id": dataset_id})
     assert r.status_code == 200
     data.assert_text_matches(r.text, "links/raw.xml")
+
+
+@pytest.mark.asyncio
+async def test_links_no_cutout(
+    data: Data,
+    client: AsyncClient,
+    mock_butler: MockButler,
+) -> None:
+    dataset_uuid = get_dataset_uuid(data, "calexp")
+
+    # DR2 has no service discovery information for cutouts.
+    dataset_id = f"butler://dr2/{dataset_uuid}"
+
+    r = await client.get("/api/datalink/links", params={"id": dataset_id})
+    assert r.status_code == 200
+    data.assert_text_matches(r.text, "links/calexp-nocutout.xml")
 
 
 @pytest.mark.asyncio
