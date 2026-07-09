@@ -258,22 +258,20 @@ def get_dataset_uuid(data: Data, dataset_type: str) -> str:
     raise AssertionError(f"No UUID found for dataset type {dataset_type}")
 
 
+@pytest.mark.usefixtures("mock_butler")
 @pytest.mark.asyncio
-async def test_links(
-    data: Data,
-    client: AsyncClient,
-    mock_butler: MockButler,
-) -> None:
+async def test_links(data: Data, client: AsyncClient) -> None:
     dataset_uuid = get_dataset_uuid(data, "calexp")
     dataset_id = f"butler://dr1/{dataset_uuid}"
     butler_data = data.read_json("butler/datasets")
+    content_type = "application/x-votable+xml;content=datalink"
 
     # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get("/api/datalink/links", params={"iD": dataset_id})
     assert r.status_code == 200
     lifetime = int(config.links_lifetime.total_seconds())
     assert r.headers["Cache-Control"] == f"max-age={lifetime}"
-    assert r.headers["Content-Type"] == "application/x-votable+xml"
+    assert r.headers["Content-Type"] == content_type
     data.assert_text_matches(r.text, "links/calexp.xml")
 
     # Check the same with explicit RESPONSEFORMAT.
@@ -283,7 +281,7 @@ async def test_links(
             params={"id": dataset_id, "responseformat": response_format},
         )
         assert r.status_code == 200
-        assert r.headers["Content-Type"] == "application/x-votable+xml"
+        assert r.headers["Content-Type"] == content_type
         data.assert_text_matches(r.text, "links/calexp.xml")
 
     # Check that the appropriate metrics events were posted.
