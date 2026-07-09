@@ -5,7 +5,7 @@
  <RESOURCE type="results">
   <TABLE>
    <INFO name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.1"/>
-   <DESCRIPTION>Links table for observation dataset {{ id }}</DESCRIPTION>
+   <DESCRIPTION>Links table for observation datasets</DESCRIPTION>
    <FIELD ID="ID" arraysize="*" datatype="char"
           name="ID" ucd="meta.id;meta.main"/>
    <FIELD ID="access_url" arraysize="*" datatype="char"
@@ -24,19 +24,33 @@
           name="content_length" ucd="phys.size;meta.file" unit="byte"/>
    <DATA>
     <TABLEDATA>
+     {%- for record in records %}
+     {%- if record.error %}
      <TR>
-      <TD>{{ id }}</TD>
-      <TD><![CDATA[{{ image_url | safe }}]]></TD>
+      <TD>{{ record.id | e }}</TD>
+      <TD/>
+      <TD/>
+      <TD>{{ record.error | e }}</TD>
+      <TD/>
+      <TD>#this</TD>
+      <TD/>
+      <TD/>
+     </TR>
+     {%- else %}
+     <TR>
+      <TD>{{ record.id | e }}</TD>
+      <TD><![CDATA[{{ record.image_url | safe }}]]></TD>
       <TD/>
       <TD/>
       <TD>Primary image or observation data file</TD>
       <TD>#this</TD>
       <TD>application/fits</TD>
-      <TD>{{ image_size }}</TD>
+      <TD>{{ record.image_size }}</TD>
      </TR>
-     {%- if cutout_sync_url %}
+     {%- endif %}
+     {%- if not record.error and not record.is_raw and cutout_sync_url %}
      <TR>
-      <TD>{{ id }}</TD>
+      <TD>{{ record.id | e }}</TD>
       <TD/>
       <TD>cutout-sync</TD>
       <TD/>
@@ -46,7 +60,7 @@
       <TD/>
      </TR>
      <TR>
-      <TD>{{ id }}</TD>
+      <TD>{{ record.id | e }}</TD>
       <TD/>
       <TD>cutout-sync-maskedimage</TD>
       <TD/>
@@ -56,7 +70,7 @@
       <TD/>
      </TR>
      <TR>
-      <TD>{{ id }}</TD>
+      <TD>{{ record.id | e }}</TD>
       <TD/>
       <TD>cutout-sync-exposure</TD>
       <TD/>
@@ -66,16 +80,17 @@
       <TD/>
      </TR>
      {%- endif %}
+     {%- endfor %}
     </TABLEDATA>
    </DATA>
   </TABLE>
  </RESOURCE>
- {%- if cutout_sync_url %}
+ {%- if include_cutouts and cutout_sync_url %}
  {%- for suffix, detail in [("", "Image"), ("-maskedimage", "MaskedImage"), ("-exposure", "Exposure")] %}
  <RESOURCE ID="cutout-sync{{ suffix }}" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="{{ id }}">
+            {% if records|length > 1 %}ref="ID" value="">{% else %}value="{{ records[0].id }}">{% endif %}
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="double" name="POLYGON"

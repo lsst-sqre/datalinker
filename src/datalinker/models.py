@@ -1,14 +1,16 @@
 """Models for datalinker."""
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from enum import StrEnum
+from typing import Self
 
 from pydantic import BaseModel, Field
 from safir.metadata import Metadata as SafirMetadata
 
 __all__ = [
     "Band",
-    "DataLink",
+    "DataLinkError",
+    "DataLinkRow",
     "Detail",
     "Index",
 ]
@@ -26,25 +28,59 @@ class Band(StrEnum):
     y = "y"
 
 
+class DataLinkError(StrEnum):
+    """Standardized error codes for DataLink 1.1."""
+
+    NOT_FOUND = "NotFoundFault"
+    USAGE = "UsageFault"
+    TRANSIENT = "TransientFault"
+    FATAL = "FatalFault"
+    DEFAULT = "DefaultFault"
+
+
 @dataclass
-class DataLink:
-    """DataLink information for an identifier."""
+class DataLinkRow:
+    """One row of DataLink results."""
 
     id: str
     """Identifier."""
 
-    image_url: str
+    error: str | None
+    """Error encountered retrieving this dataset."""
+
+    image_url: str | None
     """Signed URL to the underlying image."""
 
-    image_size: int
+    image_size: int | None
     """Size of the underlying image in bytes."""
 
-    cutout_sync_url: str | None
-    """URL to the sync SODA service to create cutouts for this image."""
+    is_raw: bool
+    """Whether this row represents a raw (which cutouts don't support)."""
 
-    def to_dict(self) -> dict[str, str | None]:
-        """Convert to a dictionary of template variables."""
-        return asdict(self)
+    @classmethod
+    def from_error(
+        cls, id: str, error_code: DataLinkError, exc: Exception
+    ) -> Self:
+        """Construct the DataLink row for an error.
+
+        Parameters
+        ----------
+        id
+            Identifier to an image.
+        error_code
+            Standardized DataLink error code.
+        exc
+            Underlying exception.
+
+        Returns
+        -------
+        DataLinkRow
+            Data to construct the row in the results table.
+        """
+        error = f"{error_code.value}: {exc!s}"
+        return cls(
+            id=id, error=error, image_url=None, image_size=None, is_raw=False
+        )
 
 
 class Detail(StrEnum):

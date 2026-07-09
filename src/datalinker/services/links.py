@@ -9,7 +9,7 @@ from ..exceptions import (
     IdentifierMalformedError,
     IdentifierNotFoundError,
 )
-from ..models import DataLink
+from ..models import DataLinkError, DataLinkRow
 
 __all__ = ["LinksService"]
 
@@ -41,79 +41,39 @@ class LinksService:
         self._discovery = discovery_client
         self._logger = logger
 
-    def build_datalink(self, id: str, cutout_sync_url: str | None) -> DataLink:
-        """Return the DataLink information for a given identifier.
+    def build_datalink(self, ids: list[str]) -> list[DataLinkRow]:
+        """Return the DataLink information for given identifiers.
 
         Both this method and the handler method that calls it must not be
         async functions since the underlying Butler client is not async and
         FastAPI must be forced to run the handler in a thread pool. This means
         that, before calling this function, a separate async FastAPI
         dependency should call `get_cutout_sync_url` and pass that result into
-        the non-async handler, which in turn should pass that into this
+        the non-async dependency, which in turn should pass that into this
         function.
 
         Parameters
         ----------
-        id
-            Identifier to look up.
-        cutout_sync_url
-            URL to the SODA sync service for making cutouts, if any. This
-            should be obtained by calling `get_cutout_sync_url` first.
+        ids
+            Identifiers to look up.
 
-        Raises
-        ------
-        ButlerUriNotSignedError
-            Raised if the URL returned by Butler is not signed.
-        IdentifierMalformedError
-            Raised if the identifier could not be parsed.
-        IdentifierNotFoundError
-            Raised if no dataset is found for the provided identifier.
+        Returns
+        -------
+        list of DataLinkRow
+            List of either DataLink results or an error, suitable for passing
+            to the records parameter of the Jinja template.
         """
-        logger = self._logger.bind(id=id)
-        factory = self._butler_factory
-
-        try:
-            dataset = Butler.get_dataset_from_uri(id, factory=factory)
-        except FileNotFoundError as e:
-            # Invalid Butler labels will cause it to fall back to trying to
-            # read a local Butler config.
-            msg = f"Repository for {id} does not exist"
-            logger.warning(msg)
-            raise IdentifierNotFoundError(msg) from e
-        except ValueError as e:
-            # Bad or missing UUID in URI.
-            msg = "Unable to extract valid dataset ID from {id}"
-            logger.warning(msg)
-            raise IdentifierMalformedError(msg) from e
-
-        butler = dataset.butler
-        ref = dataset.dataset
-        if not ref:
-            logger.warning("Dataset does not exist", label=str(butler))
-            raise IdentifierNotFoundError(f"Dataset {id} does not exist")
-
-        # Get an lsst.resources.ResourcePath for the identifier.
-        logger.debug(
-            "Retrieving object from Butler",
-            butler=str(dataset.butler),
-            uuid=str(dataset.dataset),
-        )
-        image_uri = butler.getURI(ref)
-        logger = logger.bind(image_uri=image_uri)
-        logger.debug("Got image URI from Butler")
-        if image_uri.scheme not in ("https", "http"):
-            raise ButlerUriNotSignedError(str(image_uri))
-
-        # Generate the response. Suppress the cutout sync URL for raw images,
-        # since cutouts are not supported for them currently.
-        if ref.datasetType.name == "raw":
-            cutout_sync_url = None
-        return DataLink(
-            id=id,
-            image_url=str(image_uri),
-            image_size=image_uri.size(),
-            cutout_sync_url=cutout_sync_url,
-        )
+        results = []
+        for id in ids:
+            try:
+                results.append(self._get_datalink_for_id(id))
+            except IdentifierMalformedError as e:
+                error = DataLinkRow.from_error(id, DataLinkError.USAGE, e)
+                results.append(error)
+            except IdentifierNotFoundError as e:
+                error = DataLinkRow.from_error(id, DataLinkError.NOT_FOUND, e)
+                results.append(error)
+        return results
 
     async def get_cutout_sync_url(self, id: str) -> str | None:
         """Get sync URL to SODA service for cutouts, if one exists.
@@ -135,4 +95,74 @@ class LinksService:
             return None
         return await self._discovery.url_for_data(
             "cutout", parsed_uri.label, version="soda-sync-1.0"
+        )
+
+    def _get_datalink_for_id(self, id: str) -> DataLinkRow:
+        """Get the DataLink information for a single identifier.
+
+        Parameters
+        ----------
+        id
+            Identifier to an image.
+
+        Returns
+        -------
+        DataLinkRow
+            Information to construct a result row.
+
+        Raises
+        ------
+        ButlerUriNotSignedError
+            Raised if the URL returned by Butler is not signed.
+        IdentifierMalformedError
+            Raised if the identifier could not be parsed.
+        IdentifierNotFoundError
+            Raised if no dataset is found for the provided identifier.
+        """
+        logger = self._logger.bind(id=id)
+        factory = self._butler_factory
+
+        try:
+            dataset = Butler.get_dataset_from_uri(id, factory=factory)
+        except FileNotFoundError as e:
+            # Invalid Butler labels will cause it to fall back to trying to
+            # read a local Butler config.
+            msg = f"Repository for {id} does not exist"
+            logger.warning(msg)
+            raise IdentifierNotFoundError(id) from e
+        except LookupError as e:
+            msg = f"Unknown dataset ID {id}"
+            logger.warning(msg)
+            raise IdentifierNotFoundError(id) from e
+        except ValueError as e:
+            # Bad or missing UUID in URI.
+            msg = f"Unable to extract valid dataset ID from {id}"
+            logger.warning(msg)
+            raise IdentifierMalformedError(id) from e
+
+        butler = dataset.butler
+        ref = dataset.dataset
+        if not ref:
+            logger.warning("Dataset does not exist", label=str(butler))
+            raise IdentifierNotFoundError(id)
+
+        # Get an lsst.resources.ResourcePath for the identifier.
+        logger.debug(
+            "Retrieving object from Butler",
+            butler=str(dataset.butler),
+            uuid=str(dataset.dataset),
+        )
+        image_uri = butler.getURI(ref)
+        logger = logger.bind(image_uri=image_uri)
+        logger.debug("Got image URI from Butler")
+        if image_uri.scheme not in ("https", "http"):
+            raise ButlerUriNotSignedError(str(image_uri))
+
+        # Return the DataLink model.
+        return DataLinkRow(
+            id=id,
+            error=None,
+            image_url=str(image_uri),
+            image_size=image_uri.size(),
+            is_raw=ref.datasetType.name == "raw",
         )

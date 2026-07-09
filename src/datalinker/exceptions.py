@@ -1,6 +1,5 @@
 """Exceptions for datalinker."""
 
-from fastapi import status
 from safir.fastapi import ClientRequestError
 
 __all__ = [
@@ -27,17 +26,15 @@ class IdentifierError(ClientRequestError):
     """Invalid identifier."""
 
 
-class IdentifierMalformedError(IdentifierError):
+class IdentifierMalformedError(Exception):
     """An identifier could not be parsed."""
 
-    error = "id_malformed"
-
     def __init__(self, id: str) -> None:
-        super().__init__(f"Unable to extract valid dataset ID from {id}")
+        super().__init__(f"Unable to extract valid dataset ID from '{id}'")
 
 
-class IdentifierNotFoundError(IdentifierError):
+class IdentifierNotFoundError(Exception):
     """No dataset found for this identifier."""
 
-    error = "not_found"
-    status_code = status.HTTP_404_NOT_FOUND
+    def __init__(self, id: str) -> None:
+        super().__init__(f"Unknown dataset ID '{id}'")
