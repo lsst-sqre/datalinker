@@ -70,7 +70,8 @@
   </TABLE>
  </RESOURCE>
  {%- if cutout_sync_url %}
- <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
+ {%- for suffix, detail in [("", "Image"), ("-maskedimage", "MaskedImage"), ("-exposure", "Exposure")] %}
+ <RESOURCE ID="cutout-sync{{ suffix }}" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
             value="{{ id }}">
@@ -86,16 +87,18 @@
        <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
          that should be covered by the cutout.</DESCRIPTION>
      </PARAM>
-     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Image">
+     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="{{ detail }}">
        <DESCRIPTION>Amount of information to include in the cutout: Image
          for only the image pixels; MaskedImage for the image, variance,
          and mask; or Exposure for the full original exposure including
          afw-format metadata tables.</DESCRIPTION>
+       {%- if detail == "Image" %}
        <VALUES>
          <OPTION value="Image"/>
          <OPTION value="MaskedImage"/>
          <OPTION value="Exposure"/>
        </VALUES>
+       {%- endif %}
      </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
@@ -103,61 +106,6 @@
    <PARAM arraysize="*" datatype="char" name="standardID"
           value="ivo://ivoa.net/std/SODA#sync-1.0"/>
  </RESOURCE>
- <RESOURCE ID="cutout-sync-maskedimage" type="meta" utype="adhoc:service">
-   <GROUP name="inputParams">
-     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="{{ id }}">
-       <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="*" datatype="double" name="POLYGON"
-            ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
-       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that
-         should be covered by the cutout.</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="3" datatype="double" name="CIRCLE"
-            ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
-       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
-         that should be covered by the cutout.</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="MaskedImage">
-       <DESCRIPTION>Amount of information to include in the cutout: Image
-         for only the image pixels; MaskedImage for the image, variance,
-         and mask; or Exposure for the full original exposure including
-         afw-format metadata tables.</DESCRIPTION>
-     </PARAM>
-   </GROUP>
-   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
-          value="{{ cutout_sync_url }}"/>
-   <PARAM arraysize="*" datatype="char" name="standardID"
-          value="ivo://ivoa.net/std/SODA#sync-1.0"/>
- </RESOURCE>
- <RESOURCE ID="cutout-sync-exposure" type="meta" utype="adhoc:service">
-   <GROUP name="inputParams">
-     <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="{{ id }}">
-       <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="*" datatype="double" name="POLYGON"
-            ucd="pos.outline;obs" unit="deg" value="" xtype="polygon">
-       <DESCRIPTION>A polygon (as a flattened array of ra, dec pairs) that
-         should be covered by the cutout.</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="3" datatype="double" name="CIRCLE"
-            ucd="pos.outline;obs" unit="deg" value="" xtype="circle">
-       <DESCRIPTION>A circle (as a flattened array of ra, dec, radius)
-         that should be covered by the cutout.</DESCRIPTION>
-     </PARAM>
-     <PARAM arraysize="*" datatype="char" name="CUTOUTDETAIL" value="Exposure">
-       <DESCRIPTION>Amount of information to include in the cutout: Image
-         for only the image pixels; MaskedImage for the image, variance,
-         and mask; or Exposure for the full original exposure including
-         afw-format metadata tables.</DESCRIPTION>
-     </PARAM>
-   </GROUP>
-   <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
-          value="{{ cutout_sync_url }}"/>
-   <PARAM arraysize="*" datatype="char" name="standardID"
-          value="ivo://ivoa.net/std/SODA#sync-1.0"/>
- </RESOURCE>
+ {%- endfor %}
  {%- endif %}
 </VOTABLE>
