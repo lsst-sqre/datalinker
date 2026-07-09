@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
  <RESOURCE type="results">
   <TABLE>
+   <INFO name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.1"/>
    <DESCRIPTION>Links table for observation dataset butler://dr1/ac691f52-c1a0-4199-b049-182cf403dc37</DESCRIPTION>
    <FIELD ID="ID" arraysize="*" datatype="char"
           name="ID" ucd="meta.id;meta.main"/>
