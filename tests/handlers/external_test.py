@@ -1,8 +1,8 @@
 """Tests for the datalinker.handlers.external module and routes."""
 
+from typing import Any
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
-from uuid import uuid4
 
 import pytest
 from httpx import AsyncClient
@@ -12,8 +12,6 @@ from safir.testing.data import Data
 
 from datalinker.config import config
 from datalinker.dependencies.context import context_dependency
-
-from ..support.butler import MockButler
 
 
 @pytest.mark.asyncio
@@ -296,12 +294,35 @@ async def test_links(data: Data, client: AsyncClient) -> None:
     events.links.published.assert_published_all([event] * 3)
 
 
+@pytest.mark.usefixtures("mock_butler")
 @pytest.mark.asyncio
-async def test_links_raw(
-    data: Data,
-    client: AsyncClient,
-    mock_butler: MockButler,
-) -> None:
+async def test_links_multiple(data: Data, client: AsyncClient) -> None:
+    bad_uuid = "abb90721-3735-477d-ae8c-7726ec118c50"
+    butler_data = data.read_json("butler/datasets")
+    dataset_uuids = list(butler_data.keys())
+    dataset_ids = [f"butler://dr1/{u}" for u in dataset_uuids]
+
+    # Ask for multiple dataset IDs at once, including one that doesn't exist.
+    # mypy 2.2.0 has a bug that misdiagnoses a type mismatch with the params
+    # type for httpx. Work around it with an Any annotation.
+    params: list[tuple[str, Any]] = [("id", i) for i in dataset_ids]
+    params.append(("id", f"butler://dr1/{bad_uuid}"))
+    r = await client.get("/api/datalink/links", params=params)
+    assert r.status_code == 200
+    data.assert_text_matches(r.text, "links/multiple.xml")
+
+
+@pytest.mark.usefixtures("mock_butler")
+@pytest.mark.asyncio
+async def test_links_empty(data: Data, client: AsyncClient) -> None:
+    r = await client.get("/api/datalink/links")
+    assert r.status_code == 200
+    data.assert_text_matches(r.text, "links/empty.xml")
+
+
+@pytest.mark.usefixtures("mock_butler")
+@pytest.mark.asyncio
+async def test_links_raw(data: Data, client: AsyncClient) -> None:
     dataset_uuid = get_dataset_uuid(data, "raw")
     dataset_id = f"butler://dr1/{dataset_uuid}"
 
@@ -310,12 +331,9 @@ async def test_links_raw(
     data.assert_text_matches(r.text, "links/raw.xml")
 
 
+@pytest.mark.usefixtures("mock_butler")
 @pytest.mark.asyncio
-async def test_links_no_cutout(
-    data: Data,
-    client: AsyncClient,
-    mock_butler: MockButler,
-) -> None:
+async def test_links_no_cutout(data: Data, client: AsyncClient) -> None:
     dataset_uuid = get_dataset_uuid(data, "calexp")
 
     # DR2 has no service discovery information for cutouts.
@@ -326,38 +344,36 @@ async def test_links_no_cutout(
     data.assert_text_matches(r.text, "links/calexp-nocutout.xml")
 
 
+@pytest.mark.usefixtures("mock_butler")
 @pytest.mark.asyncio
-async def test_links_errors(
-    client: AsyncClient, mock_butler: MockButler
-) -> None:
-    uuid = uuid4()
+async def test_links_errors(data: Data, client: AsyncClient) -> None:
+    uuid = "abb90721-3735-477d-ae8c-7726ec118c50"
 
-    # Test an invalid IDs and ensure it returns 404.
+    # Test an unknown ID, which should return a VOTable error document.
     r = await client.get(
-        "/api/datalink/links",
-        params={"id": f"butler://dr1/{uuid!s}"},
+        "/api/datalink/links", params={"id": f"butler://dr1/{uuid}"}
     )
-    assert r.status_code == 404
+    assert r.status_code == 200
+    data.assert_text_matches(r.text, "links/nonexistent.xml")
 
-    # Test malformed IDs and ensure they return 422.
-    for test_id in ("butler://", "butler://test-butler", "blah-blah"):
-        r = await client.get("/api/datalink/links", params={"id": test_id})
-        assert r.status_code == 422
+    # Test a malformed ID and ensure it returns a different VOTable error
+    # document with a different error.
+    r = await client.get("/api/datalink/links", params={"id": "blah-blah"})
+    assert r.status_code == 200
+    data.assert_text_matches(r.text, "links/invalid.xml")
 
-    # Test invalid RESPONSEFORMAT.
+    # Test invalid RESPONSEFORMAT. Technically this should also return a
+    # VOTable error document, but that is future work.
     r = await client.get(
         "/api/datalink/links",
-        params={
-            "id": f"butler://dr1/{uuid!s}",
-            "responseformat": "text/plain",
-        },
+        params={"id": f"butler://dr1/{uuid}", "responseformat": "text/plain"},
     )
     assert r.status_code == 422
 
 
 @pytest.mark.asyncio
-async def test_links_bad_repo(client: AsyncClient) -> None:
-    uuid = uuid4()
+async def test_links_bad_repo(data: Data, client: AsyncClient) -> None:
+    uuid = "abb90721-3735-477d-ae8c-7726ec118c50"
 
     # Rather than using the regular mock Butler, mock it out to raise KeyError
     # from the constructor. This simulates an invalid label.
@@ -365,6 +381,7 @@ async def test_links_bad_repo(client: AsyncClient) -> None:
         mock_butler.side_effect = KeyError
         r = await client.get(
             "/api/datalink/links",
-            params={"id": f"butler://invalid-repo/{uuid!s}"},
+            params={"id": f"butler://invalid-repo/{uuid}"},
         )
-        assert r.status_code == 404
+        assert r.status_code == 200
+        data.assert_text_matches(r.text, "links/invalid-repo.xml")

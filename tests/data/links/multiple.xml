@@ -64,6 +64,26 @@
       <TD>application/fits</TD>
       <TD/>
      </TR>
+     <TR>
+      <TD>butler://dr1/c6956c99-88d9-4678-a3df-36dd913dd4bc</TD>
+      <TD><![CDATA[https://presigned-url.example.com/c6956c99-88d9-4678-a3df-36dd913dd4bc?X-Amz-Signature=abcdef]]></TD>
+      <TD/>
+      <TD/>
+      <TD>Primary image or observation data file</TD>
+      <TD>#this</TD>
+      <TD>application/fits</TD>
+      <TD>5678</TD>
+     </TR>
+     <TR>
+      <TD>butler://dr1/abb90721-3735-477d-ae8c-7726ec118c50</TD>
+      <TD/>
+      <TD/>
+      <TD>NotFoundFault: Unknown dataset ID &#39;butler://dr1/abb90721-3735-477d-ae8c-7726ec118c50&#39;</TD>
+      <TD/>
+      <TD>#this</TD>
+      <TD/>
+      <TD/>
+     </TR>
     </TABLEDATA>
    </DATA>
   </TABLE>
@@ -71,7 +91,7 @@
  <RESOURCE ID="cutout-sync" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="butler://dr1/ac691f52-c1a0-4199-b049-182cf403dc37">
+            ref="ID" value="">
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="double" name="POLYGON"
@@ -104,7 +124,7 @@
  <RESOURCE ID="cutout-sync-maskedimage" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="butler://dr1/ac691f52-c1a0-4199-b049-182cf403dc37">
+            ref="ID" value="">
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="double" name="POLYGON"
@@ -132,7 +152,7 @@
  <RESOURCE ID="cutout-sync-exposure" type="meta" utype="adhoc:service">
    <GROUP name="inputParams">
      <PARAM arraysize="*" datatype="char" name="ID" ucd="meta.id;meta.dataset"
-            value="butler://dr1/ac691f52-c1a0-4199-b049-182cf403dc37">
+            ref="ID" value="">
        <DESCRIPTION>Publisher DID of the dataset of interest</DESCRIPTION>
      </PARAM>
      <PARAM arraysize="*" datatype="double" name="POLYGON"

@@ -11,7 +11,6 @@ from safir.dependencies.gafaelfawr import (
 )
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
-from safir.models import ErrorLocation
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
@@ -24,8 +23,7 @@ from ..constants import (
 from ..dependencies.context import RequestContext, context_dependency
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..events import LinksEvent
-from ..exceptions import IdentifierError
-from ..models import Band, DataLink, Detail, Index
+from ..models import Band, DataLinkRow, Detail, Index
 from ..templates import templates
 
 external_router = APIRouter(route_class=SlackRouteErrorHandler)
@@ -181,25 +179,11 @@ async def timeseries(
     return _create_tap_redirect(adql, logger)
 
 
-async def cutout_sync_url_dependency(
-    *,
-    id: str,
-    context: Annotated[RequestContext, Depends(context_dependency)],
-) -> str | None:
-    """Get the cutout URL for the provided object ID.
-
-    This has to be kept separate from the links endpoint because the latter
-    must be sync due to the Butler client's lack of async support.
-    """
-    links_service = context.factory.create_links_service()
-    return await links_service.get_cutout_sync_url(id)
-
-
 def datalink_dependency(
     *,
     request: Request,
     id: Annotated[
-        str,
+        list[str] | None,
         Query(
             title="Object ID",
             examples=[
@@ -207,50 +191,54 @@ def datalink_dependency(
                 "ivo://org.rubinobs/usdac/dp1?"
                 "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
             ],
-            pattern="^(butler|ivo)://.+$",
         ),
-    ],
+    ] = None,
     responseformat: Annotated[
         Literal["votable", "application/x-votable+xml"],
         Query(title="Response format"),
     ] = "application/x-votable+xml",
-    cutout_sync_url: Annotated[str, Depends(cutout_sync_url_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
-) -> DataLink:
-    """Get the DataLink details for an identifier.
+) -> list[DataLinkRow]:
+    """Get the DataLink details for identifiers.
 
     This has to be run in a separate dependency so that it can be run
     synchronously in a thread pool, since Butler does not support async.
     """
     links_service = context.factory.create_links_service()
-    try:
-        return links_service.build_datalink(id, cutout_sync_url)
-    except IdentifierError as e:
-        e.location = ErrorLocation.query
-        e.field_path = ["id"]
-        raise
+    return links_service.build_datalink(id or [])
 
 
-@external_router.get(
-    "/links",
-    responses={404: {"description": "Specified identifier not found"}},
-    summary="DataLink links for object",
-)
+@external_router.get("/links", summary="DataLink links for object")
 async def links(
     *,
-    datalink: Annotated[DataLink, Depends(datalink_dependency)],
+    results: Annotated[list[DataLinkRow], Depends(datalink_dependency)],
     username: Annotated[str, Depends(auth_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> Response:
-    event = LinksEvent(
-        username=username, dataset_id=datalink.id, size=datalink.image_size
-    )
-    await context.events.links.publish(event)
+    dataset_ids = [r.id for r in results]
+    links_service = context.factory.create_links_service()
+    cutout_sync_url = await links_service.get_cutout_sync_url(dataset_ids)
+
+    # Publish a metrics event for each successful result.
+    for result in results:
+        if result.error:
+            continue
+        event = LinksEvent(
+            username=username, dataset_id=result.id, size=result.image_size
+        )
+        await context.events.links.publish(event)
+
+    # Construct and return the results.
     lifetime = int(config.links_lifetime.total_seconds())
+    include_cutouts = any(not r.is_raw and not r.error for r in results)
     return templates.TemplateResponse(
         context.request,
-        "links.xml",
-        datalink.to_dict(),
+        "links.xml.jinja",
+        {
+            "records": results,
+            "cutout_sync_url": cutout_sync_url,
+            "include_cutouts": include_cutouts,
+        },
         headers={"Cache-Control": f"max-age={lifetime}"},
         media_type="application/x-votable+xml;content=datalink",
     )

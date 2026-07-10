@@ -27,7 +27,7 @@ class LinksEvent(EventPayload):
         description="Dataset identifier for which links were retrieved",
     )
 
-    size: int = Field(
+    size: int | None = Field(
         ...,
         title="Size",
         description="Size of the underlying image file, in bytes",

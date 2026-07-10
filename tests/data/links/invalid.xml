@@ -25,14 +25,14 @@
    <DATA>
     <TABLEDATA>
      <TR>
-      <TD>butler://dr1/c6956c99-88d9-4678-a3df-36dd913dd4bc</TD>
-      <TD><![CDATA[https://presigned-url.example.com/c6956c99-88d9-4678-a3df-36dd913dd4bc?X-Amz-Signature=abcdef]]></TD>
+      <TD>blah-blah</TD>
       <TD/>
       <TD/>
-      <TD>Primary image or observation data file</TD>
+      <TD>UsageFault: Unable to extract valid dataset ID from &#39;blah-blah&#39;</TD>
+      <TD/>
       <TD>#this</TD>
-      <TD>application/fits</TD>
-      <TD>5678</TD>
+      <TD/>
+      <TD/>
      </TR>
     </TABLEDATA>
    </DATA>
