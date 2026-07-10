@@ -215,11 +215,7 @@ def datalink_dependency(
         raise
 
 
-@external_router.get(
-    "/links",
-    responses={404: {"description": "Specified identifier not found"}},
-    summary="DataLink links for object",
-)
+@external_router.get("/links", summary="DataLink links for object")
 async def links(
     *,
     results: Annotated[list[DataLinkRow], Depends(datalink_dependency)],
