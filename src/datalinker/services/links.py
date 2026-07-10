@@ -138,18 +138,14 @@ class LinksService:
             dataset = Butler.get_dataset_from_uri(id, factory=factory)
         except FileNotFoundError as e:
             # Invalid Butler labels will cause it to fall back to trying to
-            # read a local Butler config.
-            msg = f"Repository for {id} does not exist"
-            logger.warning(msg)
+            # read a local Butler config and thus throw FileNotFoundError.
+            logger.warning("Repository for identifier does not exist")
             raise IdentifierNotFoundError(id) from e
         except LookupError as e:
-            msg = f"Unknown dataset ID {id}"
-            logger.warning(msg)
+            logger.warning("Unknown dataset ID")
             raise IdentifierNotFoundError(id) from e
         except ValueError as e:
-            # Bad or missing UUID in URI.
-            msg = f"Unable to extract valid dataset ID from {id}"
-            logger.warning(msg)
+            logger.warning("Unable to parse dataset ID")
             raise IdentifierMalformedError(id) from e
 
         butler = dataset.butler
