@@ -6,6 +6,28 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.4.0'></a>
+## 4.4.0 (2026-07-10)
+
+### New features
+
+- Support multiple IDs as input to the links endpoint and return multiple results. If multiple IDs are provided, the service descriptors for the cutout services use the `ref` syntax to refer to the `ID` column rather than pinning a specific dataset ID. This is semantically incorrect if the cutout service URL varies by data release, but currently it doesn't for Rubin.
+- Support POST to the links endpoint in addition to GET, as required by the DataLink 1.1 standard.
+- Add the required `<INFO>` tag to the links reply to indicate compliance with the IVOA DataLink 1.1 standard.
+- Add optional support for metrics events. If enabled, post an event to Kafka for each DataLink links document retrieval that includes the username, dataset ID, and size of the underlying file.
+- Use the Repertoire discovery client to get Butler configuration. This removes the need to inject `DAF_BUTLER_REPOSITORY_INDEX` into the application's environment.
+
+### Bug fixes
+
+- Add `;content=datalink` to the MIME type returned for DataLink links results to better conform with the IVOA DataLink 1.1 standard.
+- Return an empty VOTable with a 200 response in response to the links endpoint if no IDs are specified instead of returning a 422 error.
+- Report errors with specific identifiers (invalid or nonexistent) as a 200 VOTable response with errors in the `error_message` column, instead of returning 422 or 404 HTTP status codes.
+
+### Other changes
+
+- datalinker now uses [nox](https://nox.thea.codes/en/stable/index.html) as the build system for development and testing instead of tox.
+- Include the authenticated username in log messages.
+
 <a id='changelog-4.3.0'></a>
 ## 4.3.0 (2025-12-02)
 
