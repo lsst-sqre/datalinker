@@ -226,24 +226,9 @@ async def links(
     username: Annotated[str, Depends(auth_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> Response:
-    # Get the cutout sync URL for the first dataset ID.
-    #
-    # This is semantically incorrect: Different data releases may have
-    # different cutout sync URLs, so each dataset ID from a different data
-    # release should have its own set of service descriptors with the cutout
-    # sync URL corresponding to that data release. Ignore that for now since
-    # at the moment we have one cutout service for all data releases, so just
-    # use the first ID.
-    #
-    # If the first ID is unparsable but subsequent IDs are valid, this will
-    # fail to include cutout service descriptors or table entries. This is a
-    # bug, but an annoying one to fix. Leave it for now and revisit if we fix
-    # the problem of per-data-release cutout URLs.
-    cutout_sync_url = None
-    if len(results) > 0:
-        links_service = context.factory.create_links_service()
-        dataset_id = results[0].id
-        cutout_sync_url = await links_service.get_cutout_sync_url(dataset_id)
+    dataset_ids = [r.id for r in results]
+    links_service = context.factory.create_links_service()
+    cutout_sync_url = await links_service.get_cutout_sync_url(dataset_ids)
 
     # Publish a metrics event for each successful result.
     for result in results:

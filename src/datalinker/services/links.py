@@ -1,5 +1,7 @@
 """Generate a DataLink response for an identifier."""
 
+from contextlib import suppress
+
 from lsst.daf.butler import Butler, LabeledButlerFactoryProtocol
 from rubin.repertoire import DiscoveryClient
 from structlog.stdlib import BoundLogger
@@ -75,13 +77,20 @@ class LinksService:
                 results.append(error)
         return results
 
-    async def get_cutout_sync_url(self, id: str) -> str | None:
+    async def get_cutout_sync_url(self, ids: list[str]) -> str | None:
         """Get sync URL to SODA service for cutouts, if one exists.
+
+        Currently, this uses the first valid ID in the list sent by the user
+        to determine the cutout URLs, even if there are IDs from different
+        data releases. This is not semantically correct since the cutout
+        service may have a different base URL for different data releases, but
+        currently Rubin uses a single cutout service so live with that problem
+        for now.
 
         Parameters
         ----------
-        id
-            Identifier that may be to an image supporting cutouts.
+        ids
+            List of identifiers requested by the user.
 
         Returns
         -------
@@ -89,9 +98,12 @@ class LinksService:
             URL to the sync SODA service for performing cutouts, or `None` if
             none is available.
         """
-        try:
-            parsed_uri = Butler.parse_dataset_uri(id)
-        except Exception:
+        parsed_uri = None
+        for id in ids:
+            with suppress(Exception):
+                parsed_uri = Butler.parse_dataset_uri(id)
+                break
+        if not parsed_uri:
             return None
         return await self._discovery.url_for_data(
             "cutout", parsed_uri.label, version="soda-sync-1.0"
