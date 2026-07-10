@@ -15,7 +15,10 @@ import structlog
 from fastapi import FastAPI
 from safir.fastapi import ClientRequestError, client_request_error_handler
 from safir.logging import Profile, configure_logging, configure_uvicorn_logging
-from safir.middleware.ivoa import CaseInsensitiveQueryMiddleware
+from safir.middleware.ivoa import (
+    CaseInsensitiveFormMiddleware,
+    CaseInsensitiveQueryMiddleware,
+)
 from safir.middleware.x_forwarded import XForwardedMiddleware
 from safir.sentry import initialize_sentry
 from safir.slack.webhook import SlackRouteErrorHandler
@@ -66,6 +69,7 @@ app.include_router(internal_router)
 app.include_router(external_router, prefix=config.path_prefix)
 
 # Add the middleware.
+app.add_middleware(CaseInsensitiveFormMiddleware)
 app.add_middleware(CaseInsensitiveQueryMiddleware)
 app.add_middleware(XForwardedMiddleware)
 

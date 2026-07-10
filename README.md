@@ -14,7 +14,6 @@ The API provided by datalinker is primarily based on the IVOA DataLink standard,
 
 datalinker implements [version 1.1 of the IVOA DataLink standard](https://www.ivoa.net/documents/DataLink/20231215/REC-DataLink-1.1.html) with the following known exceptions:
 
-- The links endpoint only supports `GET`, not `POST`.
 - Service errors preventing a response are formatted as JSON rather than as VOTables.
 
 datalinker is developed with the [Safir](https://safir.lsst.io) framework.
