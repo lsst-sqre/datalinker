@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Depends, Form, Query, Request, Response
 from fastapi.responses import RedirectResponse
 from safir.dependencies.gafaelfawr import (
     auth_dependency,
@@ -208,13 +208,57 @@ def datalink_dependency(
     return links_service.build_datalink(id or [])
 
 
-@external_router.get("/links", summary="DataLink links for object")
-async def links(
+def datalink_post_dependency(
     *,
-    results: Annotated[list[DataLinkRow], Depends(datalink_dependency)],
-    username: Annotated[str, Depends(auth_dependency)],
+    request: Request,
+    id: Annotated[
+        list[str] | None,
+        Form(
+            title="Object ID",
+            examples=[
+                "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+                "ivo://org.rubinobs/usdac/dp1?"
+                "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+            ],
+        ),
+    ] = None,
+    responseformat: Annotated[
+        Literal["votable", "application/x-votable+xml"],
+        Form(title="Response format"),
+    ] = "application/x-votable+xml",
     context: Annotated[RequestContext, Depends(context_dependency)],
+) -> list[DataLinkRow]:
+    """Get the DataLink details for identifiers.
+
+    This has to be run in a separate dependency so that it can be run
+    synchronously in a thread pool, since Butler does not support async.
+    """
+    links_service = context.factory.create_links_service()
+    return links_service.build_datalink(id or [])
+
+
+async def build_links_response(
+    results: list[DataLinkRow], username: str, context: RequestContext
 ) -> Response:
+    """Construct the links response.
+
+    This is broken into a separate function so that it can be shared by the
+    GET and POST versions of the links route handler.
+
+    Parameters
+    ----------
+    results
+        DataLink results from Butler.
+    username
+        Authenticated username making the request.
+    context
+        Request context.
+
+    Returns
+    -------
+    Response
+        Response to return to the user.
+    """
     dataset_ids = [r.id for r in results]
     links_service = context.factory.create_links_service()
     cutout_sync_url = await links_service.get_cutout_sync_url(dataset_ids)
@@ -242,3 +286,23 @@ async def links(
         headers={"Cache-Control": f"max-age={lifetime}"},
         media_type="application/x-votable+xml;content=datalink",
     )
+
+
+@external_router.get("/links", summary="DataLink links for object")
+async def links(
+    *,
+    results: Annotated[list[DataLinkRow], Depends(datalink_dependency)],
+    username: Annotated[str, Depends(auth_dependency)],
+    context: Annotated[RequestContext, Depends(context_dependency)],
+) -> Response:
+    return await build_links_response(results, username, context)
+
+
+@external_router.post("/links", summary="DataLink links for object")
+async def links_post(
+    *,
+    results: Annotated[list[DataLinkRow], Depends(datalink_post_dependency)],
+    username: Annotated[str, Depends(auth_dependency)],
+    context: Annotated[RequestContext, Depends(context_dependency)],
+) -> Response:
+    return await build_links_response(results, username, context)

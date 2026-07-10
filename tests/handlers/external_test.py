@@ -5,7 +5,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, Response
 from lsst.daf.butler import LabeledButlerFactory
 from safir.metrics import MockEventPublisher
 from safir.testing.data import Data
@@ -264,13 +264,20 @@ async def test_links(data: Data, client: AsyncClient) -> None:
     butler_data = data.read_json("butler/datasets")
     content_type = "application/x-votable+xml;content=datalink"
 
+    def check_response(r: Response) -> None:
+        assert r.status_code == 200
+        lifetime = int(config.links_lifetime.total_seconds())
+        assert r.headers["Cache-Control"] == f"max-age={lifetime}"
+        assert r.headers["Content-Type"] == content_type
+        data.assert_text_matches(r.text, "links/calexp.xml")
+
     # Use iD to test the IVOA requirement of case insensitive parameters.
     r = await client.get("/api/datalink/links", params={"iD": dataset_id})
-    assert r.status_code == 200
-    lifetime = int(config.links_lifetime.total_seconds())
-    assert r.headers["Cache-Control"] == f"max-age={lifetime}"
-    assert r.headers["Content-Type"] == content_type
-    data.assert_text_matches(r.text, "links/calexp.xml")
+    check_response(r)
+
+    # Try with POST instead.
+    r = await client.post("/api/datalink/links", data={"iD": dataset_id})
+    check_response(r)
 
     # Check the same with explicit RESPONSEFORMAT.
     for response_format in ("votable", "application/x-votable+xml"):
@@ -278,9 +285,12 @@ async def test_links(data: Data, client: AsyncClient) -> None:
             "/api/datalink/links",
             params={"id": dataset_id, "responseformat": response_format},
         )
-        assert r.status_code == 200
-        assert r.headers["Content-Type"] == content_type
-        data.assert_text_matches(r.text, "links/calexp.xml")
+        check_response(r)
+        r = await client.post(
+            "/api/datalink/links",
+            data={"id": dataset_id, "RESPONSEFORMAT": response_format},
+        )
+        check_response(r)
 
     # Check that the appropriate metrics events were posted.
     events = context_dependency._events
@@ -291,7 +301,7 @@ async def test_links(data: Data, client: AsyncClient) -> None:
         "dataset_id": dataset_id,
         "size": butler_data[dataset_uuid]["size"],
     }
-    events.links.published.assert_published_all([event] * 3)
+    events.links.published.assert_published_all([event] * 6)
 
 
 @pytest.mark.usefixtures("mock_butler")
