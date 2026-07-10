@@ -11,7 +11,6 @@ from safir.dependencies.gafaelfawr import (
 )
 from safir.dependencies.logger import logger_dependency
 from safir.metadata import get_metadata
-from safir.models import ErrorLocation
 from safir.slack.webhook import SlackRouteErrorHandler
 from structlog.stdlib import BoundLogger
 
@@ -24,7 +23,6 @@ from ..constants import (
 from ..dependencies.context import RequestContext, context_dependency
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..events import LinksEvent
-from ..exceptions import IdentifierError
 from ..models import Band, DataLinkRow, Detail, Index
 from ..templates import templates
 
@@ -207,12 +205,7 @@ def datalink_dependency(
     synchronously in a thread pool, since Butler does not support async.
     """
     links_service = context.factory.create_links_service()
-    try:
-        return links_service.build_datalink(id or [])
-    except IdentifierError as e:
-        e.location = ErrorLocation.query
-        e.field_path = ["id"]
-        raise
+    return links_service.build_datalink(id or [])
 
 
 @external_router.get("/links", summary="DataLink links for object")
