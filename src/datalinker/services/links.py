@@ -20,8 +20,7 @@ class LinksService:
     """Generate a DataLink response for an identifier.
 
     Looks up an identifier in the Butler to get a signed URL for the image and
-    generates the DataLink response, including any appropriate additional
-    descriptors based on service discovery responses.
+    generates the rqeuired information for a DataLink response.
 
     Parameters
     ----------
@@ -48,11 +47,10 @@ class LinksService:
 
         Both this method and the handler method that calls it must not be
         async functions since the underlying Butler client is not async and
-        FastAPI must be forced to run the handler in a thread pool. This means
-        that, before calling this function, a separate async FastAPI
-        dependency should call `get_cutout_sync_url` and pass that result into
-        the non-async dependency, which in turn should pass that into this
-        function.
+        FastAPI must be forced to run the handler in a thread pool. This
+        method should therefore be run from a separate dependency that is
+        declared as sync, and then the results of that dependency can be used
+        in the main async handler.
 
         Parameters
         ----------
