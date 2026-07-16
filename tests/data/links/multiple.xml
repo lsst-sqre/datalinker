@@ -49,7 +49,7 @@
       <TD/>
       <TD>cutout-sync-maskedimage</TD>
       <TD/>
-      <TD>Cutout service (SODA sync), MaskedImage extensions</TD>
+      <TD>Cutout service (SODA sync), masked image only</TD>
       <TD>https://rsp.lsst.io/guides/api/soda.html#MaskedImage</TD>
       <TD>application/fits</TD>
       <TD/>
@@ -59,7 +59,7 @@
       <TD/>
       <TD>cutout-sync-exposure</TD>
       <TD/>
-      <TD>Cutout service (SODA sync), Exposure with afw metadata</TD>
+      <TD>Cutout service (SODA sync), file with full metadata</TD>
       <TD>https://rsp.lsst.io/guides/api/soda.html#Exposure</TD>
       <TD>application/fits</TD>
       <TD/>
@@ -108,7 +108,7 @@
        <DESCRIPTION>Amount of information to include in the cutout: Image
          for only the image pixels; MaskedImage for the image, variance,
          and mask; or Exposure for the full original exposure including
-         afw-format metadata tables.</DESCRIPTION>
+         all metadata tables.</DESCRIPTION>
        <VALUES>
          <OPTION value="Image"/>
          <OPTION value="MaskedImage"/>
@@ -141,7 +141,7 @@
        <DESCRIPTION>Amount of information to include in the cutout: Image
          for only the image pixels; MaskedImage for the image, variance,
          and mask; or Exposure for the full original exposure including
-         afw-format metadata tables.</DESCRIPTION>
+         all metadata tables.</DESCRIPTION>
      </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
@@ -169,7 +169,7 @@
        <DESCRIPTION>Amount of information to include in the cutout: Image
          for only the image pixels; MaskedImage for the image, variance,
          and mask; or Exposure for the full original exposure including
-         afw-format metadata tables.</DESCRIPTION>
+         all metadata tables.</DESCRIPTION>
      </PARAM>
    </GROUP>
    <PARAM arraysize="*" datatype="char" name="accessURL" ucd="meta.ref.url"
