@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.4.1'></a>
+## 4.4.1 (2026-07-24)
+
+### Bug fixes
+
+- Remove afw-specific language from the VOTable entries and service descriptors for the cutout service. The cutout service no longer uses afw for recent data releases.
+
 <a id='changelog-4.4.0'></a>
 ## 4.4.0 (2026-07-10)
 
