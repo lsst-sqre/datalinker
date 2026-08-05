@@ -188,8 +188,10 @@ def datalink_dependency(
             title="Object ID",
             examples=[
                 "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-                "ivo://org.rubinobs/usdac/dp1?"
-                "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+                (
+                    "ivo://org.rubinobs/usdac/dp1?"
+                    "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127"
+                ),
             ],
         ),
     ] = None,
@@ -217,8 +219,10 @@ def datalink_post_dependency(
             title="Object ID",
             examples=[
                 "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-                "ivo://org.rubinobs/usdac/dp1?"
-                "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
+                (
+                    "ivo://org.rubinobs/usdac/dp1?"
+                    "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127"
+                ),
             ],
         ),
     ] = None,
