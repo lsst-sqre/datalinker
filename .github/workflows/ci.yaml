@@ -57,6 +57,4 @@ jobs:
     # won't be set.
     if: >
       (github.event_name == 'release' && github.event.action == 'published')
-      || (github.event_name != 'merge_group'
-          && (startsWith(github.head_ref, 'tickets/')
-              || startsWith(github.head_ref, 't/')))
+      || (github.event_name != 'merge_group')
