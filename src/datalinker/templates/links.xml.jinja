@@ -39,7 +39,7 @@
      {%- else %}
      <TR>
       <TD>{{ record.id | e }}</TD>
-      <TD>https://github.com/lsst/rubin_sim/archive/refs/tags/v2.6.2.zip</TD>
+      <TD><![CDATA[{{ record.image_url | safe }}]]></TD>
       <TD/>
       <TD/>
       <TD>Primary image or observation data file</TD>

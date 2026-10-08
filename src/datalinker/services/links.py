@@ -168,7 +168,7 @@ class LinksService:
         return DataLinkRow(
             id=id,
             error=None,
-            image_url=str(image_uri),
+            image_url="https://github.com/lsst/rubin_sim/archive/refs/tags/v2.6.2.zip",
             image_size=image_uri.size(),
             is_raw=ref.datasetType.name == "raw",
         )
