@@ -2,7 +2,7 @@
 
 from typing import Any
 from unittest.mock import patch
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlsplit
 
 import pytest
 from httpx import AsyncClient, Response
@@ -44,7 +44,7 @@ async def test_cone_search(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -86,7 +86,7 @@ async def test_timeseries(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -114,7 +114,7 @@ async def test_timeseries(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -143,7 +143,7 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -172,7 +172,7 @@ async def test_timeseries_detail(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -202,7 +202,7 @@ async def test_timeseries_join_style(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
@@ -231,7 +231,7 @@ async def test_timeseries_join_style(client: AsyncClient) -> None:
         },
     )
     assert r.status_code == 307
-    url = urlparse(r.headers["Location"])
+    url = urlsplit(r.headers["Location"])
     assert url.path == "/api/tap/sync"
     query = parse_qs(url.query)
     assert query == {
