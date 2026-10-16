@@ -9,7 +9,11 @@ from lsst.daf.butler import Butler, LabeledButlerFactory
 from lsst.resources import ResourcePath
 from safir.testing.data import Data
 
-__all__ = ["MockButler", "patch_butler"]
+__all__ = [
+    "MockButler",
+    "get_dataset_uuid",
+    "patch_butler",
+]
 
 
 class MockDatasetRef:
@@ -50,3 +54,12 @@ def patch_butler(data: Data) -> Iterator[MockButler]:
     with patch.object(LabeledButlerFactory, "create_butler") as mock:
         mock.return_value = mock_butler
         yield mock_butler
+
+
+def get_dataset_uuid(data: Data, dataset_type: str) -> str:
+    """Get a dataset UUID of the desired type."""
+    butler_data = data.read_json("butler/datasets")
+    for uuid, info in butler_data.items():
+        if info["type"] == dataset_type:
+            return uuid
+    raise AssertionError(f"No UUID found for dataset type {dataset_type}")

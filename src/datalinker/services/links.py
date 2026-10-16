@@ -66,7 +66,7 @@ class LinksService:
         results = []
         for id in ids:
             try:
-                results.append(self._get_datalink_for_id(id))
+                results.append(self.get_datalink_for_id(id))
             except IdentifierMalformedError as e:
                 error = DataLinkRow.from_error(id, DataLinkError.USAGE, e)
                 results.append(error)
@@ -107,7 +107,7 @@ class LinksService:
             "cutout", parsed_uri.label, version="soda-sync-1.0"
         )
 
-    def _get_datalink_for_id(self, id: str) -> DataLinkRow:
+    def get_datalink_for_id(self, id: str) -> DataLinkRow:
         """Get the DataLink information for a single identifier.
 
         Parameters

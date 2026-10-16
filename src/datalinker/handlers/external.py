@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, Form, Query, Request, Response
+from fastapi import APIRouter, Depends, Query, Response
 from fastapi.responses import RedirectResponse
 from safir.dependencies.gafaelfawr import (
     auth_dependency,
@@ -21,6 +21,10 @@ from ..constants import (
     ADQL_IDENTIFIER_REGEX,
 )
 from ..dependencies.context import RequestContext, context_dependency
+from ..dependencies.datalink import (
+    datalink_list_dependency,
+    datalink_list_post_dependency,
+)
 from ..dependencies.tap import TAPMetadata, tap_metadata_dependency
 from ..events import LinksEvent
 from ..models import Band, DataLinkRow, Detail, Index
@@ -179,68 +183,6 @@ async def timeseries(
     return _create_tap_redirect(adql, logger)
 
 
-def datalink_dependency(
-    *,
-    request: Request,
-    id: Annotated[
-        list[str] | None,
-        Query(
-            title="Object ID",
-            examples=[
-                "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-                (
-                    "ivo://org.rubinobs/usdac/dp1?"
-                    "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127"
-                ),
-            ],
-        ),
-    ] = None,
-    responseformat: Annotated[
-        Literal["votable", "application/x-votable+xml"],
-        Query(title="Response format"),
-    ] = "application/x-votable+xml",
-    context: Annotated[RequestContext, Depends(context_dependency)],
-) -> list[DataLinkRow]:
-    """Get the DataLink details for identifiers.
-
-    This has to be run in a separate dependency so that it can be run
-    synchronously in a thread pool, since Butler does not support async.
-    """
-    links_service = context.factory.create_links_service()
-    return links_service.build_datalink(id or [])
-
-
-def datalink_post_dependency(
-    *,
-    request: Request,
-    id: Annotated[
-        list[str] | None,
-        Form(
-            title="Object ID",
-            examples=[
-                "butler://dp02/58f56d2e-cfd8-44e7-a343-20ebdc1f4127",
-                (
-                    "ivo://org.rubinobs/usdac/dp1?"
-                    "repo=dp1&id=58f56d2e-cfd8-44e7-a343-20ebdc1f4127"
-                ),
-            ],
-        ),
-    ] = None,
-    responseformat: Annotated[
-        Literal["votable", "application/x-votable+xml"],
-        Form(title="Response format"),
-    ] = "application/x-votable+xml",
-    context: Annotated[RequestContext, Depends(context_dependency)],
-) -> list[DataLinkRow]:
-    """Get the DataLink details for identifiers.
-
-    This has to be run in a separate dependency so that it can be run
-    synchronously in a thread pool, since Butler does not support async.
-    """
-    links_service = context.factory.create_links_service()
-    return links_service.build_datalink(id or [])
-
-
 async def build_links_response(
     results: list[DataLinkRow], username: str, context: RequestContext
 ) -> Response:
@@ -295,7 +237,11 @@ async def build_links_response(
 @external_router.get("/links", summary="DataLink links for object")
 async def links(
     *,
-    results: Annotated[list[DataLinkRow], Depends(datalink_dependency)],
+    responseformat: Annotated[
+        Literal["votable", "application/x-votable+xml"],
+        Query(title="Response format"),
+    ] = "application/x-votable+xml",
+    results: Annotated[list[DataLinkRow], Depends(datalink_list_dependency)],
     username: Annotated[str, Depends(auth_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> Response:
@@ -305,7 +251,13 @@ async def links(
 @external_router.post("/links", summary="DataLink links for object")
 async def links_post(
     *,
-    results: Annotated[list[DataLinkRow], Depends(datalink_post_dependency)],
+    responseformat: Annotated[
+        Literal["votable", "application/x-votable+xml"],
+        Query(title="Response format"),
+    ] = "application/x-votable+xml",
+    results: Annotated[
+        list[DataLinkRow], Depends(datalink_list_post_dependency)
+    ],
     username: Annotated[str, Depends(auth_dependency)],
     context: Annotated[RequestContext, Depends(context_dependency)],
 ) -> Response:
