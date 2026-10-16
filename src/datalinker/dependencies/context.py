@@ -48,6 +48,7 @@ class ContextDependency:
     """
 
     def __init__(self) -> None:
+        self._repositories: dict[str, str] = {}
         self._butler_factory: LabeledButlerFactory | None = None
         self._events: Events | None = None
 
@@ -72,9 +73,10 @@ class ContextDependency:
     ) -> RequestContext:
         if not self._events:
             raise RuntimeError("Context dependency not initialized")
-        if not self._butler_factory:
-            butler_repositories = await discovery.butler_repositories()
-            self._butler_factory = LabeledButlerFactory(butler_repositories)
+        repositories = await discovery.butler_repositories()
+        if not self._butler_factory or repositories != self._repositories:
+            self._butler_factory = LabeledButlerFactory(repositories)
+            self._repositories = repositories
         bound_factory = self._butler_factory.bind(access_token=token)
         factory = Factory(bound_factory, discovery, logger)
         return RequestContext(
