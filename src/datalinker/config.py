@@ -20,6 +20,14 @@ class Config(BaseSettings):
         env_prefix="DATALINKER_", case_sensitive=False
     )
 
+    download_path_prefix: Annotated[
+        str,
+        Field(
+            title="URL prefix for downloads",
+            description="This prefix is used for direct download routes",
+        ),
+    ] = "/download"
+
     links_lifetime: Annotated[
         HumanTimedelta,
         Field(

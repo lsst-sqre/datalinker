@@ -26,6 +26,7 @@ from safir.slack.webhook import SlackRouteErrorHandler
 from . import __version__
 from .config import config
 from .dependencies.context import context_dependency
+from .handlers.download import download_router
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 
@@ -67,6 +68,7 @@ if config.log_profile == Profile.production:
 # Attach the routers.
 app.include_router(internal_router)
 app.include_router(external_router, prefix=config.path_prefix)
+app.include_router(download_router, prefix=config.download_path_prefix)
 
 # Add the middleware.
 app.add_middleware(CaseInsensitiveFormMiddleware)
