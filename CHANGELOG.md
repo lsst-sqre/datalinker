@@ -6,6 +6,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-4.5.0'></a>
+## 4.5.0 (2026-10-16)
+
+### New features
+
+- Add a new download route at `/download` that takes an IVOID and returns a redirect to the underlying signed URL. This performs the same underlying Butler query as the {links} response.
+
 <a id='changelog-4.4.1'></a>
 ## 4.4.1 (2026-07-24)
 
